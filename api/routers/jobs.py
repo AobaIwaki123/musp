@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime, timezone
-from time import sleep
 from typing import Dict
 
 from fastapi import APIRouter, HTTPException, WebSocket
@@ -63,14 +62,10 @@ def get_separated_audio(job_id: str, track: str):
     if job_id not in jobs:
         raise HTTPException(status_code=404, detail="Job not found")
     if track not in ["vocal", "instrumental"]:
-        raise HTTPException(
-            status_code=400, detail="Invalid track type"
-        )
+        raise HTTPException(status_code=400, detail="Invalid track type")
 
     # モックのS3 URLを返す
-    jobs[job_id]["s3_url"] = (
-        f"https://s3.example.com/{job_id}/{track}.mp3"
-    )
+    jobs[job_id]["s3_url"] = f"https://s3.example.com/{job_id}/{track}.mp3"
     return {"s3_url": jobs[job_id]["s3_url"]}
 
 
@@ -88,9 +83,7 @@ async def websocket_job_status(websocket: WebSocket, job_id: str):
         JobStatus.PROCESSING,
     ]:
         job = jobs[job_id]
-        await websocket.send_json(
-            {"job_id": job_id, "status": job["status"]}
-        )
+        await websocket.send_json({"job_id": job_id, "status": job["status"]})
     await websocket.close()
 
 

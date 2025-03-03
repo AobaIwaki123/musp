@@ -3,7 +3,7 @@ import subprocess
 from models.job import Job
 
 
-async def fetch_source(job: Job) -> bool:
+def fetch_source(job: Job) -> bool:
     url = job.youtube_url
     job_id = job.job_id
     tmp_path = f"tmp/{job_id}/source.mp4"
@@ -13,4 +13,5 @@ async def fetch_source(job: Job) -> bool:
         capture_output=True,
         text=True,
     )
+
     return True

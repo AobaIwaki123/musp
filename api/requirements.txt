@@ -3,3 +3,4 @@ uvicorn
 websockets
 demucs
 yt-dlp
+soundfile
