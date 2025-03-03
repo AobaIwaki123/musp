@@ -11,15 +11,15 @@ from modules.fetch_source import fetch_source
 
 router = APIRouter()
 
-jobs: Dict[str, Dict] = {
-    "ff45aa91-ce04-43b0-8705-3e3099d6de72": {
-        "job_id": "ff45aa91-ce04-43b0-8705-3e3099d6de72",
-        "status": JobStatus.COMPLETED,
-        "youtube_url": "https://www.youtube.com/watch?v=6JYIGclVQdw",
-        "s3_url": "https://s3.example.com/ff45aa91-ce04-43b0-8705-3e3099d6de72/vocal.mp3",
-        "created_at": "2025-03-03T12:00:00Z",
-        "updated_at": "2025-03-03T12:00:00Z",
-    }
+jobs: Dict[str, Job] = {
+    "ff45aa91-ce04-43b0-8705-3e3099d6de72": Job(
+        job_id="ff45aa91-ce04-43b0-8705-3e3099d6de72",
+        status=JobStatus.PENDING,
+        youtube_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        s3_url="https://s3.example.com/ff45aa91-ce04-43b0-8705-3e3099d6de72/vocal.mp3",
+        created_at="2025-03-03T12:00:00Z",
+        updated_at="2025-03-03T12:00:00Z",
+    ).model_dump(),
 }
 
 
@@ -83,17 +83,14 @@ async def websocket_job_status(websocket: WebSocket, job_id: str):
         raise HTTPException(status_code=404, detail="Job not found")
 
     await websocket.accept()
-    for status in [JobStatus.PENDING, JobStatus.PROCESSING]:
-        jobs[job_id]["status"] = status
+    while jobs[job_id]["status"] in [
+        JobStatus.PENDING,
+        JobStatus.PROCESSING,
+    ]:
+        job = jobs[job_id]
         await websocket.send_json(
-            {"job_id": job_id, "status": status}
+            {"job_id": job_id, "status": job["status"]}
         )
-        sleep(5)
-        if status == JobStatus.PROCESSING:
-            break
-    await websocket.send_json(
-        {"job_id": job_id, "status": JobStatus.COMPLETED}
-    )
     await websocket.close()
 
 
