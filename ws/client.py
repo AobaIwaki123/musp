@@ -2,9 +2,9 @@ import asyncio
 import websockets
 import json
 
-API_KEY = "my-secret-key"
-JOB_ID = "1"
-URL = f"ws://localhost:8000/ws/jobs/{JOB_ID}"
+API_KEY = "a"
+JOB_ID = "ff45aa91-ce04-43b0-8705-3e3099d6de72"
+URL = f"ws://localhost:8000/api/v1/ws/jobs/{JOB_ID}"
 
 
 async def listen():
