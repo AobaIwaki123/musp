@@ -8,6 +8,8 @@ from models.job_create_request import JobCreateRequest
 from models.job_status import JobStatus
 from modules.fetch_source import fetch_source
 from modules.separate_source import separate_source
+from modules.upload_source import upload_source
+from modules.get_download_link import get_download_link
 
 router = APIRouter()
 
@@ -43,7 +45,13 @@ def create_job(request: JobCreateRequest):
     print(f"Created job {job_id}")
     update_job_status(job_id, JobStatus.PROCESSING)
     fetch_source(job)
+    print(f"Fetched source for job {job_id}")
     separate_source(job)
+    print(f"Separated source for job {job_id}")
+    upload_source(job)
+    print(f"Uploaded source for job {job_id}")
+    url = get_download_link(job)
+    job["s3_url"] = url
     update_job_status(job_id, JobStatus.COMPLETED)
     return jobs[job_id]
 

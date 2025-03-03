@@ -4,3 +4,4 @@ websockets
 demucs
 yt-dlp
 soundfile
+google.cloud.storage

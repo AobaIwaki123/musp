@@ -5,8 +5,11 @@ services:
     container_name: api
     volumes:
       - ./api:/app
+      - ~/zennaihackason-552e64c1d8d1.json:/app/zennaihackason-552e64c1d8d1.json
     ports:
       - 8000:8000
     command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/secret/zennaihackason-552e64c1d8d1.json
     env_file:
       ./api/.env

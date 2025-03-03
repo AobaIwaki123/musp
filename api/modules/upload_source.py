@@ -1,4 +1,7 @@
-import subprocess
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from google.cloud import storage
 from models.job import Job
@@ -10,7 +13,7 @@ def upload_source(job: Job) -> bool:
 
     bucket_name = "musp"
     destination_blob_name = f"{job_id}/vocals.wav"
-    
+
     upload_blob(bucket_name, source_path, destination_blob_name)
 
     return True
@@ -38,5 +41,13 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     generation_match_precondition = 0
 
     blob.upload_from_filename(
-        source_file_name, if_generation_match=generation_match_precondition
+        source_file_name,
+        if_generation_match=generation_match_precondition,
+    )
+
+if __name__ == "__main__":
+    result = upload_blob(
+        "musp",
+        "tmp/67b121dc-2ecd-48e5-9c09-888b08ec1433/separated/htdemucs/source/vocals.wav",
+        "kunugi/test3.wav",
     )
