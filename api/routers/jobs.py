@@ -62,15 +62,15 @@ def get_separated_audio(job_id: str, track: str):
 
 
 # WebSocketによるジョブ進捗確認
-@router.websocket(
-    "/ws/jobs/{job_id}", dependencies=[Security(check_key)]
-)
-def websocket_job_status(websocket: WebSocket, job_id: str):
-    if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    websocket.accept()
-    for status in ["processing", "completed"]:
-        jobs[job_id]["status"] = status
-        websocket.send_json({"job_id": job_id, "status": status})
-    websocket.close()
+# @router.websocket(
+#     "/ws/jobs/{job_id}", dependencies=[Security(check_key)]
+# )
+# def websocket_job_status(websocket: WebSocket, job_id: str):
+#     if job_id not in jobs:
+#         raise HTTPException(status_code=404, detail="Job not found")
+# 
+#     websocket.accept()
+#     for status in ["processing", "completed"]:
+#         jobs[job_id]["status"] = status
+#         websocket.send_json({"job_id": job_id, "status": status})
+#     websocket.close()
