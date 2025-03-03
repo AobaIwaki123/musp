@@ -90,7 +90,7 @@ async def websocket_job_status(websocket: WebSocket, job_id: str):
         )
         sleep(5)
         if status == JobStatus.PROCESSING:
-
+            break
     await websocket.send_json(
         {"job_id": job_id, "status": JobStatus.COMPLETED}
     )
