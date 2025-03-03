@@ -1,3 +1,6 @@
+import datetime
+import os
+
 from google.cloud import storage
 from google.oauth2 import service_account
 from models.job import Job
@@ -26,9 +29,10 @@ def generate_download_signed_url_v4(
     Returns:
         str: 署名付きURL
     """
+    credential_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     credentials = (
         service_account.Credentials.from_service_account_file(
-            "/home/aiwaki/zennaihackason-552e64c1d8d1.json"
+            credential_path
         )
     )
 
