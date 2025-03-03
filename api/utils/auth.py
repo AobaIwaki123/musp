@@ -3,11 +3,8 @@ import os
 from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 
-api_access_id = "X-API-KEY"
-if api_access_id is None:
-    raise ValueError("API_KEY is not set")
 api_key_header = APIKeyHeader(
-    name=api_access_id
+    name="X-API-KEY"
 )  # リクエストヘッダーからAPIキーを取得する際に使用(APIキーのヘッダーはapi_access_id)
 
 
