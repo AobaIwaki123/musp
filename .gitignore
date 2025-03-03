@@ -2,7 +2,7 @@
 __pycache__/
 
 # Env
-*.env
+.env
 
 # Mac
 .DS_Store
