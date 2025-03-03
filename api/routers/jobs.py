@@ -7,6 +7,7 @@ from models.job import Job
 from models.job_create_request import JobCreateRequest
 from models.job_status import JobStatus
 from modules.fetch_source import fetch_source
+from modules.separate_source import separate_source
 
 router = APIRouter()
 
@@ -39,7 +40,11 @@ def create_job(request: JobCreateRequest):
         updated_at="2025-03-03T12:00:00Z",
     )
     jobs[job_id] = job.model_dump()
+    print(f"Created job {job_id}")
+    update_job_status(job_id, JobStatus.PROCESSING)
     fetch_source(job)
+    separate_source(job)
+    update_job_status(job_id, JobStatus.COMPLETED)
     return jobs[job_id]
 
 

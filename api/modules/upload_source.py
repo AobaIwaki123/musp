@@ -3,11 +3,10 @@ import subprocess
 from models.job import Job
 
 
-def fetch_source(job: Job) -> bool:
-    url = job.youtube_url
+def upload_source(job: Job) -> bool:
     job_id = job.job_id
-    tmp_path = f"tmp/{job_id}/source"
-    
+    source_path = f"tmp/{job_id}/source.mp4"
+
     subprocess.run(
         ["yt-dlp", url, "-o", tmp_path],
         capture_output=True,
