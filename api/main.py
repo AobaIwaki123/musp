@@ -2,14 +2,13 @@ from __future__ import annotations
 
 # Utils
 # FastAPI
-from fastapi import FastAPI, Security
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Routes
 from routers.jobs import router as jobs_router
 
 # Auth
-from utils.auth import check_key
 
 app = FastAPI(
     title="MuSP API",
@@ -32,7 +31,9 @@ app.add_middleware(
 
 
 # Root API for health check
-@app.get("/", dependencies=[Security(check_key)])
+@app.get(
+    "/",
+)
 def read_root():
     return "MuSP API is running!"
 

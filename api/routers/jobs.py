@@ -1,24 +1,32 @@
 import uuid
 from datetime import datetime, timezone
+from time import sleep
 from typing import Dict
 
-from fastapi import APIRouter, HTTPException, Security, WebSocket
+from fastapi import APIRouter, HTTPException, WebSocket
 from models.job import Job
 from models.job_create_request import JobCreateRequest
 from models.job_status import JobStatus
 from modules.fetch_source import fetch_source
-from utils.auth import check_key
 
 router = APIRouter()
 
-jobs: Dict[str, Dict] = {}
+jobs: Dict[str, Dict] = {
+    "ff45aa91-ce04-43b0-8705-3e3099d6de72": {
+        "job_id": "ff45aa91-ce04-43b0-8705-3e3099d6de72",
+        "status": JobStatus.COMPLETED,
+        "youtube_url": "https://www.youtube.com/watch?v=6JYIGclVQdw",
+        "s3_url": "https://s3.example.com/ff45aa91-ce04-43b0-8705-3e3099d6de72/vocal.mp3",
+        "created_at": "2025-03-03T12:00:00Z",
+        "updated_at": "2025-03-03T12:00:00Z",
+    }
+}
 
 
 # ジョブ作成エンドポイント
 @router.post(
     "/jobs",
     response_model=Job,
-    dependencies=[Security(check_key)],
 )
 def create_job(request: JobCreateRequest):
     job_id = str(uuid.uuid4())
@@ -40,7 +48,6 @@ def create_job(request: JobCreateRequest):
 @router.get(
     "/jobs/{job_id}",
     response_model=Job,
-    dependencies=[Security(check_key)],
 )
 def get_job_status(job_id: str):
     if job_id not in jobs:
@@ -50,7 +57,7 @@ def get_job_status(job_id: str):
 
 # 分離された音源の取得（S3 URLを返す）
 @router.get(
-    "/jobs/{job_id}/{track}", dependencies=[Security(check_key)]
+    "/jobs/{job_id}/{track}",
 )
 def get_separated_audio(job_id: str, track: str):
     if job_id not in jobs:
@@ -69,17 +76,25 @@ def get_separated_audio(job_id: str, track: str):
 
 # WebSocketによるジョブ進捗確認
 @router.websocket(
-    "/ws/jobs/{job_id}", dependencies=[Security(check_key)]
+    "/ws/jobs/{job_id}",
 )
-def websocket_job_status(websocket: WebSocket, job_id: str):
+async def websocket_job_status(websocket: WebSocket, job_id: str):
     if job_id not in jobs:
         raise HTTPException(status_code=404, detail="Job not found")
 
-    websocket.accept()
+    await websocket.accept()
     for status in [JobStatus.PENDING, JobStatus.PROCESSING]:
         jobs[job_id]["status"] = status
-        websocket.send_json({"job_id": job_id, "status": status})
-    websocket.close()
+        await websocket.send_json(
+            {"job_id": job_id, "status": status}
+        )
+        sleep(5)
+        if status == JobStatus.PROCESSING:
+
+    await websocket.send_json(
+        {"job_id": job_id, "status": JobStatus.COMPLETED}
+    )
+    await websocket.close()
 
 
 def update_job_status(job_id: str, new_status: JobStatus):
