@@ -2,6 +2,7 @@ import uuid
 from typing import Dict
 
 from fastapi import APIRouter, HTTPException, Security
+from models.job import Job
 from models.job_create_request import JobCreateRequest
 from models.job_response import JobResponse
 from utils.auth import check_key
@@ -19,14 +20,15 @@ jobs: Dict[str, Dict] = {}
 )
 def create_job(request: JobCreateRequest):
     job_id = str(uuid.uuid4())
-    jobs[job_id] = {
-        "job_id": job_id,
-        "status": "pending",
-        "youtube_url": str(request.youtube_url),
-        "s3_url": None,
-        "created_at": "2025-03-03T12:00:00Z",
-        "updated_at": "2025-03-03T12:00:00Z",
-    }
+    job = Job(
+        job_id=job_id,
+        status="pending",
+        youtube_url=str(request.youtube_url),
+        s3_url=None,
+        created_at="2025-03-03T12:00:00Z",
+        updated_at="2025-03-03T12:00:00Z",
+    )
+    jobs[job_id] = job.dict()
     return jobs[job_id]
 
 
