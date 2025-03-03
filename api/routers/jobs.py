@@ -1,7 +1,7 @@
 import uuid
 from typing import Dict
 
-from fastapi import APIRouter, HTTPException, Security, WebSocket
+from fastapi import APIRouter, HTTPException, Security
 from models.job_create_request import JobCreateRequest
 from models.job_response import JobResponse
 from utils.auth import check_key
@@ -68,7 +68,7 @@ def get_separated_audio(job_id: str, track: str):
 # def websocket_job_status(websocket: WebSocket, job_id: str):
 #     if job_id not in jobs:
 #         raise HTTPException(status_code=404, detail="Job not found")
-# 
+#
 #     websocket.accept()
 #     for status in ["processing", "completed"]:
 #         jobs[job_id]["status"] = status
