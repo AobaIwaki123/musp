@@ -17,3 +17,13 @@
 - TypeScript
   - React: フロントエンド
 - OpenAPI: API仕様書
+
+# OpenAPI YAMLからコードを生成するコマンド
+
+```sh
+$ fastapi-codegen --input openapi.yaml --output api --output-model-type pydantic_v2.BaseModel --model-file models/generated_model -p 3.11
+```
+
+## 注意！
+
+`from models.generated_model import Job, JobsPostRequest, JobsPostResponse, Track`はなぜか、`from .models import ...`で出力されるため修正が必要。
