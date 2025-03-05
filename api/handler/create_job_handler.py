@@ -14,7 +14,7 @@ def create_job_hander(job_id: str, youtube_url: HttpUrl) -> Job:
         job_id=job_id,
         status=JobStatus.PENDING,
         youtube_url=youtube_url,
-        s3_url=None,
+        download_link=None,
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )
@@ -26,5 +26,5 @@ def create_job_hander(job_id: str, youtube_url: HttpUrl) -> Job:
     upload_source(job)
     print(f"Uploaded source for job {job_id}")
     url = get_download_link(job)
-    job.update_s3_url(url)
+    job.update_download_link(url)
     return job

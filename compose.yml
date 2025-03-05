@@ -2,10 +2,10 @@ services:
   api:
     build:
       context: api
+      target: dev
     container_name: api
     volumes:
       - ./api:/app
-      - ~/zennaihackason-552e64c1d8d1.json:/app/zennaihackason-552e64c1d8d1.json
     ports:
       - 8000:8000
     command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
@@ -16,14 +16,16 @@ services:
     depends_on:
       - redis
 
-  celery:
-    build:
-      context: api
-    container_name: celery
-    working_dir: /app/celery
-    command: celery -A celery_app worker --loglevel=info
-    depends_on:
-      - redis
+  # celery:
+  #   build:
+  #     context: api
+  #   container_name: celery
+  #   volumes:
+  #     - ./api:/app
+  #   working_dir: /app/celery
+  #   command: celery -A celery_app worker --loglevel=info
+  #   depends_on:
+  #     - redis
 
   redis:
     image: redis:7.4

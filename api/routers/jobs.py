@@ -1,7 +1,7 @@
-import uuid
 from datetime import datetime, timezone
 from typing import Dict
 
+# from celery.job_task import job_task
 from fastapi import APIRouter, HTTPException, WebSocket
 from handler.create_job_handler import create_job_hander
 from models.job import Job
@@ -15,7 +15,7 @@ jobs: Dict[str, Job] = {
         job_id="ff45aa91-ce04-43b0-8705-3e3099d6de72",
         status=JobStatus.PENDING,
         youtube_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        s3_url="https://s3.example.com/ff45aa91-ce04-43b0-8705-3e3099d6de72/vocal.mp3",
+        download_link="https://s3.example.com/ff45aa91-ce04-43b0-8705-3e3099d6de72/vocal.mp3",
         created_at="2025-03-03T12:00:00Z",
         updated_at="2025-03-03T12:00:00Z",
     ).model_dump(),
@@ -28,22 +28,8 @@ jobs: Dict[str, Job] = {
     response_model=Job,
 )
 def create_job(request: JobCreateRequest):
-    job_id = str(uuid.uuid4())
-    youtube_url = str(request.youtube_url)
-    print(f"Creating job {job_id}")
-    job = Job(
-        job_id=job_id,
-        status=JobStatus.PENDING,
-        youtube_url=youtube_url,
-        s3_url=None,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
-    ) # TODO: Jobはいずれ別の方法で管理する
-    jobs[job_id] = job.model_dump()
-    update_job_status(job_id, JobStatus.PROCESSING)
-    job = create_job_hander(job_id, youtube_url)
-    update_job_status(job_id, JobStatus.COMPLETED)
-    return job
+    # job_task(request.youtube_url)
+    return jobs["ff45aa91-ce04-43b0-8705-3e3099d6de72"]
 
 
 # ジョブ状態確認エンドポイント
@@ -70,10 +56,10 @@ def get_separated_audio(job_id: str, track: str):
         )
 
     # モックのS3 URLを返す
-    jobs[job_id]["s3_url"] = (
+    jobs[job_id]["download_link"] = (
         f"https://s3.example.com/{job_id}/{track}.mp3"
     )
-    return {"s3_url": jobs[job_id]["s3_url"]}
+    return {"download_link": jobs[job_id]["download_link"]}
 
 
 # WebSocketによるジョブ進捗確認
