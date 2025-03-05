@@ -1,9 +1,16 @@
+import asyncio
 from datetime import datetime, timezone
 from typing import Dict
 
-# from celery.job_task import job_task
-from fastapi import APIRouter, HTTPException, WebSocket
-from handler.create_job_handler import create_job_hander
+from celery.result import AsyncResult
+from celery_app.celery_app import app
+from celery_app.job_task import job_task
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from models.job import Job
 from models.job_create_request import JobCreateRequest
 from models.job_status import JobStatus
@@ -25,22 +32,31 @@ jobs: Dict[str, Job] = {
 # ジョブ作成エンドポイント
 @router.post(
     "/jobs",
-    response_model=Job,
+    response_model=None,
 )
 def create_job(request: JobCreateRequest):
-    # job_task(request.youtube_url)
-    return jobs["ff45aa91-ce04-43b0-8705-3e3099d6de72"]
+    try:
+        # タスクを非同期で起動
+        result = job_task.delay(str(request.youtube_url))
+        return {"message": "Task launched", "job_id": result.id}
+    except Exception:
+        raise HTTPException(status_code=500)
 
 
 # ジョブ状態確認エンドポイント
 @router.get(
     "/jobs/{job_id}",
-    response_model=Job,
+    response_model=None,
 )
 def get_job_status(job_id: str):
-    if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job not found")
-    return jobs[job_id]
+    print(job_id)
+    print("Result backend:", app.conf.result_backend)
+    print("Task ignore result:", app.conf.task_ignore_result)
+    try:
+        result = AsyncResult(job_id, app=app)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"status": result.state}
 
 
 # 分離された音源の取得（S3 URLを返す）
@@ -67,19 +83,27 @@ def get_separated_audio(job_id: str, track: str):
     "/ws/jobs/{job_id}",
 )
 async def websocket_job_status(websocket: WebSocket, job_id: str):
-    if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job not found")
-
     await websocket.accept()
-    while jobs[job_id]["status"] in [
-        JobStatus.PENDING,
-        JobStatus.PROCESSING,
-    ]:
-        job = jobs[job_id]
-        await websocket.send_json(
-            {"job_id": job_id, "status": job["status"]}
-        )
-    await websocket.close()
+    try:
+        while True:
+            # タスクの状態をポーリング
+            result = AsyncResult(job_id)
+            status = result.state
+            info = result.info
+
+            # WebSocketで状態をJSON形式で送信
+            await websocket.send_json(
+                {"status": status, "info": info}
+            )
+
+            # タスクが完了（SUCCESSまたはFAILURE）したらループを抜ける
+            if status in ("SUCCESS", "FAILURE"):
+                break
+
+            # 1秒待機してから再度チェック
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        print(f"WebSocket disconnected for task_id: {job_id}")
 
 
 def update_job_status(job_id: str, new_status: JobStatus):

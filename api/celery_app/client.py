@@ -4,7 +4,7 @@ from job_task import job_task
 
 # タスクを非同期実行（youtube_urlには適切なURLを指定）
 result = job_task.delay("https://www.youtube.com/watch?v=example")
-
+print(result.id)
 # タスクが完了するまで、1秒ごとに状態と情報を確認
 while not result.ready():
     print("State:", result.state)

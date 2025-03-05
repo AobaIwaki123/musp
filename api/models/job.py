@@ -12,7 +12,7 @@ from pydantic import BaseModel, HttpUrl
 class Job(BaseModel):
     job_id: str
     status: JobStatus
-    youtube_url: HttpUrl
+    youtube_url: str
     download_link: Optional[str]
     created_at: datetime
     updated_at: datetime
