@@ -1,12 +1,12 @@
 openapi: 3.0.0
 info:
   title: MuSP API
-  version: "1.1.0"
+  version: "1.0.0"
   description: |
     MuSPは、YouTubeリンクから音源をダウンロードし、Demucsで音源とボーカルを分離するWebアプリです。
     本API仕様書は、ジョブの作成、状態確認、分離済み音源の取得を提供します。
 servers:
-  - url: http://localhost:8000
+  - url: http://localhost:8000/api/v1
 
 security:
   - ApiKeyAuth: []
@@ -15,8 +15,7 @@ paths:
   /jobs:
     post:
       summary: 新規ジョブの作成
-      description: |
-        YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。
+      description: YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -52,14 +51,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /jobs/{jobId}:
+
+  /jobs/{job_id}:
     get:
       summary: ジョブの状態確認
-      description: 指定されたジョブIDの状態と詳細情報を取得します。
+      description: 指定されたジョブIDの状態を取得します。
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: jobId
+        - name: job_id
           in: path
           description: ジョブの識別子
           required: true
@@ -71,37 +71,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Job"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: ジョブの現在の状態
         "404":
           description: ジョブが見つかりませんでした
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /jobs/{jobId}/{track}:
+
+  /url/{job_id}:
     get:
       summary: 分離された音源の取得
-      description: |
-        指定されたジョブIDから、分離された音源のS3 URLを取得します。
-        trackパラメータには「vocal」または「instrumental」を指定してください。
+      description: 分離された音源のS3 URLを取得します。
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: jobId
+        - name: job_id
           in: path
           description: ジョブの識別子
           required: true
           schema:
             type: string
-        - name: track
-          in: path
-          description: 取得する音源の種類（vocalまたはinstrumental）
-          required: true
-          schema:
-            type: string
-            enum:
-              - vocal
-              - instrumental
       responses:
         "200":
           description: 音源ファイルのS3 URLを返却
@@ -110,7 +104,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  download_link:
+                  url:
                     type: string
                     format: uri
                     description: 音源のS3 URL
@@ -120,13 +114,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /ws/jobs/{jobId}:
+
+  /ws/jobs/{job_id}:
     get:
       summary: ジョブの進捗状況をWebSocketで取得
-      description: |
-        WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。
+      description: WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。
       parameters:
-        - name: jobId
+        - name: job_id
           in: path
           description: ジョブの識別子
           required: true
@@ -145,27 +139,6 @@ components:
       in: header
       name: X-API-KEY
   schemas:
-    Job:
-      type: object
-      properties:
-        job_id:
-          type: string
-          description: ジョブの識別子
-        status:
-          type: string
-          description: ジョブの現在の状態
-          enum: [pending, processing, completed, failed]
-        youtube_url:
-          type: string
-          description: 入力されたYouTubeリンク
-        created_at:
-          type: string
-          format: date-time
-          description: ジョブ作成日時
-        updated_at:
-          type: string
-          format: date-time
-          description: ジョブ更新日時
     ErrorResponse:
       type: object
       properties:
