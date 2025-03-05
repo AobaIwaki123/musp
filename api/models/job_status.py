@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class JobStatus(str, Enum):
-    PENDING = "pending"
-    FETCHING = "fetching"
-    PROCESSING = "processing"
-    UPLOADING = "uploading"
-    COMPLETED = "completed"
-    FAILED = "failed"
+    PENDING = "PENDING"
+    FETCHING = "FETCHING"
+    PROCESSING = "PROCESSING"
+    UPLOADING = "UPLOADING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"

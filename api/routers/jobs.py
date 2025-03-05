@@ -1,5 +1,4 @@
 import asyncio
-from datetime import datetime, timezone
 from typing import Dict
 
 from celery.result import AsyncResult
@@ -64,7 +63,9 @@ def get_separated_audio(job_id: str):
     try:
         result = AsyncResult(job_id, app=app)
         if result.state != "SUCCESS":
-            raise HTTPException(status_code=404, detail="Job not completed yet")
+            raise HTTPException(
+                status_code=404, detail="Job not completed yet"
+            )
         job_dict = result.info
         return {"url": job_dict["download_link"]}
     except Exception as e:
@@ -76,18 +77,19 @@ def get_separated_audio(job_id: str):
     "/ws/jobs/{job_id}",
 )
 async def websocket_job_status(websocket: WebSocket, job_id: str):
+    print(f"WebSocket connected for task_id: {job_id}")
     await websocket.accept()
+
     try:
         while True:
             # タスクの状態をポーリング
             result = AsyncResult(job_id)
             status = result.state
             info = result.info
+            print("Task Info:", info)
 
             # WebSocketで状態をJSON形式で送信
-            await websocket.send_json(
-                {"status": status, "info": info}
-            )
+            await websocket.send_json({"status": status})
 
             # タスクが完了（SUCCESSまたはFAILURE）したらループを抜ける
             if status in ("SUCCESS", "FAILURE"):
@@ -98,32 +100,4 @@ async def websocket_job_status(websocket: WebSocket, job_id: str):
     except WebSocketDisconnect:
         print(f"WebSocket disconnected for task_id: {job_id}")
 
-
-def update_job_status(job_id: str, new_status: JobStatus):
-    if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    current_status = jobs[job_id]["status"]
-
-    # 不正なステータス遷移を防ぐ
-    valid_transitions = {
-        JobStatus.PENDING: [JobStatus.PROCESSING],
-        JobStatus.PROCESSING: [
-            JobStatus.COMPLETED,
-            JobStatus.FAILED,
-        ],
-        JobStatus.COMPLETED: [],
-        JobStatus.FAILED: [],
-    }
-
-    if new_status not in valid_transitions[current_status]:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid status transition from {current_status} to {new_status}",
-        )
-
-    # 安全にジョブの状態を更新
-    jobs[job_id]["status"] = new_status
-    jobs[job_id]["updated_at"] = datetime.now(timezone.utc)
-
-    return jobs[job_id]
+    await websocket.close()
