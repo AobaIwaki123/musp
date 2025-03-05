@@ -13,3 +13,20 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/secret/zennaihackason-552e64c1d8d1.json
     env_file:
       ./api/.env
+    depends_on:
+      - redis
+
+  celery:
+    build:
+      context: api
+    container_name: celery
+    working_dir: /app/celery
+    command: celery -A celery_app worker --loglevel=info
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7.4
+    container_name: redis
+    ports:
+      - 6379:6379

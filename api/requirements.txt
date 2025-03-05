@@ -1,7 +1,8 @@
 fastapi
 uvicorn
 websockets
-demucs
 yt-dlp
 soundfile
 google.cloud.storage
+celery
+redis
