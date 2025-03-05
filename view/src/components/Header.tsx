@@ -7,7 +7,7 @@ export const Header = () => {
 			<div className="container mx-auto flex items-center justify-between px-4">
 				<Link href="/">
 					<h1 className=" text-amber-50 text-2xl font-extrabold italic tracking-wide cursor-pointer hover:text-yellow-200 transition-colors duration-300">
-						推し麺ノート
+						Musp
 					</h1>
 				</Link>
 				<nav>

@@ -21,3 +21,6 @@ restart:
 
 logs:
 	@docker compose logs -f
+
+lint:
+	@docker -v ./view/:/code ghcr.io/biomejs/biome:1.9.4 lint
