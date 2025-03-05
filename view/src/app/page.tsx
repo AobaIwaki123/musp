@@ -172,7 +172,7 @@ export default function Home() {
 																className="cursor-pointer w-20 h-20 bg-gray-200 rounded-full"
 															>
 																<Card className="flex items-center justify-center p-1 w-28 h-10 bg-gray-800 m-1 text-white text-center">
-																	投稿
+																	曲を追加
 																</Card>
 															</label>
 															{/* 実際のファイル入力は非表示 */}
