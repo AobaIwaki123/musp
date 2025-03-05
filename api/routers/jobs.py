@@ -39,8 +39,8 @@ def create_job(request: JobCreateRequest):
         # タスクを非同期で起動
         result = job_task.delay(str(request.youtube_url))
         return {"message": "Task launched", "job_id": result.id}
-    except Exception:
-        raise HTTPException(status_code=500)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ジョブ状態確認エンドポイント
@@ -49,33 +49,26 @@ def create_job(request: JobCreateRequest):
     response_model=None,
 )
 def get_job_status(job_id: str):
-    print(job_id)
-    print("Result backend:", app.conf.result_backend)
-    print("Task ignore result:", app.conf.task_ignore_result)
     try:
         result = AsyncResult(job_id, app=app)
+        return {"status": result.state}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    return {"status": result.state}
 
 
 # 分離された音源の取得（S3 URLを返す）
 @router.get(
-    "/jobs/{job_id}/{track}",
+    "/url/{job_id}",
 )
-def get_separated_audio(job_id: str, track: str):
-    if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job not found")
-    if track not in ["vocal", "instrumental"]:
-        raise HTTPException(
-            status_code=400, detail="Invalid track type"
-        )
-
-    # モックのS3 URLを返す
-    jobs[job_id]["download_link"] = (
-        f"https://s3.example.com/{job_id}/{track}.mp3"
-    )
-    return {"download_link": jobs[job_id]["download_link"]}
+def get_separated_audio(job_id: str):
+    try:
+        result = AsyncResult(job_id, app=app)
+        if result.state != "SUCCESS":
+            raise HTTPException(status_code=404, detail="Job not completed yet")
+        job_dict = result.info
+        return {"url": job_dict["download_link"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # WebSocketによるジョブ進捗確認
