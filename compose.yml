@@ -8,7 +8,7 @@ services:
     working_dir: /app
     volumes:
       - ./view:/app
-      # - ./view/.pnpm-store:/app/.pnpm-store
+      - ./view/.pnpm-store:/app/.pnpm-store
     ports:
       - 3000:3000
     env_file:

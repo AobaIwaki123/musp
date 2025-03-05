@@ -17,5 +17,7 @@ EXPOSE 3000
 
 # パッケージファイルをコピーして依存関係をインストール
 COPY package.json pnpm-lock.yaml ./
-# 
+
+RUN pnpm install
+
 CMD ["pnpm","dev"]
