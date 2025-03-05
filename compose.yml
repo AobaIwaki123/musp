@@ -16,16 +16,16 @@ services:
     depends_on:
       - redis
 
-  # celery:
-  #   build:
-  #     context: api
-  #   container_name: celery
-  #   volumes:
-  #     - ./api:/app
-  #   working_dir: /app/celery
-  #   command: celery -A celery_app worker --loglevel=info
-  #   depends_on:
-  #     - redis
+  celery:
+    build:
+      context: api
+    container_name: celery
+    volumes:
+      - ./api:/app
+    working_dir: /app/celery
+    command: celery -A celery_app worker --loglevel=info
+    depends_on:
+      - redis
 
   redis:
     image: redis:7.4
