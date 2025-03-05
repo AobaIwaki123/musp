@@ -1,4 +1,4 @@
-from celery_app import sample_task
+from job_task import sample_task
 
 # 1. タスクの送信
 result = sample_task.delay(10, 20)
