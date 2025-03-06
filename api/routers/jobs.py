@@ -13,6 +13,7 @@ from fastapi import (
 from models.job import Job, get_youtube_thumbnail_url
 from models.job_create_request import JobCreateRequest
 from models.job_status import JobStatus
+from modules.get_download_link import get_download_link
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ jobs: Dict[str, Job] = {
         download_link="https://s3.example.com/ff45aa91-ce04-43b0-8705-3e3099d6de72/vocal.mp3",
         created_at="2025-03-03T12:00:00Z",
         updated_at="2025-03-03T12:00:00Z",
-    ).model_dump(),
+    ).to_dict(),
 }
 
 
@@ -66,11 +67,31 @@ def get_separated_audio(job_id: str):
             raise HTTPException(
                 status_code=404, detail="Job not completed yet"
             )
-        job_dict = result.info
+        job = Job.reconstruct(result.info)
+        url = get_download_link(job)
         return {
             "job_id": job_id,
-            "url": job_dict["download_link"], 
-            "thumbnail": get_youtube_thumbnail_url(job_dict["youtube_url"])}
+            "url": url,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get(
+    "/thumbnail/{job_id}",
+)
+def get_thumbnail(job_id: str):
+    try:
+        result = AsyncResult(job_id, app=app)
+        job = Job.reconstruct(result.info)
+        video_id = job.get_youtube_video_id()
+        if video_id is None:
+            raise HTTPException(status_code=404, detail="Video ID not found")
+        thumbnail_url = get_youtube_thumbnail_url(video_id)
+        return {
+            job_id: job_id,
+            "thumbnail_url": thumbnail_url,
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

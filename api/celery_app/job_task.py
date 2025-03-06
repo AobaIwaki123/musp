@@ -21,17 +21,17 @@ def job_task(self, youtube_url: str) -> dict:
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )
-    self.update_state(state=JobStatus.FETCHING)
+    self.update_state(state=JobStatus.FETCHING, meta=job.to_dict())
     # fetch_source(job)
     sleep(5)
-    self.update_state(state=JobStatus.PROCESSING)
+    self.update_state(state=JobStatus.PROCESSING, meta=job.to_dict())
     # separate_source(job)
     sleep(5)
-    self.update_state(state=JobStatus.UPLOADING)
+    self.update_state(state=JobStatus.UPLOADING, meta=job.to_dict())
     # upload_source(job)
     sleep(5)
     # url = get_download_link(job)
     url = "new_url"
     job.update_download_link(url)
-    self.update_state(state=JobStatus.COMPLETED)
-    return job.model_dump()
+    self.update_state(state=JobStatus.COMPLETED, meta=job.to_dict())
+    return job.to_dict()

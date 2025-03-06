@@ -15,6 +15,7 @@ import type { RamenGalleryList } from "@/types/RamenGallery";
 import { postSchema } from "@/types/post";
 import type { Post } from "@/types/post";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { headers } from "next/headers";
 import { useEffect, useRef, useState, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 
@@ -48,20 +49,37 @@ export default function Home() {
 
 	const onSubmit = async (data: Post) => {
 		try {
-			const response = await fetch('http://localhost:8000/api/v1/jobs', {
-				method: 'POST',
-				headers: {
-					'accept': 'application/json',
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					youtube_url: data.youtube_url
-				})
-			});
+			const response = await fetch(
+				'http://localhost:8000/api/v1/jobs', 
+				{
+					method: 'POST',
+					headers: {
+						'accept': 'application/json',
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						youtube_url: data.youtube_url
+					})
+				}
+			);
+			const json = await response.json();
+			console.log(json);
+			const job_id = json.job_id;
+			const url = `http://localhost:8000/api/v1/thumbnail/${job_id}`;
+			const res = await fetch(
+				url,
+				{
+					method: 'GET',
+					headers: {
+						'accept': 'application/json'
+					},
+				}
+			);
+			const json2 = await res.json();
+			console.log(json2);
+
 			// window.location.reload();
 			console.log("Request sent");
-			
-
 		} catch (error) {
 			console.error(error);
 		}

@@ -18,6 +18,27 @@ class Job(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+    @staticmethod
+    def reconstruct(job_dict: dict):
+        return Job(
+            job_id=job_dict["job_id"],
+            status=JobStatus(job_dict["status"]),
+            youtube_url=job_dict["youtube_url"],
+            download_link=job_dict["download_link"],
+            created_at=datetime.fromisoformat(job_dict["created_at"]),
+            updated_at=datetime.fromisoformat(job_dict["updated_at"]),
+        )
+
+    def to_dict(self):
+        return {
+            "job_id": self.job_id,
+            "status": self.status.value,
+            "youtube_url": self.youtube_url,
+            "download_link": self.download_link,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
     # S3 URLを更新するメソッド
     def update_download_link(self, download_link: str):
         self.download_link = download_link
@@ -32,8 +53,10 @@ class Job(BaseModel):
         match = regex.search(self.youtube_url)
         return match.group(1) if match else None
 
+
 def get_youtube_thumbnail_url(youtube_video_id: str) -> str:
     return f"https://img.youtube.com/vi/{youtube_video_id}/maxresdefault.jpg"
+
 
 if __name__ == "__main__":
     job = Job(
@@ -48,3 +71,10 @@ if __name__ == "__main__":
         "https://s3.example.com/67b121dc-2ecd-48e5-9c09-888b08ec1433/vocals.mp3"
     )
     print(job)
+    job_dict = job.to_dict()
+    # print(job_dict)
+    print(job_dict["youtube_url"])
+    video_id = job.get_youtube_video_id()
+    print(video_id)
+    if video_id:
+        print(get_youtube_thumbnail_url(video_id))
