@@ -15,23 +15,26 @@ export const Ramen = ({ imageInfo }: RamenGallerysProps) => {
 
 	return (
 		<>
-			<button
-				type="button"
-				onClick={handleOpenModal}
-				className="relative w-full pb-[100%] overflow-hidden cursor-pointer border-0 p-0 group"
-			>
-				<img
-					src={imageInfo.image_url}
-					alt={imageInfo.name}
-					className="absolute inset-0 w-full h-full object-cover"
-				/>
-				<div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-30 transition duration-300" />
-			</button>
-			<RamenModal
-				{...imageInfo}
-				isOpenModal={isOpenModal}
-				setIsOpenModal={setIsOpenModal}
-			/>
+			<div>
+				<button
+					type="button"
+					onClick={handleOpenModal}
+					className="relative w-full pb-[100%] overflow-hidden cursor-pointer border-0 p-0 group"
+				>
+					<img
+						src={imageInfo.image_url}
+						alt={"imageInfo.name"}
+						className="absolute inset-0 w-full h-full object-cover"
+					/>
+					<div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-30 transition duration-300" />
+				</button>
+				<div>
+					<audio controls>
+						<source src={imageInfo.download_url} type="audio/wav" />
+						Your browser does not support the audio element.
+					</audio>
+				</div>
+			</div>
 		</>
 	);
 };

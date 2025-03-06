@@ -14,7 +14,7 @@ export const RamenGallery = ({ gallery }: RamenGallerysProps) => {
 	return (
 		<div className="grid grid-cols-3 gap-0.5">
 			{gallery.map((ramen) => (
-				<Ramen imageInfo={ramen} key={ramen.name} />
+				<Ramen imageInfo={ramen} key={ramen.job_id} />
 			))}
 		</div>
 	);
