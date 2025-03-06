@@ -10,7 +10,7 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
-from models.job import Job
+from models.job import Job, get_youtube_thumbnail_url
 from models.job_create_request import JobCreateRequest
 from models.job_status import JobStatus
 
@@ -67,7 +67,10 @@ def get_separated_audio(job_id: str):
                 status_code=404, detail="Job not completed yet"
             )
         job_dict = result.info
-        return {"url": job_dict["download_link"]}
+        return {
+            "job_id": job_id,
+            "url": job_dict["download_link"], 
+            "thumbnail": get_youtube_thumbnail_url(job_dict["youtube_url"])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -104,10 +104,17 @@ paths:
               schema:
                 type: object
                 properties:
+                  job_id:
+                    type: string
+                    description: ジョブの識別子
                   url:
                     type: string
                     format: uri
                     description: 音源のS3 URL
+                  thumbnail:
+                    type: string
+                    format: uri
+                    description: 音源のサムネイル画像の URL
         "404":
           description: 音源が見つかりませんでした
           content:

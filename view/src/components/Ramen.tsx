@@ -22,7 +22,7 @@ export const Ramen = ({ imageInfo }: RamenGallerysProps) => {
 					className="relative w-full pb-[100%] overflow-hidden cursor-pointer border-0 p-0 group"
 				>
 					<img
-						src={imageInfo.image_url}
+						src={imageInfo.url}
 						alt={"imageInfo.name"}
 						className="absolute inset-0 w-full h-full object-cover"
 					/>
@@ -30,7 +30,7 @@ export const Ramen = ({ imageInfo }: RamenGallerysProps) => {
 				</button>
 				<div>
 					<audio controls>
-						<source src={imageInfo.download_url} type="audio/wav" />
+						<source src={imageInfo.thumbnail} type="audio/wav" />
 						Your browser does not support the audio element.
 					</audio>
 				</div>

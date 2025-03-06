@@ -1,8 +1,9 @@
 import { z } from "zod";
 
 export const ramenGallerySchema = z.object({
-	download_url: z.string(),
-	image_url: z.string(),
+	job_id: z.string(),
+	url: z.string(),
+	thumbnail: z.string(),
 });
 
 export const ramenGalleryListSchema = z.array(ramenGallerySchema);
