@@ -39,6 +39,8 @@ services:
     command: celery -A celery_app.celery_app worker --loglevel=info
     depends_on:
       - redis
+    env_file:
+      ./api/.env
 
   redis:
     image: redis:7.4

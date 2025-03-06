@@ -90,7 +90,7 @@ def get_thumbnail(job_id: str):
         thumbnail_url = get_youtube_thumbnail_url(video_id)
         return {
             job_id: job_id,
-            "thumbnail_url": thumbnail_url,
+            "thumbnail": thumbnail_url,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

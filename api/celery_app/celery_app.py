@@ -13,6 +13,7 @@ app = Celery(
 app.conf.update(
     result_expires=3600,
     task_ignore_result=False,
+    celery_task_always_eager=False,
 )
 
 app.autodiscover_tasks(["celery"])

@@ -8,6 +8,7 @@ from typing import Optional
 
 from models.job_status import JobStatus
 from pydantic import BaseModel
+from urllib.parse import urlparse, parse_qs, urlencode
 
 
 class Job(BaseModel):
@@ -17,6 +18,35 @@ class Job(BaseModel):
     download_link: Optional[str]
     created_at: datetime
     updated_at: datetime
+
+    @staticmethod
+    def create(
+        job_id: str,
+        youtube_url: str,
+        status: JobStatus = JobStatus.PENDING,
+        download_link: Optional[str] = None,
+    ):
+        youtube_url = Job.clean_youtube_url(youtube_url)
+        return Job(
+            job_id=job_id,
+            status=status,
+            youtube_url=youtube_url,
+            download_link=download_link,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+
+    @staticmethod
+    def clean_youtube_url(url: str) -> str:
+        """YouTubeのURLから不要なパラメータを削除して単一動画のURLにする"""
+        parsed_url = urlparse(url)
+        query_params = parse_qs(parsed_url.query)
+
+        # `v=` の値のみを保持し、`list=` や `start_radio=` などは削除
+        new_query = {'v': query_params.get('v', [''])[0]}
+        
+        cleaned_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}?{urlencode(new_query)}"
+        return cleaned_url
 
     @staticmethod
     def reconstruct(job_dict: dict):

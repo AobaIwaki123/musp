@@ -2,7 +2,10 @@ import { z } from "zod";
 
 export const ramenGallerySchema = z.object({
 	job_id: z.string(),
-	url: z.string(),
+	url: z
+	.string()
+	.nullable()
+	, 
 	thumbnail: z.string(),
 });
 
