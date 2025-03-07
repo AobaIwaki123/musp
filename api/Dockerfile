@@ -24,6 +24,6 @@ COPY ./custom-requirements.txt .
 RUN pip install -r custom-requirements.txt
 
 FROM python:3.11 AS service
-WORKDIR /root/app/site-packages
+WORKDIR /root/app
 COPY --from=custom-requirements /venv /venv
 ENV PATH=/venv/bin:$PATH

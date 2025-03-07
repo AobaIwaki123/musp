@@ -20,6 +20,8 @@ services:
       context: api
       target: service
     container_name: api
+    volumes:
+      - ./api/src:/root/app
     ports:
       - 8000:8000
-    command: uvicorn openapi_server.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn openapi_server.main:app --reload --host 0.0.0.0 --port 8000
