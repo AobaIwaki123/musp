@@ -35,6 +35,13 @@ services:
       - ./api/src:/root/app
       - ./secret:/root/secret
     command: watchmedo auto-restart --pattern="*.py" --recursive -- celery -A celery_server.celery_app worker --loglevel=info
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              count: all
+              driver: nvidia
     depends_on:
       - redis
 
@@ -44,15 +51,3 @@ services:
     ports:
       - 6379:6379
 
-  debug:
-    build:
-      context: api
-      target: base
-    working_dir: /root/home
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
-              count: all
-              driver: nvidia
