@@ -1,49 +1,9 @@
 services:
-  view:
-    # image: node:20-alpine
-    build:
-      context: view
-      target: dev
-    container_name: view
-    working_dir: /app
-    volumes:
-      - ./view:/app
-      - ./view/.pnpm-store:/app/.pnpm-store
-    ports:
-      - 3000:3000
-    env_file:
-      ./view/.env
-    command: pnpm dev
-
   api:
     build:
       context: api
-      target: dev
+      target: service
     container_name: api
-    volumes:
-      - ./api:/app
     ports:
       - 8000:8000
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
-    env_file:
-      ./api/.env
-    depends_on:
-      - redis
-
-  celery:
-    build:
-      context: api
-    container_name: celery
-    volumes:
-      - ./api:/app
-    command: celery -A celery_app.celery_app worker --loglevel=info
-    depends_on:
-      - redis
-    env_file:
-      ./api/.env
-
-  redis:
-    image: redis:7.4
-    container_name: redis
-    ports:
-      - 6379:6379
+    command: uvicorn openapi_server.main:app --host 0.0.0.0 --port 8000
