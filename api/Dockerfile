@@ -1,14 +1,30 @@
-FROM python:3.11 AS base
+FROM python:3.7 AS builder
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-COPY requirements.txt requirements-heavy.txt ./
+RUN python3 -m venv /venv
+ENV PATH="/venv/bin:$PATH"
 
-RUN apt-get update && apt-get install -y ffmpeg
-
-RUN pip install -r requirements-heavy.txt
-RUN pip install -r requirements.txt
-
-FROM base AS dev
+RUN pip install --upgrade pip
 
 COPY . .
+RUN pip install --no-cache-dir .
+
+
+FROM python:3.7 AS test_runner
+WORKDIR /tmp
+COPY --from=builder /venv /venv
+COPY --from=builder /usr/src/app/tests tests
+ENV PATH=/venv/bin:$PATH
+
+# install test dependencies
+RUN pip install pytest
+
+# run tests
+RUN pytest tests
+
+
+FROM python:3.7 AS service
+WORKDIR /root/app/site-packages
+COPY --from=test_runner /venv /venv
+ENV PATH=/venv/bin:$PATH

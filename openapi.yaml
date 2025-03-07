@@ -11,9 +11,18 @@ servers:
 security:
   - ApiKeyAuth: []
 
+tags:
+  - name: CreateJob
+    description: ジョブの作成
+  - name: CheckJob
+    description: ジョブの状態確認
+  - name: GetURL
+    description: オブジェクトストレージからURLを取得
 paths:
   /jobs:
     post:
+      tags:
+        - CreateJob
       summary: 新規ジョブの作成
       description: YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。
       security:
@@ -54,6 +63,8 @@ paths:
 
   /jobs/{job_id}:
     get:
+      tags: 
+        - CheckJob
       summary: ジョブの状態確認
       description: 指定されたジョブIDの状態を取得します。
       security:
@@ -85,6 +96,8 @@ paths:
 
   /url/{job_id}:
     get:
+      tags: 
+        - GetURL
       summary: 分離された音源の取得
       description: 分離された音源のS3 URLを取得します。
       security:
@@ -121,9 +134,46 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
+  /thumbnail/{job_id}:
+    get:
+      tags: 
+        - GetURL
+      summary: 分離された音源のサムネイル画像の取得
+      description: 分離された音源のサムネイル画像のS3 URLを取得します。
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: job_id
+          in: path
+          description: ジョブの識別子
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: サムネイル画像のS3 URLを返却
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                    description: ジョブの識別子
+                  thumbnail:
+                    type: string
+                    format: uri
+                    description: 音源のサムネイル画像の URL
+        "404":
+          description: サムネイル画像が見つかりませんでした
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /ws/jobs/{job_id}:
     get:
+      tags: 
+        - CheckJob
       summary: ジョブの進捗状況をWebSocketで取得
       description: WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。
       parameters:

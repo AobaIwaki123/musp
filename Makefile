@@ -24,3 +24,6 @@ logs:
 
 lint:
 	@docker -v ./view/:/code ghcr.io/biomejs/biome:1.9.4 lint
+
+generate-python:
+	@sudo docker run --rm -v ./:/local openapitools/openapi-generator-cli generate -i /local/openapi.yaml -g python-fastapi -o /local/out/python-fastapi -o /local/api
