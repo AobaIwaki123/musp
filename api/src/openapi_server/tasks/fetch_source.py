@@ -9,18 +9,18 @@ from openapi_server.models.task_status import TaskStatus
 def fetch_source(self, youtube_url: str) -> dict:
     """YouTubeから音源をダウンロードする"""
     task_id = self.request.id
-    out_path = f"tmp/{task_id}/source"
+    out_path = f"tmp/{task_id}/source.webm"
 
     self.update_state(
         state=TaskStatus.STARTED.value,
         meta={"step": "Downloading", "progress": 0},
     )
 
-    # subprocess.run(
-    #     ["yt-dlp", youtube_url, "-o", out_path],
-    #     capture_output=True,
-    #     text=True,
-    # )
+    subprocess.run(
+        ["yt-dlp", youtube_url, "-o", out_path],
+        capture_output=True,
+        text=True,
+    )
 
     self.update_state(
         state=TaskStatus.SUCCESS.value,

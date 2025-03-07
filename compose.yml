@@ -33,6 +33,7 @@ services:
     container_name: celery
     volumes:
       - ./api/src:/root/app
+      - ./secret:/root/secret
     # command: celery -A celery_server.celery_app worker --loglevel=info
     command: watchmedo auto-restart --pattern="*.py" --recursive -- celery -A celery_server.celery_app worker --loglevel=info
     depends_on:
