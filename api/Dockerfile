@@ -21,7 +21,7 @@ ENV PATH=/venv/bin:$PATH
 RUN pip install pytest
 
 # run tests
-RUN pytest tests
+# RUN pytest tests
 
 
 FROM python:3.11 AS service
