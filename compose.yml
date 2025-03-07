@@ -26,6 +26,17 @@ services:
       - 8000:8000
     command: uvicorn openapi_server.main:app --reload --host 0.0.0.0 --port 8000
 
+  celery:
+    build:
+      context: api
+      target: service
+    container_name: celery
+    volumes:
+      - ./api/src:/root/app
+    command: celery -A celery_server.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+
   redis:
     image: redis:7.4
     container_name: redis

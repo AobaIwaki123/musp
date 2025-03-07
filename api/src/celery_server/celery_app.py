@@ -7,7 +7,7 @@ app = Celery(
     "tasks",
     broker="redis://redis:6379/0",
     backend="redis://redis:6379/1",
-    include=["openapi_server.tasks.job_task"],
+    include=["openapi_server.tasks.process_source"],
 )
 
 app.conf.update(
