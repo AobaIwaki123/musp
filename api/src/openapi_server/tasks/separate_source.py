@@ -15,18 +15,18 @@ def separate_source(self, data: dict) -> dict:
         meta={"step": "Separating audio", "progress": 50},
     )
 
-    # subprocess.run(
-    #     [
-    #         "demucs",
-    #         "--two-stems",
-    #         "vocals",
-    #         source_path,
-    #         "-o",
-    #         out_path,
-    #     ],
-    #     capture_output=True,
-    #     text=True,
-    # )
+    subprocess.run(
+        [
+            "demucs",
+            "--two-stems",
+            "vocals",
+            source_path,
+            "-o",
+            out_path,
+        ],
+        capture_output=True,
+        text=True,
+    )
 
     self.update_state(
         state=TaskStatus.SUCCESS.value,
