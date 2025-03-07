@@ -7,24 +7,23 @@ ENV PATH="/venv/bin:$PATH"
 
 RUN pip install --upgrade pip
 
-COPY . .
+COPY ./pyproject.toml ./requirements.txt ./setup.cfg ./
+COPY ./src ./src
 RUN pip install --no-cache-dir .
 
 
-FROM python:3.11 AS test_runner
+FROM python:3.11 AS custom-requirements
 WORKDIR /tmp
 COPY --from=builder /venv /venv
-COPY --from=builder /usr/src/app/tests tests
 ENV PATH=/venv/bin:$PATH
 
-# install test dependencies
-RUN pip install pytest
+COPY ./heavy-requirements.txt .
+RUN pip install -r heavy-requirements.txt
 
-# run tests
-# RUN pytest tests
-
+COPY ./custom-requirements.txt .
+RUN pip install -r custom-requirements.txt
 
 FROM python:3.11 AS service
 WORKDIR /root/app/site-packages
-COPY --from=test_runner /venv /venv
+COPY --from=custom-requirements /venv /venv
 ENV PATH=/venv/bin:$PATH
