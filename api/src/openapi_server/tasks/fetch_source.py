@@ -1,7 +1,7 @@
 import subprocess
 import uuid
 
-from celery_sever.celery_app import app
+from celery_server.celery_app import app
 from openapi_server.models.task_status import TaskStatus
 
 

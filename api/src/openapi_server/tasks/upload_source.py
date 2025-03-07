@@ -1,4 +1,4 @@
-from celery_sever.celery_app import app
+from celery_server.celery_app import app
 from google.cloud import storage
 from openapi_server.models.task_status import TaskStatus
 

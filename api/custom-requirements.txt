@@ -3,3 +3,4 @@ celery
 soundfile
 google.cloud.storage
 redis
+watchdog
