@@ -1,4 +1,20 @@
 services:
+  view:
+    # image: node:20-alpine
+    build:
+      context: view
+      target: dev
+    container_name: view
+    working_dir: /app
+    volumes:
+      - ./view:/app
+      - ./view/.pnpm-store:/app/.pnpm-store
+      - ./openapi.yaml:/app/openapi.yaml
+    ports:
+      - 3000:3000
+    env_file:
+      ./view/.env
+    command: pnpm dev
   api:
     build:
       context: api

@@ -10,6 +10,8 @@ RUN npm install -g pnpm
 # pnpm のグローバルバイナリディレクトリを設定
 RUN pnpm config set global-bin-dir /usr/local/bin
 
+RUN pnpm add openapi-zod-client -g
+
 FROM base AS dev
 
 # Expose the port the app runs on

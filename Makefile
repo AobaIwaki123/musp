@@ -27,3 +27,6 @@ lint:
 
 generate-python:
 	@sudo docker run --rm -v ./:/local openapitools/openapi-generator-cli generate -i /local/openapi.yaml -g python-fastapi -o /local/out/python-fastapi -o /local/api
+
+generate-typescript:
+	@sudo docker compose run --rm view openapi-zod-client openapi.yaml --output src/client/client.ts
