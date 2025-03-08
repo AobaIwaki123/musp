@@ -9,10 +9,12 @@ class CreateJobImpl(BaseCreateJobApi):
         self,
         jobs_post_request: PostJobsRequest,
     ):
-        id = process_audio(jobs_post_request.youtube_url)
+        result = process_audio.delay(
+            str(jobs_post_request.youtube_url)
+        )
         return PostJobsResponse.from_dict(
             {
-                "job_id": id,
+                "job_id": result.id,
                 "message": "New Job Created!",
             }
         )

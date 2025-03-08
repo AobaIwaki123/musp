@@ -42,6 +42,8 @@ services:
             - capabilities: [gpu]
               count: all
               driver: nvidia
+    env_file:
+      ./api/.env
     depends_on:
       - redis
 

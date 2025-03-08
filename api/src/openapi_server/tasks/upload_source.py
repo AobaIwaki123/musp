@@ -6,9 +6,9 @@ from openapi_server.models.custom.task_status import TaskStatus
 @app.task(bind=True)
 def upload_source(self, data: dict) -> dict:
     """クラウドストレージにアップロード"""
-    task_id = data["task_id"]
+    root_task_id = data["root_task_id"]
     source_path = (
-        f"tmp/{task_id}/separated/htdemucs/source/vocals.wav"
+        f"tmp/{root_task_id}/separated/htdemucs/source/vocals.wav"
     )
 
     self.update_state(
@@ -18,16 +18,18 @@ def upload_source(self, data: dict) -> dict:
 
     # 仮のアップロード処理
     bucket_name = "musp"
-    destination_blob_name = f"{task_id}/vocals.wav"
+    destination_blob_name = f"{root_task_id}/vocals.wav"
 
-    # upload_blob(bucket_name, source_path, destination_blob_name)
+    upload_blob(bucket_name, source_path, destination_blob_name)
 
     self.update_state(
         state=TaskStatus.SUCCESS.value,
         meta={"step": "Upload completed", "progress": 100},
     )
 
-    return {"task_id": task_id}  # 次のタスクへ渡す
+    return {
+        "root_task_id": root_task_id,
+        }  # 次のタスクへ渡す
 
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
