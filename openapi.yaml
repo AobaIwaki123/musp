@@ -138,6 +138,8 @@ components:
       required: true
       schema:
         type: string
+        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+        maximum: 36
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
@@ -151,36 +153,66 @@ components:
           type: string
           format: uri
           description: YouTubeの動画リンク
+          pattern: ^https://www\.youtube\.com/watch\?v=[a-zA-Z0-9_-]{11}$
+          maximum: 100
       required:
         - youtube_url
+      additionalProperties: false
     PostJobsResponse:
       type: object
       properties:
         job_id:
           type: string
           description: 作成されたジョブの識別子
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          maximum: 36
         message:
           type: string
           description: 状況メッセージ
+          maximum: 100
+      required:
+        - job_id
+        - message
+      additionalProperties: false
     GetJobsResponse:
       type: object
       properties:
         status:
           type: string
           description: ジョブの現在の状態
+          enum:
+            - PENDING
+            - STARTED
+            - SUCCESS
+            - FAILURE
+          maximum: 10
+          pattern: ^[A-Z]+$
+      required:
+        - status
+      additionalProperties: false
     GetURLResponse:
       type: object
       properties:
         job_id:
           type: string
           description: ジョブの識別子
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          maximum: 36
         url:
           type: string
           format: uri
           description: 音源のS3 URL
+      required:
+        - job_id
+        - url
+      additionalProperties: false
     ErrorResponse:
       type: object
       properties:
         error:
           type: string
           description: エラーメッセージ
+          maximum: 500
+      required:
+        - error
+      additionalProperties: false

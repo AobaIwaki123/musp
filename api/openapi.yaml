@@ -54,6 +54,8 @@ paths:
         name: job_id
         required: true
         schema:
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
           type: string
         style: simple
       responses:
@@ -84,6 +86,8 @@ paths:
         name: job_id
         required: true
         schema:
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
           type: string
         style: simple
       responses:
@@ -114,6 +118,8 @@ paths:
         name: job_id
         required: true
         schema:
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
           type: string
         style: simple
       responses:
@@ -144,6 +150,8 @@ paths:
         name: job_id
         required: true
         schema:
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
           type: string
         style: simple
       responses:
@@ -163,16 +171,21 @@ components:
       name: job_id
       required: true
       schema:
+        maximum: 36
+        pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
         type: string
       style: simple
   schemas:
     PostJobsRequest:
+      additionalProperties: false
       example:
         youtube_url: https://openapi-generator.tech
       properties:
         youtube_url:
           description: YouTubeの動画リンク
           format: uri
+          maximum: 100
+          pattern: "^https://www\\.youtube\\.com/watch\\?v=[a-zA-Z0-9_-]{11}$"
           title: youtube_url
           type: string
       required:
@@ -180,37 +193,57 @@ components:
       title: PostJobsRequest
       type: object
     PostJobsResponse:
+      additionalProperties: false
       example:
         job_id: job_id
         message: message
       properties:
         job_id:
           description: 作成されたジョブの識別子
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
           title: job_id
           type: string
         message:
           description: 状況メッセージ
+          maximum: 100
           title: message
           type: string
+      required:
+      - job_id
+      - message
       title: PostJobsResponse
       type: object
     GetJobsResponse:
+      additionalProperties: false
       example:
-        status: status
+        status: PENDING
       properties:
         status:
           description: ジョブの現在の状態
+          enum:
+          - PENDING
+          - STARTED
+          - SUCCESS
+          - FAILURE
+          maximum: 10
+          pattern: "^[A-Z]+$"
           title: status
           type: string
+      required:
+      - status
       title: GetJobsResponse
       type: object
     GetURLResponse:
+      additionalProperties: false
       example:
         job_id: job_id
         url: https://openapi-generator.tech
       properties:
         job_id:
           description: ジョブの識別子
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
           title: job_id
           type: string
         url:
@@ -218,16 +251,23 @@ components:
           format: uri
           title: url
           type: string
+      required:
+      - job_id
+      - url
       title: GetURLResponse
       type: object
     ErrorResponse:
+      additionalProperties: false
       example:
         error: error
       properties:
         error:
           description: エラーメッセージ
+          maximum: 500
           title: error
           type: string
+      required:
+      - error
       title: ErrorResponse
       type: object
   securitySchemes:

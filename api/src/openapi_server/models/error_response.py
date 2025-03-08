@@ -20,8 +20,9 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 try:
     from typing import Self
 except ImportError:
@@ -31,7 +32,7 @@ class ErrorResponse(BaseModel):
     """
     ErrorResponse
     """ # noqa: E501
-    error: Optional[StrictStr] = Field(default=None, description="エラーメッセージ")
+    error: Annotated[str, Field(strict=True)] = Field(description="エラーメッセージ")
     __properties: ClassVar[List[str]] = ["error"]
 
     model_config = {

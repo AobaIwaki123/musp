@@ -20,8 +20,9 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 try:
     from typing import Self
 except ImportError:
@@ -31,9 +32,16 @@ class PostJobsResponse(BaseModel):
     """
     PostJobsResponse
     """ # noqa: E501
-    job_id: Optional[StrictStr] = Field(default=None, description="作成されたジョブの識別子")
-    message: Optional[StrictStr] = Field(default=None, description="状況メッセージ")
+    job_id: Annotated[str, Field(strict=True)] = Field(description="作成されたジョブの識別子")
+    message: Annotated[str, Field(strict=True)] = Field(description="状況メッセージ")
     __properties: ClassVar[List[str]] = ["job_id", "message"]
+
+    @field_validator('job_id')
+    def job_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value):
+            raise ValueError(r"must validate the regular expression /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/")
+        return value
 
     model_config = {
         "populate_by_name": True,

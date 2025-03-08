@@ -23,7 +23,7 @@ from fastapi import (  # noqa: F401
 )
 
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
-from pydantic import Field, StrictStr
+from pydantic import Field, field_validator
 from typing_extensions import Annotated
 from openapi_server.models.error_response import ErrorResponse
 from openapi_server.models.get_url_response import GetURLResponse
@@ -47,7 +47,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     response_model_by_alias=True,
 )
 async def thumbnail_job_id_get(
-    job_id: Annotated[StrictStr, Field(description="ジョブの識別子")] = Path(..., description="ジョブの識別子"),
+    job_id: Annotated[str, Field(strict=True, description="ジョブの識別子")] = Path(..., description="ジョブの識別子", regex=r"/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/"),
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
     ),
@@ -69,7 +69,7 @@ async def thumbnail_job_id_get(
     response_model_by_alias=True,
 )
 async def url_job_id_get(
-    job_id: Annotated[StrictStr, Field(description="ジョブの識別子")] = Path(..., description="ジョブの識別子"),
+    job_id: Annotated[str, Field(strict=True, description="ジョブの識別子")] = Path(..., description="ジョブの識別子", regex=r"/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/"),
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
     ),

@@ -2,7 +2,7 @@
 
 from typing import ClassVar, Dict, List, Tuple  # noqa: F401
 
-from pydantic import Field, StrictStr
+from pydantic import Field, field_validator
 from typing_extensions import Annotated
 from openapi_server.models.error_response import ErrorResponse
 from openapi_server.models.get_url_response import GetURLResponse
@@ -16,7 +16,7 @@ class BaseGetURLApi:
         BaseGetURLApi.subclasses = BaseGetURLApi.subclasses + (cls,)
     async def thumbnail_job_id_get(
         self,
-        job_id: Annotated[StrictStr, Field(description="ジョブの識別子")],
+        job_id: Annotated[str, Field(strict=True, description="ジョブの識別子")],
     ) -> GetURLResponse:
         """分離された音源のサムネイル画像のS3 URLを取得します。"""
         ...
@@ -24,7 +24,7 @@ class BaseGetURLApi:
 
     async def url_job_id_get(
         self,
-        job_id: Annotated[StrictStr, Field(description="ジョブの識別子")],
+        job_id: Annotated[str, Field(strict=True, description="ジョブの識別子")],
     ) -> GetURLResponse:
         """分離された音源のS3 URLを取得します。"""
         ...

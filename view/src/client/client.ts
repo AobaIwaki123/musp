@@ -1,22 +1,34 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
-const PostJobsRequest = z
-  .object({ youtube_url: z.string().url() })
-  .passthrough();
-const PostJobsResponse = z
-  .object({ job_id: z.string(), message: z.string() })
-  .partial()
-  .passthrough();
-const ErrorResponse = z.object({ error: z.string() }).partial().passthrough();
-const GetJobsResponse = z
-  .object({ status: z.string() })
-  .partial()
-  .passthrough();
-const GetURLResponse = z
-  .object({ job_id: z.string(), url: z.string().url() })
-  .partial()
-  .passthrough();
+const PostJobsRequest = z.object({
+  youtube_url: z
+    .string()
+    .regex(/^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$/)
+    .url(),
+});
+const PostJobsResponse = z.object({
+  job_id: z
+    .string()
+    .regex(
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+    ),
+  message: z.string(),
+});
+const ErrorResponse = z.object({ error: z.string() });
+const GetJobsResponse = z.object({
+  status: z
+    .enum(["PENDING", "STARTED", "SUCCESS", "FAILURE"])
+    .regex(/^[A-Z]+$/),
+});
+const GetURLResponse = z.object({
+  job_id: z
+    .string()
+    .regex(
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+    ),
+  url: z.string().url(),
+});
 
 export const schemas = {
   PostJobsRequest,
@@ -37,7 +49,12 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ youtube_url: z.string().url() }).passthrough(),
+        schema: z.object({
+          youtube_url: z
+            .string()
+            .regex(/^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$/)
+            .url(),
+        }),
       },
     ],
     response: PostJobsResponse,
@@ -45,7 +62,7 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `不正なリクエスト`,
-        schema: z.object({ error: z.string() }).partial().passthrough(),
+        schema: z.object({ error: z.string() }),
       },
     ],
   },
@@ -59,15 +76,19 @@ const endpoints = makeApi([
       {
         name: "job_id",
         type: "Path",
-        schema: z.string(),
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+          ),
       },
     ],
-    response: z.object({ status: z.string() }).partial().passthrough(),
+    response: GetJobsResponse,
     errors: [
       {
         status: 404,
         description: `ジョブが見つかりませんでした`,
-        schema: z.object({ error: z.string() }).partial().passthrough(),
+        schema: z.object({ error: z.string() }),
       },
     ],
   },
@@ -81,7 +102,11 @@ const endpoints = makeApi([
       {
         name: "job_id",
         type: "Path",
-        schema: z.string(),
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+          ),
       },
     ],
     response: GetURLResponse,
@@ -89,7 +114,7 @@ const endpoints = makeApi([
       {
         status: 404,
         description: `サムネイル画像が見つかりませんでした`,
-        schema: z.object({ error: z.string() }).partial().passthrough(),
+        schema: z.object({ error: z.string() }),
       },
     ],
   },
@@ -103,7 +128,11 @@ const endpoints = makeApi([
       {
         name: "job_id",
         type: "Path",
-        schema: z.string(),
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+          ),
       },
     ],
     response: GetURLResponse,
@@ -111,7 +140,7 @@ const endpoints = makeApi([
       {
         status: 404,
         description: `音源が見つかりませんでした`,
-        schema: z.object({ error: z.string() }).partial().passthrough(),
+        schema: z.object({ error: z.string() }),
       },
     ],
   },
@@ -125,7 +154,11 @@ const endpoints = makeApi([
       {
         name: "job_id",
         type: "Path",
-        schema: z.string(),
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+          ),
       },
     ],
     response: z.void(),

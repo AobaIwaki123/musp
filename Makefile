@@ -30,3 +30,7 @@ gen-py:
 
 gen-ts:
 	@sudo docker compose run --rm view openapi-zod-client openapi.yaml --output src/client/client.ts
+
+gen:
+	@make gen-py
+	@make gen-ts

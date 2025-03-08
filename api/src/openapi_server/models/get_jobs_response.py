@@ -20,8 +20,9 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 try:
     from typing import Self
 except ImportError:
@@ -31,8 +32,22 @@ class GetJobsResponse(BaseModel):
     """
     GetJobsResponse
     """ # noqa: E501
-    status: Optional[StrictStr] = Field(default=None, description="ジョブの現在の状態")
+    status: Annotated[str, Field(strict=True)] = Field(description="ジョブの現在の状態")
     __properties: ClassVar[List[str]] = ["status"]
+
+    @field_validator('status')
+    def status_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[A-Z]+$", value):
+            raise ValueError(r"must validate the regular expression /^[A-Z]+$/")
+        return value
+
+    @field_validator('status')
+    def status_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in ('PENDING', 'STARTED', 'SUCCESS', 'FAILURE',):
+            raise ValueError("must be one of enum values ('PENDING', 'STARTED', 'SUCCESS', 'FAILURE')")
+        return value
 
     model_config = {
         "populate_by_name": True,
