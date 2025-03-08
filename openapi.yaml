@@ -32,44 +32,20 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                youtube_url:
-                  type: string
-                  format: uri
-                  description: YouTubeの動画リンク
-              required:
-                - youtube_url
-            example:
-              youtube_url: "https://www.youtube.com/watch?v=XXXXXXXXXXX"
+              $ref: "#/components/schemas/PostJobsRequest"
       responses:
         "201":
           description: ジョブが正常に作成されました
           content:
             application/json:
               schema:
-                type: object
-                required: 
-                  - job_id
-                  - message
-                properties:
-                  job_id:
-                    type: string
-                    description: 作成されたジョブの識別子
-                  message:
-                    type: string
-                    description: 状況メッセージ
-              example:
-                job_id: "18b80b91-c46a-4e04-9cb1-9a30b39f0a47"
-                message: "Job created successfully"
+                $ref: "#/components/schemas/PostJobsResponse"
         "400":
           description: 不正なリクエスト
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-              example:
-                error: "Invalid request"
   /jobs/{job_id}:
     get:
       tags: 
@@ -79,35 +55,20 @@ paths:
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: job_id
-          in: path
-          description: ジョブの識別子
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/JobID"
       responses:
         "200":
           description: ジョブの状態情報
           content:
             application/json:
               schema:
-                required:
-                  - status
-                type: object
-                properties:
-                  status:
-                    type: string
-                    description: ジョブの現在の状態
-              example:
-                status: "processing"
+                $ref: "#/components/schemas/GetJobsResponse"
         "404":
           description: ジョブが見つかりませんでした
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-              example:
-                error: "Job not found"
 
   /url/{job_id}:
     get:
@@ -118,41 +79,20 @@ paths:
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: job_id
-          in: path
-          description: ジョブの識別子
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/JobID"
       responses:
         "200":
           description: 音源ファイルのS3 URLを返却
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - job_id
-                  - url
-                properties:
-                  job_id:
-                    type: string
-                    description: ジョブの識別子
-                  url:
-                    type: string
-                    format: uri
-                    description: 音源のS3 URL
-              example:
-                job_id: "18b80b91-c46a-4e04-9cb1-9a30b39f0a47"
-                url: "https://musp-s3-bucket.s3.ap-northeast-1.amazonaws.com/18b80b91-c46a-4e04-9cb1-9a30b39f0a47/source.wav"
+                $ref: "#/components/schemas/GetURLResponse"
         "404":
           description: 音源が見つかりませんでした
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-              example:
-                error: "Source not found"
   /thumbnail/{job_id}:
     get:
       tags: 
@@ -162,41 +102,20 @@ paths:
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: job_id
-          in: path
-          description: ジョブの識別子
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/JobID"
       responses:
         "200":
           description: サムネイル画像のS3 URLを返却
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - job_id
-                  - thumbnail
-                properties:
-                  job_id:
-                    type: string
-                    description: ジョブの識別子
-                  thumbnail:
-                    type: string
-                    format: uri
-                    description: 音源のサムネイル画像の URL
-              example:
-                job_id: "18b80b91-c46a-4e04-9cb1-9a30b39f0a47"
-                thumbnail: "https://musp-s3-bucket.s3.ap-northeast-1.amazonaws.com/18b80b91-c46a-4e04-9cb1-9a30b39f0a47/thumbnail.jpg"
+                $ref: "#/components/schemas/GetURLResponse"
         "404":
           description: サムネイル画像が見つかりませんでした
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-              example:
-                error: "Thumbnail not found"
   /ws/jobs/{job_id}:
     get:
       tags: 
@@ -204,12 +123,7 @@ paths:
       summary: ジョブの進捗状況をWebSocketで取得
       description: WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。
       parameters:
-        - name: job_id
-          in: path
-          description: ジョブの識別子
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/JobID"
       responses:
         "101":
           description: WebSocket接続成功
@@ -217,12 +131,54 @@ paths:
           description: ジョブが見つかりませんでした
 
 components:
+  parameters:
+    JobID:
+      name: job_id
+      in: path
+      description: ジョブの識別子
+      required: true
+      schema:
+        type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
       in: header
       name: X-API-KEY
   schemas:
+    PostJobsRequest:
+      type: object
+      properties:
+        youtube_url:
+          type: string
+          format: uri
+          description: YouTubeの動画リンク
+      required:
+        - youtube_url
+    PostJobsResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: 作成されたジョブの識別子
+        message:
+          type: string
+          description: 状況メッセージ
+    GetJobsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: ジョブの現在の状態
+    GetURLResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: ジョブの識別子
+        url:
+          type: string
+          format: uri
+          description: 音源のS3 URL
     ErrorResponse:
       type: object
       properties:

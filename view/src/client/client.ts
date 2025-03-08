@@ -1,13 +1,36 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
+const PostJobsRequest = z
+  .object({ youtube_url: z.string().url() })
+  .passthrough();
+
+const PostJobsResponse = z
+  .object({ job_id: z.string(), message: z.string() })
+  .partial()
+  .passthrough();
+
 const ErrorResponse = z.object({ error: z.string() }).partial().passthrough();
 
+const GetJobsResponse = z
+  .object({ status: z.string() })
+  .partial()
+  .passthrough();
+
+const GetURLResponse = z
+  .object({ job_id: z.string(), url: z.string().url() })
+  .partial()
+  .passthrough();
+
 export const schemas = {
+  PostJobsRequest,
+  PostJobsResponse,
   ErrorResponse,
+  GetJobsResponse,
+  GetURLResponse,
 };
 
-const endpoints = makeApi([
+export const endpoints = makeApi([
   {
     method: "post",
     path: "/jobs",
@@ -21,9 +44,7 @@ const endpoints = makeApi([
         schema: z.object({ youtube_url: z.string().url() }).passthrough(),
       },
     ],
-    response: z
-      .object({ job_id: z.string(), message: z.string() })
-      .passthrough(),
+    response: PostJobsResponse,
     errors: [
       {
         status: 400,
@@ -45,7 +66,7 @@ const endpoints = makeApi([
         schema: z.string(),
       },
     ],
-    response: z.object({ status: z.string() }).passthrough(),
+    response: z.object({ status: z.string() }).partial().passthrough(),
     errors: [
       {
         status: 404,
@@ -67,9 +88,7 @@ const endpoints = makeApi([
         schema: z.string(),
       },
     ],
-    response: z
-      .object({ job_id: z.string(), thumbnail: z.string().url() })
-      .passthrough(),
+    response: GetURLResponse,
     errors: [
       {
         status: 404,
@@ -91,9 +110,7 @@ const endpoints = makeApi([
         schema: z.string(),
       },
     ],
-    response: z
-      .object({ job_id: z.string(), url: z.string().url() })
-      .passthrough(),
+    response: GetURLResponse,
     errors: [
       {
         status: 404,

@@ -1,4 +1,4 @@
-import { createApiClient } from "./client";
+import { createApiClient } from "@/client/client";
 
 const api = createApiClient("http://localhost:8000");
 
