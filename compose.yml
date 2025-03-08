@@ -9,41 +9,47 @@ services:
     volumes:
       - ./view:/app
       - ./view/.pnpm-store:/app/.pnpm-store
+      - ./openapi.yaml:/app/openapi.yaml
     ports:
       - 3000:3000
     env_file:
       ./view/.env
     command: pnpm dev
-
   api:
     build:
       context: api
-      target: dev
+      target: service
     container_name: api
     volumes:
-      - ./api:/app
+      - ./api/src:/root/app
     ports:
       - 8000:8000
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
-    env_file:
-      ./api/.env
-    depends_on:
-      - redis
+    command: uvicorn openapi_server.main:app --reload --host 0.0.0.0 --port 8000
 
   celery:
     build:
       context: api
+      target: service
     container_name: celery
     volumes:
-      - ./api:/app
-    command: celery -A celery_app.celery_app worker --loglevel=info
-    depends_on:
-      - redis
+      - ./api/src:/root/app
+      - ./secret:/root/secret
+    command: watchmedo auto-restart --pattern="*.py" --recursive -- celery -A celery_server.celery_app worker --loglevel=info
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              count: all
+              driver: nvidia
     env_file:
       ./api/.env
+    depends_on:
+      - redis
 
   redis:
     image: redis:7.4
     container_name: redis
     ports:
       - 6379:6379
+

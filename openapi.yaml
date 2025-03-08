@@ -6,14 +6,22 @@ info:
     MuSPは、YouTubeリンクから音源をダウンロードし、Demucsで音源とボーカルを分離するWebアプリです。
     本API仕様書は、ジョブの作成、状態確認、分離済み音源の取得を提供します。
 servers:
-  - url: http://localhost:8000/api/v1
-
+  - url: http://localhost:8000
 security:
   - ApiKeyAuth: []
 
+tags:
+  - name: CreateJob
+    description: ジョブの作成
+  - name: CheckJob
+    description: ジョブの状態確認
+  - name: GetURL
+    description: オブジェクトストレージからURLを取得
 paths:
   /jobs:
     post:
+      tags:
+        - CreateJob
       summary: 新規ジョブの作成
       description: YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。
       security:
@@ -23,59 +31,37 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                youtube_url:
-                  type: string
-                  format: uri
-                  description: YouTubeの動画リンク
-              required:
-                - youtube_url
+              $ref: "#/components/schemas/PostJobsRequest"
       responses:
         "201":
           description: ジョブが正常に作成されました
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  job_id:
-                    type: string
-                    description: 作成されたジョブの識別子
-                  message:
-                    type: string
-                    description: 状況メッセージ
+                $ref: "#/components/schemas/PostJobsResponse"
         "400":
           description: 不正なリクエスト
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /jobs/{job_id}:
     get:
+      tags: 
+        - CheckJob
       summary: ジョブの状態確認
       description: 指定されたジョブIDの状態を取得します。
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: job_id
-          in: path
-          description: ジョブの識別子
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/JobID"
       responses:
         "200":
           description: ジョブの状態情報
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    description: ジョブの現在の状態
+                $ref: "#/components/schemas/GetJobsResponse"
         "404":
           description: ジョブが見つかりませんでした
           content:
@@ -85,54 +71,58 @@ paths:
 
   /url/{job_id}:
     get:
+      tags: 
+        - GetURL
       summary: 分離された音源の取得
       description: 分離された音源のS3 URLを取得します。
       security:
         - ApiKeyAuth: []
       parameters:
-        - name: job_id
-          in: path
-          description: ジョブの識別子
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/JobID"
       responses:
         "200":
           description: 音源ファイルのS3 URLを返却
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  job_id:
-                    type: string
-                    description: ジョブの識別子
-                  url:
-                    type: string
-                    format: uri
-                    description: 音源のS3 URL
-                  thumbnail:
-                    type: string
-                    format: uri
-                    description: 音源のサムネイル画像の URL
+                $ref: "#/components/schemas/GetURLResponse"
         "404":
           description: 音源が見つかりませんでした
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
+  /thumbnail/{job_id}:
+    get:
+      tags: 
+        - GetURL
+      summary: 分離された音源のサムネイル画像の取得
+      description: 分離された音源のサムネイル画像のS3 URLを取得します。
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/JobID"
+      responses:
+        "200":
+          description: サムネイル画像のS3 URLを返却
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetURLResponse"
+        "404":
+          description: サムネイル画像が見つかりませんでした
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /ws/jobs/{job_id}:
     get:
+      tags: 
+        - CheckJob
       summary: ジョブの進捗状況をWebSocketで取得
       description: WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。
       parameters:
-        - name: job_id
-          in: path
-          description: ジョブの識別子
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/JobID"
       responses:
         "101":
           description: WebSocket接続成功
@@ -140,15 +130,89 @@ paths:
           description: ジョブが見つかりませんでした
 
 components:
+  parameters:
+    JobID:
+      name: job_id
+      in: path
+      description: ジョブの識別子
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+        maximum: 36
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
       in: header
       name: X-API-KEY
   schemas:
+    PostJobsRequest:
+      type: object
+      properties:
+        youtube_url:
+          type: string
+          format: uri
+          description: YouTubeの動画リンク
+          pattern: ^https://www\.youtube\.com/watch\?v=[a-zA-Z0-9_-]{11}$
+          maximum: 100
+      required:
+        - youtube_url
+      additionalProperties: false
+    PostJobsResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: 作成されたジョブの識別子
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          maximum: 36
+        message:
+          type: string
+          description: 状況メッセージ
+          maximum: 100
+      required:
+        - job_id
+        - message
+      additionalProperties: false
+    GetJobsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: ジョブの現在の状態
+          enum:
+            - PENDING
+            - STARTED
+            - SUCCESS
+            - FAILURE
+          maximum: 10
+          pattern: ^[A-Z]+$
+      required:
+        - status
+      additionalProperties: false
+    GetURLResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: ジョブの識別子
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          maximum: 36
+        url:
+          type: string
+          format: uri
+          description: 音源のS3 URL
+      required:
+        - job_id
+        - url
+      additionalProperties: false
     ErrorResponse:
       type: object
       properties:
         error:
           type: string
           description: エラーメッセージ
+          maximum: 500
+      required:
+        - error
+      additionalProperties: false

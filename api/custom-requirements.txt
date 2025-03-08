@@ -1,0 +1,6 @@
+yt-dlp
+celery
+soundfile
+google.cloud.storage
+redis
+watchdog

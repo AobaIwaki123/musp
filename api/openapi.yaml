@@ -1,0 +1,277 @@
+openapi: 3.0.0
+info:
+  description: |
+    MuSPは、YouTubeリンクから音源をダウンロードし、Demucsで音源とボーカルを分離するWebアプリです。
+    本API仕様書は、ジョブの作成、状態確認、分離済み音源の取得を提供します。
+  title: MuSP API
+  version: 1.0.0
+servers:
+- url: http://localhost:8000
+security:
+- ApiKeyAuth: []
+tags:
+- description: ジョブの作成
+  name: CreateJob
+- description: ジョブの状態確認
+  name: CheckJob
+- description: オブジェクトストレージからURLを取得
+  name: GetURL
+paths:
+  /jobs:
+    post:
+      description: YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostJobsRequest'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostJobsResponse'
+          description: ジョブが正常に作成されました
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: 不正なリクエスト
+      security:
+      - ApiKeyAuth: []
+      summary: 新規ジョブの作成
+      tags:
+      - CreateJob
+  /jobs/{job_id}:
+    get:
+      description: 指定されたジョブIDの状態を取得します。
+      parameters:
+      - description: ジョブの識別子
+        explode: false
+        in: path
+        name: job_id
+        required: true
+        schema:
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetJobsResponse'
+          description: ジョブの状態情報
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ジョブが見つかりませんでした
+      security:
+      - ApiKeyAuth: []
+      summary: ジョブの状態確認
+      tags:
+      - CheckJob
+  /url/{job_id}:
+    get:
+      description: 分離された音源のS3 URLを取得します。
+      parameters:
+      - description: ジョブの識別子
+        explode: false
+        in: path
+        name: job_id
+        required: true
+        schema:
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetURLResponse'
+          description: 音源ファイルのS3 URLを返却
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: 音源が見つかりませんでした
+      security:
+      - ApiKeyAuth: []
+      summary: 分離された音源の取得
+      tags:
+      - GetURL
+  /thumbnail/{job_id}:
+    get:
+      description: 分離された音源のサムネイル画像のS3 URLを取得します。
+      parameters:
+      - description: ジョブの識別子
+        explode: false
+        in: path
+        name: job_id
+        required: true
+        schema:
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetURLResponse'
+          description: サムネイル画像のS3 URLを返却
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: サムネイル画像が見つかりませんでした
+      security:
+      - ApiKeyAuth: []
+      summary: 分離された音源のサムネイル画像の取得
+      tags:
+      - GetURL
+  /ws/jobs/{job_id}:
+    get:
+      description: WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。
+      parameters:
+      - description: ジョブの識別子
+        explode: false
+        in: path
+        name: job_id
+        required: true
+        schema:
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          type: string
+        style: simple
+      responses:
+        "101":
+          description: WebSocket接続成功
+        "404":
+          description: ジョブが見つかりませんでした
+      summary: ジョブの進捗状況をWebSocketで取得
+      tags:
+      - CheckJob
+components:
+  parameters:
+    JobID:
+      description: ジョブの識別子
+      explode: false
+      in: path
+      name: job_id
+      required: true
+      schema:
+        maximum: 36
+        pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        type: string
+      style: simple
+  schemas:
+    PostJobsRequest:
+      additionalProperties: false
+      example:
+        youtube_url: https://openapi-generator.tech
+      properties:
+        youtube_url:
+          description: YouTubeの動画リンク
+          format: uri
+          maximum: 100
+          pattern: "^https://www\\.youtube\\.com/watch\\?v=[a-zA-Z0-9_-]{11}$"
+          title: youtube_url
+          type: string
+      required:
+      - youtube_url
+      title: PostJobsRequest
+      type: object
+    PostJobsResponse:
+      additionalProperties: false
+      example:
+        job_id: job_id
+        message: message
+      properties:
+        job_id:
+          description: 作成されたジョブの識別子
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          title: job_id
+          type: string
+        message:
+          description: 状況メッセージ
+          maximum: 100
+          title: message
+          type: string
+      required:
+      - job_id
+      - message
+      title: PostJobsResponse
+      type: object
+    GetJobsResponse:
+      additionalProperties: false
+      example:
+        status: PENDING
+      properties:
+        status:
+          description: ジョブの現在の状態
+          enum:
+          - PENDING
+          - STARTED
+          - SUCCESS
+          - FAILURE
+          maximum: 10
+          pattern: "^[A-Z]+$"
+          title: status
+          type: string
+      required:
+      - status
+      title: GetJobsResponse
+      type: object
+    GetURLResponse:
+      additionalProperties: false
+      example:
+        job_id: job_id
+        url: https://openapi-generator.tech
+      properties:
+        job_id:
+          description: ジョブの識別子
+          maximum: 36
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          title: job_id
+          type: string
+        url:
+          description: 音源のS3 URL
+          format: uri
+          title: url
+          type: string
+      required:
+      - job_id
+      - url
+      title: GetURLResponse
+      type: object
+    ErrorResponse:
+      additionalProperties: false
+      example:
+        error: error
+      properties:
+        error:
+          description: エラーメッセージ
+          maximum: 500
+          title: error
+          type: string
+      required:
+      - error
+      title: ErrorResponse
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: X-API-KEY
+      type: apiKey
