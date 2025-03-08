@@ -2,7 +2,7 @@ import subprocess
 import uuid
 
 from celery_server.celery_app import app
-from api.src.openapi_server.models.custom.task_status import TaskStatus
+from openapi_server.models.custom.task_status import TaskStatus
 
 
 @app.task(bind=True)
