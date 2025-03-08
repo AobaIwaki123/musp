@@ -2,7 +2,7 @@ import subprocess
 import uuid
 
 from celery_server.celery_app import app
-from openapi_server.models.task_status import TaskStatus
+from api.src.openapi_server.models.custom.task_status import TaskStatus
 
 
 @app.task(bind=True)
@@ -16,11 +16,11 @@ def fetch_source(self, youtube_url: str) -> dict:
         meta={"step": "Downloading", "progress": 0},
     )
 
-    subprocess.run(
-        ["yt-dlp", youtube_url, "-o", out_path],
-        capture_output=True,
-        text=True,
-    )
+    # subprocess.run(
+    #     ["yt-dlp", youtube_url, "-o", out_path],
+    #     capture_output=True,
+    #     text=True,
+    # )
 
     self.update_state(
         state=TaskStatus.SUCCESS.value,

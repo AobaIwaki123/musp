@@ -1,6 +1,6 @@
 from celery_server.celery_app import app
 from google.cloud import storage
-from openapi_server.models.task_status import TaskStatus
+from api.src.openapi_server.models.custom.task_status import TaskStatus
 
 
 @app.task(bind=True)

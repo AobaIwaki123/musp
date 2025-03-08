@@ -6,8 +6,7 @@ info:
     MuSPは、YouTubeリンクから音源をダウンロードし、Demucsで音源とボーカルを分離するWebアプリです。
     本API仕様書は、ジョブの作成、状態確認、分離済み音源の取得を提供します。
 servers:
-  - url: http://localhost:8000/api/v1
-
+  - url: http://localhost:8000
 security:
   - ApiKeyAuth: []
 
