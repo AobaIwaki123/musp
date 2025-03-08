@@ -20,9 +20,6 @@ from fastapi import (  # noqa: F401
     status,
 )
 from openapi_server.apis.create_job_api_base import BaseCreateJobApi
-from openapi_server.impl.create_job_impl import (
-    CreateJobImpl,  # noqa: F401
-)
 from openapi_server.models.error_response import ErrorResponse
 from openapi_server.models.extra_models import (
     TokenModel,  # noqa: F401

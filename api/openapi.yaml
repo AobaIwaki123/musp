@@ -23,6 +23,8 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              youtube_url: https://www.youtube.com/watch?v=XXXXXXXXXXX
             schema:
               $ref: '#/components/schemas/_jobs_post_request'
         required: true
@@ -30,12 +32,17 @@ paths:
         "201":
           content:
             application/json:
+              example:
+                job_id: 18b80b91-c46a-4e04-9cb1-9a30b39f0a47
+                message: Job created successfully
               schema:
                 $ref: '#/components/schemas/_jobs_post_201_response'
           description: ジョブが正常に作成されました
         "400":
           content:
             application/json:
+              example:
+                error: Invalid request
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: 不正なリクエスト
@@ -60,12 +67,16 @@ paths:
         "200":
           content:
             application/json:
+              example:
+                status: processing
               schema:
                 $ref: '#/components/schemas/_jobs__job_id__get_200_response'
           description: ジョブの状態情報
         "404":
           content:
             application/json:
+              example:
+                error: Job not found
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ジョブが見つかりませんでした
@@ -90,12 +101,17 @@ paths:
         "200":
           content:
             application/json:
+              example:
+                job_id: 18b80b91-c46a-4e04-9cb1-9a30b39f0a47
+                url: https://musp-s3-bucket.s3.ap-northeast-1.amazonaws.com/18b80b91-c46a-4e04-9cb1-9a30b39f0a47/source.wav
               schema:
                 $ref: '#/components/schemas/_url__job_id__get_200_response'
           description: 音源ファイルのS3 URLを返却
         "404":
           content:
             application/json:
+              example:
+                error: Source not found
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: 音源が見つかりませんでした
@@ -120,12 +136,17 @@ paths:
         "200":
           content:
             application/json:
+              example:
+                job_id: 18b80b91-c46a-4e04-9cb1-9a30b39f0a47
+                thumbnail: https://musp-s3-bucket.s3.ap-northeast-1.amazonaws.com/18b80b91-c46a-4e04-9cb1-9a30b39f0a47/thumbnail.jpg
               schema:
                 $ref: '#/components/schemas/_thumbnail__job_id__get_200_response'
           description: サムネイル画像のS3 URLを返却
         "404":
           content:
             application/json:
+              example:
+                error: Thumbnail not found
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: サムネイル画像が見つかりませんでした
@@ -190,6 +211,9 @@ components:
           description: 状況メッセージ
           title: message
           type: string
+      required:
+      - job_id
+      - message
       title: _jobs_post_201_response
       type: object
     _jobs__job_id__get_200_response:
@@ -200,11 +224,12 @@ components:
           description: ジョブの現在の状態
           title: status
           type: string
+      required:
+      - status
       title: _jobs__job_id__get_200_response
       type: object
     _url__job_id__get_200_response:
       example:
-        thumbnail: https://openapi-generator.tech
         job_id: job_id
         url: https://openapi-generator.tech
       properties:
@@ -217,11 +242,9 @@ components:
           format: uri
           title: url
           type: string
-        thumbnail:
-          description: 音源のサムネイル画像の URL
-          format: uri
-          title: thumbnail
-          type: string
+      required:
+      - job_id
+      - url
       title: _url__job_id__get_200_response
       type: object
     _thumbnail__job_id__get_200_response:
@@ -238,6 +261,9 @@ components:
           format: uri
           title: thumbnail
           type: string
+      required:
+      - job_id
+      - thumbnail
       title: _thumbnail__job_id__get_200_response
       type: object
   securitySchemes:

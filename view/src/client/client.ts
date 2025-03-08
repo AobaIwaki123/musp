@@ -23,7 +23,6 @@ const endpoints = makeApi([
     ],
     response: z
       .object({ job_id: z.string(), message: z.string() })
-      .partial()
       .passthrough(),
     errors: [
       {
@@ -46,7 +45,7 @@ const endpoints = makeApi([
         schema: z.string(),
       },
     ],
-    response: z.object({ status: z.string() }).partial().passthrough(),
+    response: z.object({ status: z.string() }).passthrough(),
     errors: [
       {
         status: 404,
@@ -70,7 +69,6 @@ const endpoints = makeApi([
     ],
     response: z
       .object({ job_id: z.string(), thumbnail: z.string().url() })
-      .partial()
       .passthrough(),
     errors: [
       {
@@ -94,12 +92,7 @@ const endpoints = makeApi([
       },
     ],
     response: z
-      .object({
-        job_id: z.string(),
-        url: z.string().url(),
-        thumbnail: z.string().url(),
-      })
-      .partial()
+      .object({ job_id: z.string(), url: z.string().url() })
       .passthrough(),
     errors: [
       {

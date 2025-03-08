@@ -40,6 +40,8 @@ paths:
                   description: YouTubeの動画リンク
               required:
                 - youtube_url
+            example:
+              youtube_url: "https://www.youtube.com/watch?v=XXXXXXXXXXX"
       responses:
         "201":
           description: ジョブが正常に作成されました
@@ -47,6 +49,9 @@ paths:
             application/json:
               schema:
                 type: object
+                required: 
+                  - job_id
+                  - message
                 properties:
                   job_id:
                     type: string
@@ -54,13 +59,17 @@ paths:
                   message:
                     type: string
                     description: 状況メッセージ
+              example:
+                job_id: "18b80b91-c46a-4e04-9cb1-9a30b39f0a47"
+                message: "Job created successfully"
         "400":
           description: 不正なリクエスト
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
+              example:
+                error: "Invalid request"
   /jobs/{job_id}:
     get:
       tags: 
@@ -82,17 +91,23 @@ paths:
           content:
             application/json:
               schema:
+                required:
+                  - status
                 type: object
                 properties:
                   status:
                     type: string
                     description: ジョブの現在の状態
+              example:
+                status: "processing"
         "404":
           description: ジョブが見つかりませんでした
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Job not found"
 
   /url/{job_id}:
     get:
@@ -116,6 +131,9 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - job_id
+                  - url
                 properties:
                   job_id:
                     type: string
@@ -124,16 +142,17 @@ paths:
                     type: string
                     format: uri
                     description: 音源のS3 URL
-                  thumbnail:
-                    type: string
-                    format: uri
-                    description: 音源のサムネイル画像の URL
+              example:
+                job_id: "18b80b91-c46a-4e04-9cb1-9a30b39f0a47"
+                url: "https://musp-s3-bucket.s3.ap-northeast-1.amazonaws.com/18b80b91-c46a-4e04-9cb1-9a30b39f0a47/source.wav"
         "404":
           description: 音源が見つかりませんでした
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Source not found"
   /thumbnail/{job_id}:
     get:
       tags: 
@@ -156,6 +175,9 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - job_id
+                  - thumbnail
                 properties:
                   job_id:
                     type: string
@@ -164,12 +186,17 @@ paths:
                     type: string
                     format: uri
                     description: 音源のサムネイル画像の URL
+              example:
+                job_id: "18b80b91-c46a-4e04-9cb1-9a30b39f0a47"
+                thumbnail: "https://musp-s3-bucket.s3.ap-northeast-1.amazonaws.com/18b80b91-c46a-4e04-9cb1-9a30b39f0a47/thumbnail.jpg"
         "404":
           description: サムネイル画像が見つかりませんでした
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Thumbnail not found"
   /ws/jobs/{job_id}:
     get:
       tags: 
