@@ -19,10 +19,9 @@ src/openapi_server/main.py
 src/openapi_server/models/__init__.py
 src/openapi_server/models/error_response.py
 src/openapi_server/models/extra_models.py
-src/openapi_server/models/jobs_job_id_get200_response.py
-src/openapi_server/models/jobs_post201_response.py
-src/openapi_server/models/jobs_post_request.py
-src/openapi_server/models/thumbnail_job_id_get200_response.py
-src/openapi_server/models/url_job_id_get200_response.py
+src/openapi_server/models/get_jobs_response.py
+src/openapi_server/models/get_url_response.py
+src/openapi_server/models/post_jobs_request.py
+src/openapi_server/models/post_jobs_response.py
 src/openapi_server/security_api.py
 tests/conftest.py

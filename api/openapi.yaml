@@ -23,26 +23,19 @@ paths:
       requestBody:
         content:
           application/json:
-            example:
-              youtube_url: https://www.youtube.com/watch?v=XXXXXXXXXXX
             schema:
-              $ref: '#/components/schemas/_jobs_post_request'
+              $ref: '#/components/schemas/PostJobsRequest'
         required: true
       responses:
         "201":
           content:
             application/json:
-              example:
-                job_id: 18b80b91-c46a-4e04-9cb1-9a30b39f0a47
-                message: Job created successfully
               schema:
-                $ref: '#/components/schemas/_jobs_post_201_response'
+                $ref: '#/components/schemas/PostJobsResponse'
           description: ジョブが正常に作成されました
         "400":
           content:
             application/json:
-              example:
-                error: Invalid request
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: 不正なリクエスト
@@ -67,16 +60,12 @@ paths:
         "200":
           content:
             application/json:
-              example:
-                status: processing
               schema:
-                $ref: '#/components/schemas/_jobs__job_id__get_200_response'
+                $ref: '#/components/schemas/GetJobsResponse'
           description: ジョブの状態情報
         "404":
           content:
             application/json:
-              example:
-                error: Job not found
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ジョブが見つかりませんでした
@@ -101,17 +90,12 @@ paths:
         "200":
           content:
             application/json:
-              example:
-                job_id: 18b80b91-c46a-4e04-9cb1-9a30b39f0a47
-                url: https://musp-s3-bucket.s3.ap-northeast-1.amazonaws.com/18b80b91-c46a-4e04-9cb1-9a30b39f0a47/source.wav
               schema:
-                $ref: '#/components/schemas/_url__job_id__get_200_response'
+                $ref: '#/components/schemas/GetURLResponse'
           description: 音源ファイルのS3 URLを返却
         "404":
           content:
             application/json:
-              example:
-                error: Source not found
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: 音源が見つかりませんでした
@@ -136,17 +120,12 @@ paths:
         "200":
           content:
             application/json:
-              example:
-                job_id: 18b80b91-c46a-4e04-9cb1-9a30b39f0a47
-                thumbnail: https://musp-s3-bucket.s3.ap-northeast-1.amazonaws.com/18b80b91-c46a-4e04-9cb1-9a30b39f0a47/thumbnail.jpg
               schema:
-                $ref: '#/components/schemas/_thumbnail__job_id__get_200_response'
+                $ref: '#/components/schemas/GetURLResponse'
           description: サムネイル画像のS3 URLを返却
         "404":
           content:
             application/json:
-              example:
-                error: Thumbnail not found
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: サムネイル画像が見つかりませんでした
@@ -176,18 +155,20 @@ paths:
       tags:
       - CheckJob
 components:
+  parameters:
+    JobID:
+      description: ジョブの識別子
+      explode: false
+      in: path
+      name: job_id
+      required: true
+      schema:
+        type: string
+      style: simple
   schemas:
-    ErrorResponse:
+    PostJobsRequest:
       example:
-        error: error
-      properties:
-        error:
-          description: エラーメッセージ
-          title: error
-          type: string
-      title: ErrorResponse
-      type: object
-    _jobs_post_request:
+        youtube_url: https://openapi-generator.tech
       properties:
         youtube_url:
           description: YouTubeの動画リンク
@@ -196,9 +177,9 @@ components:
           type: string
       required:
       - youtube_url
-      title: _jobs_post_request
+      title: PostJobsRequest
       type: object
-    _jobs_post_201_response:
+    PostJobsResponse:
       example:
         job_id: job_id
         message: message
@@ -211,12 +192,9 @@ components:
           description: 状況メッセージ
           title: message
           type: string
-      required:
-      - job_id
-      - message
-      title: _jobs_post_201_response
+      title: PostJobsResponse
       type: object
-    _jobs__job_id__get_200_response:
+    GetJobsResponse:
       example:
         status: status
       properties:
@@ -224,11 +202,9 @@ components:
           description: ジョブの現在の状態
           title: status
           type: string
-      required:
-      - status
-      title: _jobs__job_id__get_200_response
+      title: GetJobsResponse
       type: object
-    _url__job_id__get_200_response:
+    GetURLResponse:
       example:
         job_id: job_id
         url: https://openapi-generator.tech
@@ -242,29 +218,17 @@ components:
           format: uri
           title: url
           type: string
-      required:
-      - job_id
-      - url
-      title: _url__job_id__get_200_response
+      title: GetURLResponse
       type: object
-    _thumbnail__job_id__get_200_response:
+    ErrorResponse:
       example:
-        thumbnail: https://openapi-generator.tech
-        job_id: job_id
+        error: error
       properties:
-        job_id:
-          description: ジョブの識別子
-          title: job_id
+        error:
+          description: エラーメッセージ
+          title: error
           type: string
-        thumbnail:
-          description: 音源のサムネイル画像の URL
-          format: uri
-          title: thumbnail
-          type: string
-      required:
-      - job_id
-      - thumbnail
-      title: _thumbnail__job_id__get_200_response
+      title: ErrorResponse
       type: object
   securitySchemes:
     ApiKeyAuth:

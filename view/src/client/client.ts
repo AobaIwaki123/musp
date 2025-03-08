@@ -4,19 +4,15 @@ import { z } from "zod";
 const PostJobsRequest = z
   .object({ youtube_url: z.string().url() })
   .passthrough();
-
 const PostJobsResponse = z
   .object({ job_id: z.string(), message: z.string() })
   .partial()
   .passthrough();
-
 const ErrorResponse = z.object({ error: z.string() }).partial().passthrough();
-
 const GetJobsResponse = z
   .object({ status: z.string() })
   .partial()
   .passthrough();
-
 const GetURLResponse = z
   .object({ job_id: z.string(), url: z.string().url() })
   .partial()
@@ -30,7 +26,7 @@ export const schemas = {
   GetURLResponse,
 };
 
-export const endpoints = makeApi([
+const endpoints = makeApi([
   {
     method: "post",
     path: "/jobs",

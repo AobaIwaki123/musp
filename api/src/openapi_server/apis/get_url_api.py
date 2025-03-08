@@ -26,8 +26,7 @@ from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from pydantic import Field, StrictStr
 from typing_extensions import Annotated
 from openapi_server.models.error_response import ErrorResponse
-from openapi_server.models.thumbnail_job_id_get200_response import ThumbnailJobIdGet200Response
-from openapi_server.models.url_job_id_get200_response import UrlJobIdGet200Response
+from openapi_server.models.get_url_response import GetURLResponse
 from openapi_server.security_api import get_token_ApiKeyAuth
 
 router = APIRouter()
@@ -40,7 +39,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 @router.get(
     "/thumbnail/{job_id}",
     responses={
-        200: {"model": ThumbnailJobIdGet200Response, "description": "サムネイル画像のS3 URLを返却"},
+        200: {"model": GetURLResponse, "description": "サムネイル画像のS3 URLを返却"},
         404: {"model": ErrorResponse, "description": "サムネイル画像が見つかりませんでした"},
     },
     tags=["GetURL"],
@@ -52,7 +51,7 @@ async def thumbnail_job_id_get(
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
     ),
-) -> ThumbnailJobIdGet200Response:
+) -> GetURLResponse:
     """分離された音源のサムネイル画像のS3 URLを取得します。"""
     if not BaseGetURLApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
@@ -62,7 +61,7 @@ async def thumbnail_job_id_get(
 @router.get(
     "/url/{job_id}",
     responses={
-        200: {"model": UrlJobIdGet200Response, "description": "音源ファイルのS3 URLを返却"},
+        200: {"model": GetURLResponse, "description": "音源ファイルのS3 URLを返却"},
         404: {"model": ErrorResponse, "description": "音源が見つかりませんでした"},
     },
     tags=["GetURL"],
@@ -74,7 +73,7 @@ async def url_job_id_get(
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
     ),
-) -> UrlJobIdGet200Response:
+) -> GetURLResponse:
     """分離された音源のS3 URLを取得します。"""
     if not BaseGetURLApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")

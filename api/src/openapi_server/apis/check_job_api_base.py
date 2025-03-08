@@ -6,7 +6,7 @@ from pydantic import Field, StrictStr
 from typing import Any
 from typing_extensions import Annotated
 from openapi_server.models.error_response import ErrorResponse
-from openapi_server.models.jobs_job_id_get200_response import JobsJobIdGet200Response
+from openapi_server.models.get_jobs_response import GetJobsResponse
 from openapi_server.security_api import get_token_ApiKeyAuth
 
 class BaseCheckJobApi:
@@ -18,7 +18,7 @@ class BaseCheckJobApi:
     async def jobs_job_id_get(
         self,
         job_id: Annotated[StrictStr, Field(description="ジョブの識別子")],
-    ) -> JobsJobIdGet200Response:
+    ) -> GetJobsResponse:
         """指定されたジョブIDの状態を取得します。"""
         ...
 
