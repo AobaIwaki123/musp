@@ -3,6 +3,7 @@ import subprocess
 from celery_server.celery_app import app
 from openapi_server.models.custom.task_status import TaskStatus
 
+
 @app.task(bind=True)
 def separate_source(self, data: dict) -> dict:
     """音源をボーカルと伴奏に分離する"""

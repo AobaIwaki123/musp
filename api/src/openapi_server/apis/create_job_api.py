@@ -31,15 +31,23 @@ from openapi_server.security_api import get_token_ApiKeyAuth
 router = APIRouter()
 
 ns_pkg = openapi_server.impl
-for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
+for _, name, _ in pkgutil.iter_modules(
+    ns_pkg.__path__, ns_pkg.__name__ + "."
+):
     importlib.import_module(name)
 
 
 @router.post(
     "/jobs",
     responses={
-        201: {"model": PostJobsResponse, "description": "ジョブが正常に作成されました"},
-        400: {"model": ErrorResponse, "description": "不正なリクエスト"},
+        201: {
+            "model": PostJobsResponse,
+            "description": "ジョブが正常に作成されました",
+        },
+        400: {
+            "model": ErrorResponse,
+            "description": "不正なリクエスト",
+        },
     },
     tags=["CreateJob"],
     summary="新規ジョブの作成",
@@ -47,11 +55,11 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 )
 async def jobs_post(
     post_jobs_request: PostJobsRequest = Body(None, description=""),
-    token_ApiKeyAuth: TokenModel = Security(
-        get_token_ApiKeyAuth
-    ),
+    token_ApiKeyAuth: TokenModel = Security(get_token_ApiKeyAuth),
 ) -> PostJobsResponse:
     """YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。"""
     if not BaseCreateJobApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseCreateJobApi.subclasses[0]().jobs_post(post_jobs_request)
+    return await BaseCreateJobApi.subclasses[0]().jobs_post(
+        post_jobs_request
+    )

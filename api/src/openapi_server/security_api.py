@@ -14,7 +14,11 @@ from fastapi.security import (  # noqa: F401
     OAuth2PasswordBearer,
     SecurityScopes,
 )
-from fastapi.security.api_key import APIKeyCookie, APIKeyHeader, APIKeyQuery  # noqa: F401
+from fastapi.security.api_key import (
+    APIKeyCookie,
+    APIKeyHeader,
+    APIKeyQuery,
+)  # noqa: F401
 
 from openapi_server.models.extra_models import TokenModel
 
@@ -28,12 +32,11 @@ def get_token_ApiKeyAuth(
     Check and retrieve authentication information from api_key.
 
     :param token_api_key_header API key provided by Authorization[X-API-KEY] header
-    
-    
+
+
     :type token_api_key_header: str
     :return: Information attached to provided api_key or None if api_key is invalid or does not allow access to called API
     :rtype: TokenModel | None
     """
 
     ...
-
