@@ -1,12 +1,10 @@
 # coding: utf-8
 
-from typing import Dict, List  # noqa: F401
 import importlib
 import pkgutil
+from typing import Dict, List  # noqa: F401
 
-from openapi_server.apis.create_job_api_base import BaseCreateJobApi
 import openapi_server.impl
-
 from fastapi import (  # noqa: F401
     APIRouter,
     Body,
@@ -21,9 +19,11 @@ from fastapi import (  # noqa: F401
     Security,
     status,
 )
-
-from openapi_server.models.extra_models import TokenModel  # noqa: F401
+from openapi_server.apis.create_job_api_base import BaseCreateJobApi
 from openapi_server.models.error_response import ErrorResponse
+from openapi_server.models.extra_models import (
+    TokenModel,  # noqa: F401
+)
 from openapi_server.models.post_jobs_request import PostJobsRequest
 from openapi_server.models.post_jobs_response import PostJobsResponse
 from openapi_server.security_api import get_token_ApiKeyAuth

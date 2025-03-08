@@ -22,8 +22,11 @@ restart:
 logs:
 	@docker compose logs -f
 
-lint:
+lint-ts:
 	@docker -v ./view/:/code ghcr.io/biomejs/biome:1.9.4 lint
+
+lint-py:
+	@sudo docker run --rm -v ./:/code pipelinecomponents/ruff ruff format
 
 gen-py:
 	@sudo rm api/src/openapi_server/models/* || true

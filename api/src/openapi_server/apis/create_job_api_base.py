@@ -2,10 +2,8 @@
 
 from typing import ClassVar, Dict, List, Tuple  # noqa: F401
 
-from openapi_server.models.error_response import ErrorResponse
 from openapi_server.models.post_jobs_request import PostJobsRequest
 from openapi_server.models.post_jobs_response import PostJobsResponse
-from openapi_server.security_api import get_token_ApiKeyAuth
 
 
 class BaseCreateJobApi:
