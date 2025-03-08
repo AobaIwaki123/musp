@@ -26,7 +26,9 @@ lint:
 	@docker -v ./view/:/code ghcr.io/biomejs/biome:1.9.4 lint
 
 gen-py:
+	@sudo rm api/src/openapi_server/models/* || true
 	@sudo docker run --rm -v ./:/local openapitools/openapi-generator-cli generate -i /local/openapi.yaml -g python-fastapi -o /local/api
+	@sudo chown $(USER) -R .
 
 gen-ts:
 	@sudo docker compose run --rm view openapi-zod-client openapi.yaml --output src/client/client.ts

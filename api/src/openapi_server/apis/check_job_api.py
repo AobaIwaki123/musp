@@ -1,10 +1,12 @@
 # coding: utf-8
 
+from typing import Dict, List  # noqa: F401
 import importlib
 import pkgutil
-from typing import Dict, List  # noqa: F401
 
+from openapi_server.apis.check_job_api_base import BaseCheckJobApi
 import openapi_server.impl
+
 from fastapi import (  # noqa: F401
     APIRouter,
     Body,
@@ -19,15 +21,14 @@ from fastapi import (  # noqa: F401
     Security,
     status,
 )
-from openapi_server.apis.check_job_api_base import BaseCheckJobApi
+
+from openapi_server.models.extra_models import TokenModel  # noqa: F401
+from pydantic import Field, field_validator
+from typing import Any
+from typing_extensions import Annotated
 from openapi_server.models.error_response import ErrorResponse
-from openapi_server.models.extra_models import (
-    TokenModel,  # noqa: F401
-)
 from openapi_server.models.get_jobs_response import GetJobsResponse
 from openapi_server.security_api import get_token_ApiKeyAuth
-from pydantic import Field
-from typing_extensions import Annotated
 
 router = APIRouter()
 
