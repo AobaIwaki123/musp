@@ -10,7 +10,7 @@ export const PostJobsRequest = z.object({
     )
     .url(),
 });
-export type PostJobsRequest = z.infer<typeof PostJobsRequest>;
+export type PostJobsRequestType = z.infer<typeof PostJobsRequest>;
 
 export const PostJobsResponse = z.object({
   job_id: z
@@ -20,15 +20,15 @@ export const PostJobsResponse = z.object({
     ),
   message: z.string(),
 });
-export type PostJobsResponse = z.infer<typeof PostJobsResponse>;
+export type PostJobsResponseType = z.infer<typeof PostJobsResponse>;
 
 export const ErrorResponse = z.object({ error: z.string() });
-export type ErrorResponse = z.infer<typeof ErrorResponse>;
+export type ErrorResponseType = z.infer<typeof ErrorResponse>;
 
 export const GetJobsResponse = z.object({
   status: z.enum(["PENDING", "STARTED", "SUCCESS", "FAILURE"]),
 });
-export type GetJobsResponse = z.infer<typeof GetJobsResponse>;
+export type GetJobsResponseType = z.infer<typeof GetJobsResponse>;
 
 export const GetURLResponse = z.object({
   job_id: z
@@ -38,7 +38,7 @@ export const GetURLResponse = z.object({
     ),
   url: z.string().url(),
 });
-export type GetURLResponse = z.infer<typeof GetURLResponse>;
+export type GetURLResponseType = z.infer<typeof GetURLResponse>;
 
 export const schemas = {
   PostJobsRequest,

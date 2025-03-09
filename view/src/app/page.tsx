@@ -19,7 +19,7 @@ import { useEffect, useRef, useState, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { api } from "@/client/api";
 import { PostJobsRequest } from "@/client/client";
-import type { PostJobsRequest } from "@/client/client";
+import type { PostJobsRequestType } from "@/client/client";
 
 export default function Home() {
 	const [userID, setUserID] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export default function Home() {
 	const [iconUrl, setIconUrl] = useState<string | null>(null);
 	const [gallery, setGallery] = useState<RamenGalleryList>([]);
 
-	const form = useForm<PostJobsRequest>({
+	const form = useForm<PostJobsRequestType>({
 		resolver: zodResolver(PostJobsRequest),
 		defaultValues: {
 			user_id: "",
