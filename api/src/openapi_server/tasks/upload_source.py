@@ -1,8 +1,8 @@
+from celery.result import AsyncResult
 from celery_server.celery_app import app
 from google.cloud import storage
 from openapi_server.models.custom.task_status import TaskStatus
-from celery.result import AsyncResult
-from openapi_server.models.custom.task_status import TaskStatus
+
 
 @app.task(bind=True)
 def upload_source(self, data: dict) -> dict:
@@ -10,7 +10,8 @@ def upload_source(self, data: dict) -> dict:
     root_task_id = data["root_task_id"]
     root_task = AsyncResult(root_task_id)
     root_task.backend.store_result(
-        root_task_id, {"step": "Uploading to cloud", "progress": 80},
+        root_task_id,
+        {"step": "Uploading to cloud", "progress": 80},
         state=TaskStatus.STARTED.value,
     )
 
@@ -35,7 +36,8 @@ def upload_source(self, data: dict) -> dict:
     )
 
     root_task.backend.store_result(
-        root_task_id, {"step": "Upload completed", "progress": 100},
+        root_task_id,
+        {"step": "Upload completed", "progress": 100},
         state=TaskStatus.STARTED.value,
     )
     return {

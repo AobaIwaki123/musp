@@ -179,16 +179,21 @@ components:
     PostJobsRequest:
       additionalProperties: false
       example:
-        youtube_url: https://openapi-generator.tech
+        user_id: testUser
+        youtube_url: https://www.youtube.com/watch?v=57Q4Hp46oXc
       properties:
+        user_id:
+          description: ユーザーID
+          maximum: 100
+          type: string
         youtube_url:
           description: YouTubeの動画リンク
           format: uri
           maximum: 100
           pattern: "^https://www\\.youtube\\.com/watch\\?v=[a-zA-Z0-9_-]{11}$"
-          title: youtube_url
           type: string
       required:
+      - user_id
       - youtube_url
       title: PostJobsRequest
       type: object
@@ -227,7 +232,6 @@ components:
           - SUCCESS
           - FAILURE
           maximum: 10
-          pattern: "^[A-Z]+$"
           title: status
           type: string
       required:

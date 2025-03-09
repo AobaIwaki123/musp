@@ -32,8 +32,9 @@ class PostJobsRequest(BaseModel):
     """
     PostJobsRequest
     """ # noqa: E501
+    user_id: Annotated[str, Field(strict=True)] = Field(description="ユーザーID")
     youtube_url: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画リンク")
-    __properties: ClassVar[List[str]] = ["youtube_url"]
+    __properties: ClassVar[List[str]] = ["user_id", "youtube_url"]
 
     @field_validator('youtube_url')
     def youtube_url_validate_regular_expression(cls, value):
@@ -91,6 +92,7 @@ class PostJobsRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "user_id": obj.get("user_id"),
             "youtube_url": obj.get("youtube_url")
         })
         return _obj

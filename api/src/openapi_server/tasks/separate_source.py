@@ -1,9 +1,9 @@
 import subprocess
 
+from celery.result import AsyncResult
 from celery_server.celery_app import app
 from openapi_server.models.custom.task_status import TaskStatus
-from celery.result import AsyncResult
-from openapi_server.models.custom.task_status import TaskStatus
+
 
 @app.task(bind=True)
 def separate_source(self, data: dict) -> dict:
@@ -11,7 +11,8 @@ def separate_source(self, data: dict) -> dict:
     root_task_id = data["root_task_id"]
     root_task = AsyncResult(root_task_id)
     root_task.backend.store_result(
-        root_task_id, {"step": "Separating audio", "progress": 50},
+        root_task_id,
+        {"step": "Separating audio", "progress": 50},
         state=TaskStatus.STARTED.value,
     )
 
@@ -42,7 +43,8 @@ def separate_source(self, data: dict) -> dict:
     )
 
     root_task.backend.store_result(
-        root_task_id, {"step": "Separation completed", "progress": 66},
+        root_task_id,
+        {"step": "Separation completed", "progress": 66},
         state=TaskStatus.STARTED.value,
     )
 

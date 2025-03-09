@@ -2,6 +2,7 @@ import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
 export const PostJobsRequest = z.object({
+  user_id: z.string(),
   youtube_url: z
     .string()
     .regex(/^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$/)
@@ -51,12 +52,7 @@ export const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({
-          youtube_url: z
-            .string()
-            .regex(/^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$/)
-            .url(),
-        }),
+        schema: PostJobsRequest,
       },
     ],
     response: PostJobsResponse,

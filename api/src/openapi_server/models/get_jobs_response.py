@@ -36,13 +36,6 @@ class GetJobsResponse(BaseModel):
     __properties: ClassVar[List[str]] = ["status"]
 
     @field_validator('status')
-    def status_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[A-Z]+$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Z]+$/")
-        return value
-
-    @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
         if value not in ('PENDING', 'STARTED', 'SUCCESS', 'FAILURE',):

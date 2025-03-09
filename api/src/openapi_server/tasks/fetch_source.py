@@ -4,14 +4,20 @@ from celery.result import AsyncResult
 from celery_server.celery_app import app
 from openapi_server.models.custom.task_status import TaskStatus
 from openapi_server.models.custom.task_status import TaskStatus
+from openapi_server.models.post_jobs_request import PostJobsRequest
+
 
 @app.task(bind=True)
-def fetch_source(self, youtube_url: str, root_task_id: str) -> dict:
+def fetch_source(
+    self, data: dict, root_task_id: str
+) -> dict:
     root_task = AsyncResult(root_task_id)
     root_task.backend.store_result(
         root_task_id, {"step": "Downloading", "progress": 0},
         state=TaskStatus.STARTED.value,
     )
+
+    youtube_url = data["youtube_url"]
     """YouTubeから音源をダウンロードする"""
     out_path = f"tmp/{root_task_id}/source.webm"
 
