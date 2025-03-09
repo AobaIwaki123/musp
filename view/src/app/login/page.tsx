@@ -15,9 +15,9 @@ export default function Home() {
 				<Card className="w-[350px]">
 					<CardHeader className="text-center">
 						<CardTitle className="text-3xl font-bold text-primary">
-							推し麺ノート
+							Musp
 						</CardTitle>
-						<CardDescription>ボタンを押してラーメンを推そう！！！</CardDescription>
+						<CardDescription>YouTubeの音楽をボーカルのみ抽出するアプリ</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<div className="flex justify-center">

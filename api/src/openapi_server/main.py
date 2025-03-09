@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from openapi_server.apis.check_job_api import router as CheckJobApiRouter
 from openapi_server.apis.create_job_api import router as CreateJobApiRouter
 from openapi_server.apis.get_url_api import router as GetURLApiRouter
+from openapi_server.apis.user_api import router as UserApiRouter
 
 origins = ["*"]
 
@@ -38,3 +39,4 @@ app.add_middleware(
 app.include_router(CheckJobApiRouter)
 app.include_router(CreateJobApiRouter)
 app.include_router(GetURLApiRouter)
+app.include_router(UserApiRouter)

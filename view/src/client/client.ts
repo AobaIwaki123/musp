@@ -57,6 +57,16 @@ export const GetInfoListResponse = z
   .partial();
 export type GetInfoListResponseType = z.infer<typeof GetInfoListResponse>;
 
+export const PostUserRequest = z.object({
+  google_id: z.string(),
+  nickname: z.string(),
+  icon_url: z.string().url(),
+});
+export type PostUserRequestType = z.infer<typeof PostUserRequest>;
+
+export const PostUserResponse = z.object({ user_id: z.string() });
+export type PostUserResponseType = z.infer<typeof PostUserResponse>;
+
 export const schemas = {
   PostJobsRequest,
   PostJobsResponse,
@@ -65,6 +75,8 @@ export const schemas = {
   GetURLResponse,
   GetInfoResponse,
   GetInfoListResponse,
+  PostUserRequest,
+  PostUserResponse,
 };
 
 export const endpoints = makeApi([
@@ -186,6 +198,28 @@ export const endpoints = makeApi([
       {
         status: 404,
         description: `音源が見つかりませんでした`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/user",
+    alias: "postUser",
+    description: `ユーザー情報を登録します。`,
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PostUserRequest,
+      },
+    ],
+    response: z.object({ user_id: z.string() }),
+    errors: [
+      {
+        status: 400,
+        description: `不正なリクエスト`,
         schema: z.object({ error: z.string() }),
       },
     ],

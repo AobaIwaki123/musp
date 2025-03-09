@@ -14,6 +14,8 @@ src/openapi_server/apis/create_job_api.py
 src/openapi_server/apis/create_job_api_base.py
 src/openapi_server/apis/get_url_api.py
 src/openapi_server/apis/get_url_api_base.py
+src/openapi_server/apis/user_api.py
+src/openapi_server/apis/user_api_base.py
 src/openapi_server/impl/__init__.py
 src/openapi_server/main.py
 src/openapi_server/models/__init__.py
@@ -25,5 +27,8 @@ src/openapi_server/models/get_jobs_response.py
 src/openapi_server/models/get_url_response.py
 src/openapi_server/models/post_jobs_request.py
 src/openapi_server/models/post_jobs_response.py
+src/openapi_server/models/post_user_request.py
+src/openapi_server/models/post_user_response.py
 src/openapi_server/security_api.py
 tests/conftest.py
+tests/test_user_api.py

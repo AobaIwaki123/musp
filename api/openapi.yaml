@@ -16,6 +16,8 @@ tags:
   name: CheckJob
 - description: オブジェクトストレージからURLを取得
   name: GetURL
+- description: ユーザー情報取得
+  name: User
 paths:
   /jobs:
     post:
@@ -194,6 +196,39 @@ paths:
       summary: ジョブの進捗状況をWebSocketで取得
       tags:
       - CheckJob
+  /user:
+    post:
+      description: ユーザー情報を登録します。
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUserRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostUserResponse'
+          description: ユーザーが存在します
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostUserResponse'
+          description: ユーザー情報が正常に登録されました
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: 不正なリクエスト
+      security:
+      - ApiKeyAuth: []
+      summary: ユーザー情報の登録
+      tags:
+      - User
 components:
   parameters:
     JobID:
@@ -348,6 +383,46 @@ components:
             $ref: '#/components/schemas/GetInfoResponse'
           type: array
       title: GetInfoListResponse
+      type: object
+    PostUserRequest:
+      additionalProperties: false
+      example:
+        google_id: testGoogleID
+        nickname: testNickname
+        icon_url: https://example.com/icon.jpg
+      properties:
+        google_id:
+          description: GoogleのユーザーID
+          maximum: 100
+          type: string
+        nickname:
+          description: ニックネーム
+          maximum: 100
+          type: string
+        icon_url:
+          description: アイコン画像のURL
+          format: uri
+          maximum: 200
+          type: string
+      required:
+      - google_id
+      - icon_url
+      - nickname
+      title: PostUserRequest
+      type: object
+    PostUserResponse:
+      additionalProperties: false
+      example:
+        user_id: user_id
+      properties:
+        user_id:
+          description: ユーザーID
+          maximum: 100
+          title: user_id
+          type: string
+      required:
+      - user_id
+      title: PostUserResponse
       type: object
     ErrorResponse:
       additionalProperties: false
