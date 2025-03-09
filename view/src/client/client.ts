@@ -40,15 +40,60 @@ export const GetURLResponse = z.object({
 });
 export type GetURLResponseType = z.infer<typeof GetURLResponse>;
 
+export const GetInfoResponse = z.object({
+  title: z.string(),
+  thumbnail_url: z
+    .string()
+    .regex(
+      /^https?:\/\/i.ytimg.com\/vi\/([a-zA-Z0-9_-]{11})\/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$/
+    )
+    .url(),
+  wav_url: z.string().url(),
+});
+export type GetInfoResponseType = z.infer<typeof GetInfoResponse>;
+
+export const GetInfoListResponse = z.object({
+  items: z.array(GetInfoResponse),
+});
+export type GetInfoListResponseType = z.infer<typeof GetInfoListResponse>;
+
 export const schemas = {
   PostJobsRequest,
   PostJobsResponse,
   ErrorResponse,
   GetJobsResponse,
   GetURLResponse,
+  GetInfoResponse,
+  GetInfoListResponse,
 };
 
 export const endpoints = makeApi([
+  {
+    method: "get",
+    path: "/info/:job_id",
+    alias: "getInfoJob_id",
+    description: `ギャラリー表示のための情報を取得します。`,
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "job_id",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+          ),
+      },
+    ],
+    response: GetInfoListResponse,
+    errors: [
+      {
+        status: 404,
+        description: `ジョブが見つかりませんでした`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
   {
     method: "post",
     path: "/jobs",
