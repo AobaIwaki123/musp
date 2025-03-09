@@ -140,18 +140,18 @@ paths:
       summary: 分離された音源のサムネイル画像の取得
       tags:
       - GetURL
-  /info/{job_id}:
+  /info/{user_id}:
     get:
       description: ギャラリー表示のための情報を取得します。
       parameters:
-      - description: ジョブの識別子
+      - description: ユーザーID
+        example: testUser
         explode: false
         in: path
-        name: job_id
+        name: user_id
         required: true
         schema:
-          maximum: 36
-          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          maximum: 100
           type: string
         style: simple
       responses:
@@ -205,6 +205,17 @@ components:
       schema:
         maximum: 36
         pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        type: string
+      style: simple
+    UserID:
+      description: ユーザーID
+      example: testUser
+      explode: false
+      in: path
+      name: user_id
+      required: true
+      schema:
+        maximum: 100
         type: string
       style: simple
   schemas:

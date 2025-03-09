@@ -70,19 +70,15 @@ export const schemas = {
 export const endpoints = makeApi([
   {
     method: "get",
-    path: "/info/:job_id",
-    alias: "getInfoJob_id",
+    path: "/info/:user_id",
+    alias: "getInfoUser_id",
     description: `ギャラリー表示のための情報を取得します。`,
     requestFormat: "json",
     parameters: [
       {
-        name: "job_id",
+        name: "user_id",
         type: "Path",
-        schema: z
-          .string()
-          .regex(
-            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-          ),
+        schema: z.string(),
       },
     ],
     response: GetInfoListResponse,

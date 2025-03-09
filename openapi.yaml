@@ -115,7 +115,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /info/{job_id}:
+  /info/{user_id}:
     get:
       tags: 
         - GetURL
@@ -124,7 +124,7 @@ paths:
       security:
         - ApiKeyAuth: []
       parameters:
-        - $ref: "#/components/parameters/JobID"
+        - $ref: "#/components/parameters/UserID"
       responses:
         "200":
           description: ギャラリーを表示するために必要な情報を返却
@@ -164,6 +164,15 @@ components:
         type: string
         pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
         maximum: 36
+    UserID:
+      name: user_id
+      in: path
+      description: ユーザーID
+      required: true
+      schema:
+        type: string
+        maximum: 100
+      example: testUser
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

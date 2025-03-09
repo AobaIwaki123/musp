@@ -38,7 +38,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 
 
 @router.get(
-    "/info/{job_id}",
+    "/info/{user_id}",
     responses={
         200: {"model": GetInfoListResponse, "description": "ギャラリーを表示するために必要な情報を返却"},
         404: {"model": ErrorResponse, "description": "ジョブが見つかりませんでした"},
@@ -47,8 +47,8 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     summary="ギャラリー表示のための情報取得",
     response_model_by_alias=True,
 )
-async def info_job_id_get(
-    job_id: Annotated[str, Field(strict=True, description="ジョブの識別子")] = Path(..., description="ジョブの識別子", regex=r"/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/"),
+async def info_user_id_get(
+    user_id: Annotated[str, Field(strict=True, description="ユーザーID")] = Path(..., description="ユーザーID"),
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
     ),
@@ -56,7 +56,7 @@ async def info_job_id_get(
     """ギャラリー表示のための情報を取得します。"""
     if not BaseGetURLApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseGetURLApi.subclasses[0]().info_job_id_get(job_id)
+    return await BaseGetURLApi.subclasses[0]().info_user_id_get(user_id)
 
 
 @router.get(

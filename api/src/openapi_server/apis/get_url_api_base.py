@@ -15,9 +15,9 @@ class BaseGetURLApi:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         BaseGetURLApi.subclasses = BaseGetURLApi.subclasses + (cls,)
-    async def info_job_id_get(
+    async def info_user_id_get(
         self,
-        job_id: Annotated[str, Field(strict=True, description="ジョブの識別子")],
+        user_id: Annotated[str, Field(strict=True, description="ユーザーID")],
     ) -> GetInfoListResponse:
         """ギャラリー表示のための情報を取得します。"""
         ...
