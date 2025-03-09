@@ -39,3 +39,7 @@ gen-ts:
 gen:
 	@make gen-py
 	@make gen-ts
+
+prune-br:
+	@git remote prune origin
+	@git branch | xargs git branch -d
