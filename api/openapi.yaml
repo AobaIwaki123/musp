@@ -140,6 +140,38 @@ paths:
       summary: 分離された音源のサムネイル画像の取得
       tags:
       - GetURL
+  /info/{user_id}:
+    get:
+      description: ギャラリー表示のための情報を取得します。
+      parameters:
+      - description: ユーザーID
+        example: testUser
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          maximum: 100
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInfoListResponse'
+          description: ギャラリーを表示するために必要な情報を返却
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ジョブが見つかりませんでした
+      security:
+      - ApiKeyAuth: []
+      summary: ギャラリー表示のための情報取得
+      tags:
+      - GetURL
   /ws/jobs/{job_id}:
     get:
       description: WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。
@@ -173,6 +205,17 @@ components:
       schema:
         maximum: 36
         pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        type: string
+      style: simple
+    UserID:
+      description: ユーザーID
+      example: testUser
+      explode: false
+      in: path
+      name: user_id
+      required: true
+      schema:
+        maximum: 100
         type: string
       style: simple
   schemas:
@@ -260,6 +303,51 @@ components:
       - job_id
       - url
       title: GetURLResponse
+      type: object
+    GetInfoResponse:
+      additionalProperties: false
+      example:
+        title: testTitle
+        thumbnail_url: https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg
+        wav_url: https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav
+      properties:
+        title:
+          description: タイトル
+          maximum: 200
+          type: string
+        thumbnail_url:
+          description: サムネイル画像のURL
+          format: uri
+          maximum: 200
+          pattern: "^https?://i.ytimg.com/vi/([a-zA-Z0-9_-]{11})/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$"
+          type: string
+        wav_url:
+          description: 音源のURL
+          format: uri
+          nullable: true
+          type: string
+      required:
+      - thumbnail_url
+      - title
+      title: GetInfoResponse
+      type: object
+    GetInfoListResponse:
+      additionalProperties: false
+      example:
+        items:
+        - title: testTitle
+          thumbnail_url: https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg
+          wav_url: https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav
+        - title: testTitle2
+          thumbnail_url: https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg
+          wav_url: https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav
+      properties:
+        items:
+          description: ギャラリー表示のための情報のリスト
+          items:
+            $ref: '#/components/schemas/GetInfoResponse'
+          type: array
+      title: GetInfoListResponse
       type: object
     ErrorResponse:
       additionalProperties: false

@@ -40,15 +40,56 @@ export const GetURLResponse = z.object({
 });
 export type GetURLResponseType = z.infer<typeof GetURLResponse>;
 
+export const GetInfoResponse = z.object({
+  title: z.string(),
+  thumbnail_url: z
+    .string()
+    .regex(
+      /^https?:\/\/i.ytimg.com\/vi\/([a-zA-Z0-9_-]{11})\/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$/
+    )
+    .url(),
+  wav_url: z.union([z.string(), z.null()]).optional(),
+});
+export type GetInfoResponseType = z.infer<typeof GetInfoResponse>;
+
+export const GetInfoListResponse = z
+  .object({ items: z.array(GetInfoResponse) })
+  .partial();
+export type GetInfoListResponseType = z.infer<typeof GetInfoListResponse>;
+
 export const schemas = {
   PostJobsRequest,
   PostJobsResponse,
   ErrorResponse,
   GetJobsResponse,
   GetURLResponse,
+  GetInfoResponse,
+  GetInfoListResponse,
 };
 
 export const endpoints = makeApi([
+  {
+    method: "get",
+    path: "/info/:user_id",
+    alias: "getInfoUser_id",
+    description: `ギャラリー表示のための情報を取得します。`,
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "user_id",
+        type: "Path",
+        schema: z.string(),
+      },
+    ],
+    response: GetInfoListResponse,
+    errors: [
+      {
+        status: 404,
+        description: `ジョブが見つかりませんでした`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
   {
     method: "post",
     path: "/jobs",

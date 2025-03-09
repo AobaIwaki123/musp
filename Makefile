@@ -30,7 +30,7 @@ lint-py:
 
 gen-py:
 	@sudo find api/src/openapi_server/models -maxdepth 1 -type f -delete
-	@sudo docker run --rm -v ./:/local openapitools/openapi-generator-cli generate -i /local/openapi.yaml -g python-fastapi -o /local/api
+	@sudo docker run --rm -v ./:/local openapitools/openapi-generator-cli generate -i /local/openapi.yaml -g python-fastapi -o /local/api -t /local/api/templates
 	@sudo chown $(USER) -R .
 
 gen-ts:
@@ -39,3 +39,7 @@ gen-ts:
 gen:
 	@make gen-py
 	@make gen-ts
+
+prune-br:
+	@git remote prune origin
+	@git branch | xargs git branch -d
