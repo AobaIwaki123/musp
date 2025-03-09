@@ -31,4 +31,3 @@ src/openapi_server/models/post_user_request.py
 src/openapi_server/models/post_user_response.py
 src/openapi_server/security_api.py
 tests/conftest.py
-tests/test_user_api.py

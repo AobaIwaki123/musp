@@ -36,7 +36,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 
 
 @router.post(
-    "/user",
+    "/users",
     responses={
         200: {"model": PostUserResponse, "description": "ユーザーが存在します"},
         201: {"model": PostUserResponse, "description": "ユーザー情報が正常に登録されました"},
@@ -46,7 +46,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     summary="ユーザー情報の登録",
     response_model_by_alias=True,
 )
-async def user_post(
+async def users_post(
     post_user_request: PostUserRequest = Body(None, description=""),
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
@@ -55,4 +55,4 @@ async def user_post(
     """ユーザー情報を登録します。"""
     if not BaseUserApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseUserApi.subclasses[0]().user_post(post_user_request)
+    return await BaseUserApi.subclasses[0]().users_post(post_user_request)

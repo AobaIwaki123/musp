@@ -204,8 +204,8 @@ export const endpoints = makeApi([
   },
   {
     method: "post",
-    path: "/user",
-    alias: "postUser",
+    path: "/users",
+    alias: "postUsers",
     description: `ユーザー情報を登録します。`,
     requestFormat: "json",
     parameters: [

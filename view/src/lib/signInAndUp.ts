@@ -1,59 +1,55 @@
 import { getUrl } from "@/lib/utils";
 import type { User as FirebaseUser } from "@firebase/auth";
+import { api } from "@/client/api";
+import { appendOffsetOfLegend } from "recharts/types/util/ChartUtils";
+import type { PostUserRequestType } from "@/client/client";
 
 const storeStorageUser = (uid: string) => {
-	localStorage.setItem("userID", uid);
+  localStorage.setItem("userID", uid);
 };
 
 const storeStorageUserName = (name: string) => {
-	localStorage.setItem("userName", name);
+  localStorage.setItem("userName", name);
+};
+
+const storeStorageIconUrl = (iconUrl: string) => {
+  localStorage.setItem("iconUrl", iconUrl);
 };
 
 type responseJson = {
-	message: string;
-	data: {
-		id: string;
-	};
+  message: string;
+  data: {
+    id: string;
+  };
 };
 
 export const signInOrUp = async (firebaseUser: FirebaseUser) => {
-	try {
-		const res = await fetch(getUrl("v1/users"), {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				google_id: firebaseUser.uid,
-				nickname: firebaseUser.displayName || "default_nickname", // ニックネームを追加
-				icon_url: firebaseUser.photoURL || "default_icon_url", // アイコン画像の URL を追加
-			}),
-		});
+  try {
+    console.log("firebaseUser", firebaseUser);
+    const google_id = firebaseUser.uid;
+    const nickname = firebaseUser.displayName || "default_nickname";
+    const icon_url = firebaseUser.photoURL || "default_icon_url";
 
-		if (res.status === 200) {
-			console.log("ユーザーが存在します");
-		} else if (res.status === 201) {
-			console.log("ユーザーを作成しました");
-		} else if (res.status === 422) {
-			console.log("リクエストが不正です", res);
-			return;
-		} else {
-			console.log("予期せぬエラーが発生しました", res);
-			return;
-		}
+		const data: PostUserRequestType = {
+			google_id,
+			nickname,
+			icon_url,
+		};
 
-		const responseJson = (await res.json()) as responseJson;
-		const uid = responseJson.data.id;
-		storeStorageUser(uid);
-		storeStorageUserName(firebaseUser.displayName || "User Name");
+		console.log(data);
+    const res = await api.postUsers(data);
 
-		toRoot();
-		return uid;
-	} catch (error) {
-		console.error("エラーが発生しました:", error);
-	}
+    const user_id = res.user_id
+    storeStorageUser(user_id);
+    storeStorageUserName(nickname);
+    storeStorageIconUrl(icon_url);
+
+    toRoot();
+  } catch (error) {
+    console.error("エラーが発生しました:", error);
+  }
 };
 
 const toRoot = () => {
-	window.location.href = "/";
+  window.location.href = "/";
 };

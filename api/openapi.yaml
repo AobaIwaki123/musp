@@ -196,7 +196,7 @@ paths:
       summary: ジョブの進捗状況をWebSocketで取得
       tags:
       - CheckJob
-  /user:
+  /users:
     post:
       description: ユーザー情報を登録します。
       requestBody:
