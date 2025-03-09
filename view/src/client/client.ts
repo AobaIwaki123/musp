@@ -7,6 +7,7 @@ const PostJobsRequest = z.object({
     .regex(/^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$/)
     .url(),
 });
+
 const PostJobsResponse = z.object({
   job_id: z
     .string()
@@ -15,12 +16,15 @@ const PostJobsResponse = z.object({
     ),
   message: z.string(),
 });
+
 const ErrorResponse = z.object({ error: z.string() });
+
 const GetJobsResponse = z.object({
   status: z
     .enum(["PENDING", "STARTED", "SUCCESS", "FAILURE"])
     .regex(/^[A-Z]+$/),
 });
+
 const GetURLResponse = z.object({
   job_id: z
     .string()
@@ -38,7 +42,7 @@ export const schemas = {
   GetURLResponse,
 };
 
-const endpoints = makeApi([
+export const endpoints = makeApi([
   {
     method: "post",
     path: "/jobs",
