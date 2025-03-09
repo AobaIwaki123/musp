@@ -1,14 +1,14 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
-const PostJobsRequest = z.object({
+export const PostJobsRequest = z.object({
   youtube_url: z
     .string()
     .regex(/^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$/)
     .url(),
 });
 
-const PostJobsResponse = z.object({
+export const PostJobsResponse = z.object({
   job_id: z
     .string()
     .regex(
@@ -17,15 +17,15 @@ const PostJobsResponse = z.object({
   message: z.string(),
 });
 
-const ErrorResponse = z.object({ error: z.string() });
+export const ErrorResponse = z.object({ error: z.string() });
 
-const GetJobsResponse = z.object({
+export const GetJobsResponse = z.object({
   status: z
     .enum(["PENDING", "STARTED", "SUCCESS", "FAILURE"])
     .regex(/^[A-Z]+$/),
 });
 
-const GetURLResponse = z.object({
+export const GetURLResponse = z.object({
   job_id: z
     .string()
     .regex(
