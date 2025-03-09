@@ -18,76 +18,52 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { api } from "@/client/api";
+import { PostJobsRequest } from "@/client/client";
+import type { PostJobsRequestType } from "@/client/client";
 
 export default function Home() {
+	const [userID, setUserID] = useState<string | null>(null);
 	const [userName, setUserName] = useState<string | null>(null);
 	const [iconUrl, setIconUrl] = useState<string | null>(null);
 	const [gallery, setGallery] = useState<RamenGalleryList>([]);
 
-	const form = useForm<Post>({
-		resolver: zodResolver(postSchema),
+	const form = useForm<PostJobsRequestType>({
+		resolver: zodResolver(PostJobsRequest),
 		defaultValues: {
+			user_id: "",
 			youtube_url: "",
 		},
 	});
+
+	useEffect(() => {
+		const userID = localStorage.getItem("userID");
+		const userName = localStorage.getItem("userName");
+
+		if (!userID) {
+			return;
+		}
+
+		setUserID(userID);
+		setUserName(userName);
+	}, []);
+
+	useEffect(() => {
+		if (!userID) {
+			return;
+		}
+		
+		form.setValue("user_id", userID);
+	}, [userID]);
 
 	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		form.setValue("youtube_url", event.target.value);
 	}
 
 	const onSubmit = async (data: Post) => {
+		console.log(data);
 		try {
-			api
-				.postJobs(
-					{
-						youtube_url: data.youtube_url,
-					}
-				)
-				.then((response) => {
-					console.log(response);
-					const job_id = response.job_id;
-					api.getThumbnailJob_id({ job_id })
-					.then((response) => {
-						console.log(response);
-					});
-				});
-			const response = await fetch(
-				'http://localhost:8000/api/v1/jobs', 
-				{
-					method: 'POST',
-					headers: {
-						'accept': 'application/json',
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						youtube_url: data.youtube_url
-					})
-				}
-			);
-			const json = await response.json();
-			console.log(json);
-			const job_id = json.job_id;
-			const url = `http://localhost:8000/api/v1/thumbnail/${job_id}`;
-			const res = await fetch(
-				url,
-				{
-					method: 'GET',
-					headers: {
-						'accept': 'application/json'
-					},
-				}
-			);
-			const json2 = await res.json();
-			console.log(json2);
-			const thumbnail = json2.thumbnail;
-			const ramen = {
-				job_id: job_id,
-				url: null,
-				thumbnail: thumbnail,
-			}
-			setGallery([ramen, ...gallery]);
-			// window.location.reload();
-			console.log("Request sent");
+			// User IDとYotube URLでCreate Jobを実行
+			api.postJobs(data);
 		} catch (error) {
 			console.error(error);
 		}

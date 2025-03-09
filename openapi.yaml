@@ -148,14 +148,22 @@ components:
   schemas:
     PostJobsRequest:
       type: object
+      example:
+        user_id: "testUser"
+        youtube_url: "https://www.youtube.com/watch?v=57Q4Hp46oXc"
       properties:
+        user_id:
+          type: string
+          description: ユーザーID
+          maximum: 100
         youtube_url:
           type: string
           format: uri
           description: YouTubeの動画リンク
-          pattern: ^https://www\.youtube\.com/watch\?v=[a-zA-Z0-9_-]{11}$
+          pattern: /^(?:https?://)?(?:www\.)?(?:youtube\.com/(?:watch\?.*v=|embed/|v/)|youtu\.be/)([a-zA-Z0-9_-]{11})/
           maximum: 100
       required:
+        - user_id
         - youtube_url
       additionalProperties: false
     PostJobsResponse:
@@ -186,7 +194,6 @@ components:
             - SUCCESS
             - FAILURE
           maximum: 10
-          pattern: ^[A-Z]+$
       required:
         - status
       additionalProperties: false

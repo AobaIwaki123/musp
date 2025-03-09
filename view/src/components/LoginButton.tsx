@@ -17,6 +17,7 @@ const firebaseConfig = {
 };
 
 const provider = new GoogleAuthProvider();
+
 async function signUp() {
 	const auth = getAuth();
 
@@ -41,6 +42,14 @@ async function signUp() {
 			// ...
 		});
 }
+
+async function testSignUp() {
+	localStorage.setItem("userID", "testUserID");
+	localStorage.setItem("userName", "testUser");
+
+	window.location.href = "/";
+}
+
 export const LoginButton = () => {
 	const app = initializeApp(firebaseConfig);
 
@@ -50,5 +59,5 @@ export const LoginButton = () => {
 		}
 	}, []);
 
-	return <Button onClick={signUp}>Googleでサインイン</Button>;
+	return <Button onClick={testSignUp}>Googleでサインイン</Button>;
 };

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const postSchema = z.object({
+	user_id: z.string(),
 	youtube_url: z
 	.string({ required_error: "YouTube URLを入力してください" })
 	.url({ message: "URLの形式が正しくありません" }),

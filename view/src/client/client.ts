@@ -1,13 +1,18 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
-const PostJobsRequest = z.object({
+export const PostJobsRequest = z.object({
+  user_id: z.string(),
   youtube_url: z
     .string()
-    .regex(/^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$/)
+    .regex(
+      /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    )
     .url(),
 });
-const PostJobsResponse = z.object({
+export type PostJobsRequestType = z.infer<typeof PostJobsRequest>;
+
+export const PostJobsResponse = z.object({
   job_id: z
     .string()
     .regex(
@@ -15,13 +20,17 @@ const PostJobsResponse = z.object({
     ),
   message: z.string(),
 });
-const ErrorResponse = z.object({ error: z.string() });
-const GetJobsResponse = z.object({
-  status: z
-    .enum(["PENDING", "STARTED", "SUCCESS", "FAILURE"])
-    .regex(/^[A-Z]+$/),
+export type PostJobsResponseType = z.infer<typeof PostJobsResponse>;
+
+export const ErrorResponse = z.object({ error: z.string() });
+export type ErrorResponseType = z.infer<typeof ErrorResponse>;
+
+export const GetJobsResponse = z.object({
+  status: z.enum(["PENDING", "STARTED", "SUCCESS", "FAILURE"]),
 });
-const GetURLResponse = z.object({
+export type GetJobsResponseType = z.infer<typeof GetJobsResponse>;
+
+export const GetURLResponse = z.object({
   job_id: z
     .string()
     .regex(
@@ -29,6 +38,7 @@ const GetURLResponse = z.object({
     ),
   url: z.string().url(),
 });
+export type GetURLResponseType = z.infer<typeof GetURLResponse>;
 
 export const schemas = {
   PostJobsRequest,
@@ -38,7 +48,7 @@ export const schemas = {
   GetURLResponse,
 };
 
-const endpoints = makeApi([
+export const endpoints = makeApi([
   {
     method: "post",
     path: "/jobs",
@@ -49,12 +59,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({
-          youtube_url: z
-            .string()
-            .regex(/^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$/)
-            .url(),
-        }),
+        schema: PostJobsRequest,
       },
     ],
     response: PostJobsResponse,

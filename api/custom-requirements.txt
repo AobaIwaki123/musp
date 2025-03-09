@@ -4,3 +4,4 @@ soundfile
 google.cloud.storage
 redis
 watchdog
+google-cloud-bigquery

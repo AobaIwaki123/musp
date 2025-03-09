@@ -32,14 +32,15 @@ class PostJobsRequest(BaseModel):
     """
     PostJobsRequest
     """ # noqa: E501
+    user_id: Annotated[str, Field(strict=True)] = Field(description="ユーザーID")
     youtube_url: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画リンク")
-    __properties: ClassVar[List[str]] = ["youtube_url"]
+    __properties: ClassVar[List[str]] = ["user_id", "youtube_url"]
 
     @field_validator('youtube_url')
     def youtube_url_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if not re.match(r"^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$", value):
-            raise ValueError(r"must validate the regular expression /^https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]{11}$/")
+        if not re.match(r"^(?:https?://)?(?:www\.)?(?:youtube\.com/(?:watch\?.*v=|embed/|v/)|youtu\.be/)([a-zA-Z0-9_-]{11})", value):
+            raise ValueError(r"must validate the regular expression /^(?:https?://)?(?:www\.)?(?:youtube\.com/(?:watch\?.*v=|embed/|v/)|youtu\.be/)([a-zA-Z0-9_-]{11})/")
         return value
 
     model_config = {
@@ -91,6 +92,7 @@ class PostJobsRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "user_id": obj.get("user_id"),
             "youtube_url": obj.get("youtube_url")
         })
         return _obj

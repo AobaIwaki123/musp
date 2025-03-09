@@ -1,6 +1,6 @@
 import { createApiClient } from "@/client/client";
 
-const api = createApiClient("http://localhost:8000");
+export const api = createApiClient("http://localhost:8000");
 
 api
   .postJobs({
