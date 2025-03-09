@@ -61,21 +61,12 @@ export default function Home() {
 
 	const onSubmit = async (data: Post) => {
 		console.log(data);
-		// try {
-		// 	// User IDとYotube URLでCreate Jobを実行
-		// 	const userID = localStorage.getItem("userID");
-		// 	if (!userID) {
-		// 		throw new Error("User IDがありません");
-		// 	}	
-		// 	api.postJobs({
-		// 		user_id: userID,
-		// 		youtube_url: data.youtube_url,
-		// 	}).then((response) => {
-		// 		console.log(response);
-		// 	})
-		// } catch (error) {
-		// 	console.error(error);
-		// }
+		try {
+			// User IDとYotube URLでCreate Jobを実行
+			api.postJobs(data);
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	return (
