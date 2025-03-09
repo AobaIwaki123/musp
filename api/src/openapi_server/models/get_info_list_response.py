@@ -21,7 +21,7 @@ import json
 
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from openapi_server.models.get_info_response import GetInfoResponse
 try:
     from typing import Self
@@ -32,7 +32,7 @@ class GetInfoListResponse(BaseModel):
     """
     GetInfoListResponse
     """ # noqa: E501
-    items: List[GetInfoResponse] = Field(description="ギャラリー表示のための情報のリスト")
+    items: Optional[List[GetInfoResponse]] = Field(default=None, description="ギャラリー表示のための情報のリスト")
     __properties: ClassVar[List[str]] = ["items"]
 
     model_config = {

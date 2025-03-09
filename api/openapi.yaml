@@ -328,7 +328,6 @@ components:
       required:
       - thumbnail_url
       - title
-      - wav_url
       title: GetInfoResponse
       type: object
     GetInfoListResponse:
@@ -347,8 +346,6 @@ components:
           items:
             $ref: '#/components/schemas/GetInfoResponse'
           type: array
-      required:
-      - items
       title: GetInfoListResponse
       type: object
     ErrorResponse:

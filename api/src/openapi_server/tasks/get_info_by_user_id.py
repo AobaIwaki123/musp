@@ -1,15 +1,19 @@
 import datetime
-import os
 import json
+import os
+import time
 from concurrent.futures import ThreadPoolExecutor
+
 from google.cloud import bigquery, storage
 from google.oauth2 import service_account
-from openapi_server.models.get_info_list_response import GetInfoListResponse
+from openapi_server.models.get_info_list_response import (
+    GetInfoListResponse,
+)
 from openapi_server.models.get_info_response import GetInfoResponse
-import time
+
 
 def generate_download_signed_url_v4(
-    bucket_name, blob_name, expiration_minutes=15
+    bucket_name, blob_name, expiration_minutes=60
 ):
     """GCSのオブジェクトに対する署名付きURL（ダウンロード用）を生成"""
 
@@ -27,6 +31,10 @@ def generate_download_signed_url_v4(
 
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(blob_name)
+
+    # ファイルが存在するか確認
+    if not blob.exists():
+        return None  # 存在しない場合は None を返す
 
     url = blob.generate_signed_url(
         version="v4",
@@ -94,11 +102,11 @@ def fetch_music_info(
         bucket_name, wav_blob_name
     )
 
-    # Pydantic モデルに変換
+    # wav_url が None の場合は null を設定
     return GetInfoResponse(
         title=youtube_title,
         thumbnail_url=metadata.get("thumbnail", ""),
-        wav_url=wav_url,
+        wav_url=wav_url if wav_url else None,
     )
 
 

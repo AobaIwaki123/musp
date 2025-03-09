@@ -21,7 +21,7 @@ import json
 
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 try:
     from typing import Self
@@ -34,7 +34,7 @@ class GetInfoResponse(BaseModel):
     """ # noqa: E501
     title: Annotated[str, Field(strict=True)] = Field(description="タイトル")
     thumbnail_url: Annotated[str, Field(strict=True)] = Field(description="サムネイル画像のURL")
-    wav_url: StrictStr = Field(description="音源のURL")
+    wav_url: Optional[StrictStr] = Field(default=None, description="音源のURL")
     __properties: ClassVar[List[str]] = ["title", "thumbnail_url", "wav_url"]
 
     @field_validator('thumbnail_url')

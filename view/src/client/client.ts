@@ -48,13 +48,13 @@ export const GetInfoResponse = z.object({
       /^https?:\/\/i.ytimg.com\/vi\/([a-zA-Z0-9_-]{11})\/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$/
     )
     .url(),
-  wav_url: z.string().url(),
+  wav_url: z.string().url().optional(),
 });
 export type GetInfoResponseType = z.infer<typeof GetInfoResponse>;
 
-export const GetInfoListResponse = z.object({
-  items: z.array(GetInfoResponse),
-});
+export const GetInfoListResponse = z
+  .object({ items: z.array(GetInfoResponse) })
+  .partial();
 export type GetInfoListResponseType = z.infer<typeof GetInfoListResponse>;
 
 export const schemas = {

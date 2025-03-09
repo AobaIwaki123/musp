@@ -270,7 +270,6 @@ components:
       required:
         - title
         - thumbnail_url
-        - wav_url
       additionalProperties: false
     GetInfoListResponse:
       type: object
@@ -280,8 +279,6 @@ components:
           description: ギャラリー表示のための情報のリスト
           items:
             $ref: "#/components/schemas/GetInfoResponse"
-      required:
-        - items
       additionalProperties: false
       example:
         items:

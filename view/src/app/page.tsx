@@ -20,12 +20,13 @@ import { useForm } from "react-hook-form";
 import { api } from "@/client/api";
 import { PostJobsRequest } from "@/client/client";
 import type { PostJobsRequestType } from "@/client/client";
+import type { GetInfoListResponseType } from "@/client/client";
 
 export default function Home() {
 	const [userID, setUserID] = useState<string | null>(null);
 	const [userName, setUserName] = useState<string | null>(null);
 	const [iconUrl, setIconUrl] = useState<string | null>(null);
-	const [gallery, setGallery] = useState<RamenGalleryList>([]);
+	const [gallery, setGallery] = useState<GetInfoListResponseType>({ items: [] });
 
 	const form = useForm<PostJobsRequestType>({
 		resolver: zodResolver(PostJobsRequest),
@@ -54,6 +55,23 @@ export default function Home() {
 		
 		form.setValue("user_id", userID);
 	}, [userID]);
+
+	useEffect(() => {
+		if (!userID) {
+			return;
+		}
+
+		const fetchInfo = async () => {
+			const data = await api.getInfoUser_id({	params: { user_id: userID }});
+
+			console.log("data", data);
+
+			setGallery(data);
+		};
+
+		fetchInfo();
+	}, [userID]);
+
 
 	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		form.setValue("youtube_url", event.target.value);
@@ -109,7 +127,7 @@ export default function Home() {
 								</div>
 							</Card>
 
-							<RamenGallery gallery={gallery} />
+							<RamenGallery items={gallery.items} />
 						</form>
 					</Form>
 				</div>
