@@ -190,7 +190,8 @@ components:
           description: YouTubeの動画リンク
           format: uri
           maximum: 100
-          pattern: "^https://www\\.youtube\\.com/watch\\?v=[a-zA-Z0-9_-]{11}$"
+          pattern: "/^(?:https?://)?(?:www\\.)?(?:youtube\\.com/(?:watch\\?.*v=|embed/|v/)|youtu\\\
+            .be/)([a-zA-Z0-9_-]{11})/"
           type: string
       required:
       - user_id

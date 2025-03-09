@@ -18,65 +18,64 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { api } from "@/client/api";
+import { PostJobsRequest } from "@/client/client";
+import type { PostJobsRequest } from "@/client/client";
 
 export default function Home() {
+	const [userID, setUserID] = useState<string | null>(null);
 	const [userName, setUserName] = useState<string | null>(null);
 	const [iconUrl, setIconUrl] = useState<string | null>(null);
 	const [gallery, setGallery] = useState<RamenGalleryList>([]);
 
-	const form = useForm<Post>({
-		resolver: zodResolver(postSchema),
+	const form = useForm<PostJobsRequest>({
+		resolver: zodResolver(PostJobsRequest),
 		defaultValues: {
+			user_id: "",
 			youtube_url: "",
 		},
 	});
+
+	useEffect(() => {
+		const userID = localStorage.getItem("userID");
+		const userName = localStorage.getItem("userName");
+
+		if (!userID) {
+			return;
+		}
+
+		setUserID(userID);
+		setUserName(userName);
+	}, []);
+
+	useEffect(() => {
+		if (!userID) {
+			return;
+		}
+		
+		form.setValue("user_id", userID);
+	}, [userID]);
 
 	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		form.setValue("youtube_url", event.target.value);
 	}
 
 	const onSubmit = async (data: Post) => {
-		try {
-			const response = await fetch(
-				'http://localhost:8000/api/v1/jobs', 
-				{
-					method: 'POST',
-					headers: {
-						'accept': 'application/json',
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						youtube_url: data.youtube_url
-					})
-				}
-			);
-			const json = await response.json();
-			console.log(json);
-			const job_id = json.job_id;
-			const url = `http://localhost:8000/api/v1/thumbnail/${job_id}`;
-			const res = await fetch(
-				url,
-				{
-					method: 'GET',
-					headers: {
-						'accept': 'application/json'
-					},
-				}
-			);
-			const json2 = await res.json();
-			console.log(json2);
-			const thumbnail = json2.thumbnail;
-			const ramen = {
-				job_id: job_id,
-				url: null,
-				thumbnail: thumbnail,
-			}
-			setGallery([ramen, ...gallery]);
-			// window.location.reload();
-			console.log("Request sent");
-		} catch (error) {
-			console.error(error);
-		}
+		console.log(data);
+		// try {
+		// 	// User IDとYotube URLでCreate Jobを実行
+		// 	const userID = localStorage.getItem("userID");
+		// 	if (!userID) {
+		// 		throw new Error("User IDがありません");
+		// 	}	
+		// 	api.postJobs({
+		// 		user_id: userID,
+		// 		youtube_url: data.youtube_url,
+		// 	}).then((response) => {
+		// 		console.log(response);
+		// 	})
+		// } catch (error) {
+		// 	console.error(error);
+		// }
 	};
 
 	return (
