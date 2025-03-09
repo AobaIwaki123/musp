@@ -48,7 +48,7 @@ export const GetInfoResponse = z.object({
       /^https?:\/\/i.ytimg.com\/vi\/([a-zA-Z0-9_-]{11})\/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$/
     )
     .url(),
-  wav_url: z.string().url().optional(),
+  wav_url: z.union([z.string(), z.null()]).optional(),
 });
 export type GetInfoResponseType = z.infer<typeof GetInfoResponse>;
 

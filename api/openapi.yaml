@@ -324,6 +324,7 @@ components:
         wav_url:
           description: 音源のURL
           format: uri
+          nullable: true
           type: string
       required:
       - thumbnail_url

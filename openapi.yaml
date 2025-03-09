@@ -264,9 +264,11 @@ components:
           pattern: "^https?://i.ytimg.com/vi/([a-zA-Z0-9_-]{11})/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$"
           maximum: 200
         wav_url:
-          type: string
-          format: uri
-          description: 音源のURL
+          oneOf:
+          - type: string
+            format: uri
+            description: 音源のURL
+          - type: "null"
       required:
         - title
         - thumbnail_url

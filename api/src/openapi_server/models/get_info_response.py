@@ -81,6 +81,11 @@ class GetInfoResponse(BaseModel):
             },
             exclude_none=True,
         )
+        # set to None if wav_url (nullable) is None
+        # and model_fields_set contains the field
+        if self.wav_url is None and "wav_url" in self.model_fields_set:
+            _dict['wav_url'] = None
+
         return _dict
 
     @classmethod
