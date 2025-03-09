@@ -186,7 +186,6 @@ components:
             - SUCCESS
             - FAILURE
           maximum: 10
-          pattern: ^[A-Z]+$
       required:
         - status
       additionalProperties: false

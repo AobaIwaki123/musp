@@ -37,20 +37,6 @@ export default function Home() {
 
 	const onSubmit = async (data: Post) => {
 		try {
-			api
-				.postJobs(
-					{
-						youtube_url: data.youtube_url,
-					}
-				)
-				.then((response) => {
-					console.log(response);
-					const job_id = response.job_id;
-					api.getThumbnailJob_id({ job_id })
-					.then((response) => {
-						console.log(response);
-					});
-				});
 			const response = await fetch(
 				'http://localhost:8000/api/v1/jobs', 
 				{

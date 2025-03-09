@@ -20,9 +20,7 @@ export const PostJobsResponse = z.object({
 export const ErrorResponse = z.object({ error: z.string() });
 
 export const GetJobsResponse = z.object({
-  status: z
-    .enum(["PENDING", "STARTED", "SUCCESS", "FAILURE"])
-    .regex(/^[A-Z]+$/),
+  status: z.enum(["PENDING", "STARTED", "SUCCESS", "FAILURE"]),
 });
 
 export const GetURLResponse = z.object({
