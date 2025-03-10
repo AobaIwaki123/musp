@@ -2,6 +2,8 @@
 
 {{>partial_header}}
 
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -11,7 +13,9 @@ from {{apiPackage}}.{{classFilename}} import router as {{classname}}Router
 {{/apis}}
 {{/apiInfo}}
 
-origins = ["*"]
+origins = [
+    os.getenv("FRONTEND_URL"),
+]
 
 app = FastAPI(
     title="{{appName}}",

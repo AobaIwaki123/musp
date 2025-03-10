@@ -39,13 +39,16 @@ export default function Home() {
 	useEffect(() => {
 		const userID = localStorage.getItem("userID");
 		const userName = localStorage.getItem("userName");
+		const iconUrl = localStorage.getItem("iconUrl");
 
-		if (!userID) {
+		if (!userID || !userName || !iconUrl) {
+			console.log("ユーザー情報がありません [userID, userName, iconUrl]", userID, userName, iconUrl);
 			return;
 		}
 
 		setUserID(userID);
 		setUserName(userName);
+		setIconUrl(iconUrl);
 	}, []);
 
 	useEffect(() => {
@@ -81,7 +84,8 @@ export default function Home() {
 		console.log(data);
 		try {
 			// User IDとYotube URLでCreate Jobを実行
-			api.postJobs(data);
+			const res = await api.postJobs(data);
+			console.log(res);
 		} catch (error) {
 			console.error(error);
 		}
@@ -96,15 +100,17 @@ export default function Home() {
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 							<Card className={"m-4"}>
 								<div className="flex flex-initial justify-evenly items-center">
-									{iconUrl && (
-										<img
-											src={iconUrl}
-											alt="アイコン"
-											className="w-24 h-24 object-cover rounded-full border-0 shadow-lg"
-										/>
-									)}
 									<div className="flex flex-col flex-auto items-center">
-										<div className="p-2 font-extrabold text-gray-800">{userName}</div>
+										<div className="flex">
+											{iconUrl && (
+												<img
+													src={iconUrl}
+													alt="アイコン"
+													className="w-8 h-8 object-cover rounded-full border-0 shadow-lg"
+												/>
+											)}
+											<div className="p-2 font-extrabold text-gray-800">{userName}</div>
+										</div>
 											<FormItem className="flex flex-col flex-auto w-full space-y-4 p-4">
 												{/* URLを入力するフォームを追加 */}
 												<FormControl className="flex">

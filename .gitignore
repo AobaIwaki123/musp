@@ -6,6 +6,8 @@ __pycache__/
 
 # Env
 .env
+prod.env
+dev.env
 
 # Mac
 .DS_Store

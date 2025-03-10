@@ -1,6 +1,5 @@
 "use client";
 
-import { RamenModal } from "@/components/RamenModal";
 import type { RamenGallery } from "@/types/RamenGallery";
 import { use, useEffect, useState } from "react";
 import type { GetInfoResponseType } from "@/client/client";
@@ -12,12 +11,13 @@ type RamenGallerysProps = {
 export const Ramen = ({ title, thumbnail_url, wav_url}: GetInfoResponseType) => {
 	const [isOpenModal, setIsOpenModal] = useState(false);
   const [isExistWav, setIsExistWav] = useState<boolean>(false);
+	const [wabUrl, setWavUrl] = useState<string>("");
 
 	const handleOpenModal = () => setIsOpenModal(true);
 
 	useEffect(() => {
 		if (wav_url) {
-			setIsExistWav(true);
+			setWavUrl(wav_url);
 		} else {
 			setIsExistWav(false);
 		}
@@ -39,7 +39,7 @@ export const Ramen = ({ title, thumbnail_url, wav_url}: GetInfoResponseType) => 
 					/>
 					<div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-30 transition duration-300" />
 				</button>
-				{isExistWav ? (
+				{wav_url ? (
 					<audio controls>
 						<source src={wav_url} type="audio/wav" />
 						Your browser does not support the audio element.

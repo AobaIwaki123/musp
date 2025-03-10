@@ -17,6 +17,8 @@ tags:
     description: ジョブの状態確認
   - name: GetURL
     description: オブジェクトストレージからURLを取得
+  - name: User
+    description: ユーザー情報取得
 paths:
   /jobs:
     post:
@@ -152,6 +154,39 @@ paths:
           description: WebSocket接続成功
         "404":
           description: ジョブが見つかりませんでした
+  /users:
+    post:
+      tags:
+        - User
+      summary: ユーザー情報の登録
+      description: ユーザー情報を登録します。
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostUserRequest"
+      responses:
+        "200":
+          description: ユーザーが存在します
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostUserResponse"
+        "201":
+          description: ユーザー情報が正常に登録されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostUserResponse"
+        "400":
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   parameters:
@@ -290,6 +325,41 @@ components:
           - title: "testTitle2"
             thumbnail_url: "https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg"
             wav_url: "https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav"
+    PostUserRequest:
+      type: object
+      example:
+        google_id: "testGoogleID"
+        nickname: "testNickname"
+        icon_url: "https://example.com/icon.jpg"
+      properties:
+        google_id:
+          type: string
+          description: GoogleのユーザーID
+          maximum: 100
+        nickname:
+          type: string
+          description: ニックネーム
+          maximum: 100
+        icon_url:
+          type: string
+          format: uri
+          description: アイコン画像のURL
+          maximum: 200
+      required:
+        - google_id
+        - nickname
+        - icon_url
+      additionalProperties: false
+    PostUserResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: ユーザーID
+          maximum: 100
+      required:
+        - user_id
+      additionalProperties: false
     ErrorResponse:
       type: object
       properties:

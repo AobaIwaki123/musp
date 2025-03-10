@@ -9,7 +9,7 @@ type RamenGalleryProps = {
 };
 
 export const RamenGallery = ({ items }: GetInfoListResponseType) => {
-	if (items.length === 0) {
+	if (!items) {
 		return <p>まだ投稿がありません</p>;
 	}
 	return (
