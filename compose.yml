@@ -7,8 +7,8 @@ services:
     container_name: view
     working_dir: /app
     volumes:
-      - ./view:/app
-      - ./view/.pnpm-store:/app/.pnpm-store
+      - ./view/app:/app
+      # - ./view/.pnpm-store:/app/.pnpm-store
       - ./openapi.yaml:/app/openapi.yaml
     ports:
       - 3000:3000
