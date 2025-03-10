@@ -14,7 +14,7 @@ from {{apiPackage}}.{{classFilename}} import router as {{classname}}Router
 {{/apiInfo}}
 
 origins = [
-    os.getenv("FRONTEND_URL"),
+    os.getenv("FRONTEND_URL", "http://localhost:3000"),
 ]
 
 app = FastAPI(
