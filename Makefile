@@ -44,7 +44,7 @@ logs:
 	@docker compose logs -f
 
 lint-ts:
-	@docker -v ./view/:/code ghcr.io/biomejs/biome:1.9.4 lint
+	@sudo docker compose run --rm view pnpm biome format --write
 
 lint-py:
 	@sudo docker run --rm -v ./:/code pipelinecomponents/ruff ruff format

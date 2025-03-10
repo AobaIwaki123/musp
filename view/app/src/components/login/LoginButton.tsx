@@ -1,0 +1,66 @@
+"use client";
+import { signInOrUp } from "@/lib/login/signInOrUp";
+import { initializeApp } from "@firebase/app";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "@firebase/auth";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+
+const firebaseConfig = {
+	apiKey: process.env.NEXT_PUBLIC_APIKEY,
+	authDomain: process.env.NEXT_PUBLIC_AUTHDOMAIN,
+	projectId: process.env.NEXT_PUBLIC_PROJECTID,
+	storageBucket: process.env.NEXT_PUBLIC_STORAGEBUCKET,
+	messagingSenderId: process.env.NEXT_PUBLIC_MESSAGINGSENDERID,
+	appId: process.env.NEXT_PUBLIC_APPID,
+	measurementId: process.env.NEXT_PUBLIC_MEASUREMENTID,
+};
+
+const provider = new GoogleAuthProvider();
+
+async function signUp() {
+	const auth = getAuth();
+
+	signInWithPopup(auth, provider)
+		.then((result) => {
+			const credential = GoogleAuthProvider.credentialFromResult(result);
+			const token = credential?.accessToken;
+			const user = result.user;
+
+			// ユーザー登録
+			signInOrUp(user);
+		})
+		.catch((error) => {
+			console.log("error", error);
+			// Handle Errors here.
+			const errorCode = error.code;
+			const errorMessage = error.message;
+			// The email of the user's account used.
+			const email = error.customData.email;
+			// The AuthCredential type that was used.
+			const credential = GoogleAuthProvider.credentialFromError(error);
+			// ...
+		});
+}
+
+async function testSignUp() {
+	localStorage.setItem("userID", "testUserID");
+	localStorage.setItem("userName", "testUser");
+	localStorage.setItem(
+		"iconUrl",
+		"https://lh3.googleusercontent.com/a/ACg8ocL-zGSLFghz5t4F8UpYG2h441ArtjRPDXNQj5DpWBcmmHXyKL0=s96-c",
+	);
+
+	window.location.href = "/";
+}
+
+export const LoginButton = () => {
+	const app = initializeApp(firebaseConfig);
+
+	useEffect(() => {
+		if (localStorage.getItem("userID")) {
+			console.log(localStorage.getItem("userID"));
+		}
+	}, []);
+
+	return <Button onClick={testSignUp}>Googleでサインイン</Button>;
+};
