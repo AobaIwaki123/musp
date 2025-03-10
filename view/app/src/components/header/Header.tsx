@@ -26,7 +26,7 @@ export const Header = () => {
 							></Link>
 						</li>
 						<li>
-							<GitHubIcon />
+							<GitHubIcon/>
 						</li>
 					</ul>
 				</nav>

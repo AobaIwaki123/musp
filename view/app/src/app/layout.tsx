@@ -26,15 +26,15 @@ export default function RootLayout({
 }>) {
 	return (
 		<SessionProvider>
+			<Header/>
 			<html lang="en">
-				<Header />
 				<body
 					className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 				>
 					{children}
 				</body>
-				<Footer />
 			</html>
+			<Footer/>
 		</SessionProvider>
 	);
 }
