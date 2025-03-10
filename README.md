@@ -1,6 +1,6 @@
 # MuSP
 
-## Vocal Extractor with YouTube Link
+## Vocal Extractor with YouTube Link (v2)
 
 <p align="center">
   <img src="imgs/preview-v2.png" alt="alt text" width="500">
