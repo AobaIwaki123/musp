@@ -40,7 +40,7 @@ export const Ramen = ({ title, thumbnail_url, wav_url}: GetInfoResponseType) => 
 					<div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-30 transition duration-300" />
 				</button>
 				{wav_url ? (
-					<audio controls>
+					<audio controls className="w-full">
 						<source src={wav_url} type="audio/wav" />
 						Your browser does not support the audio element.
 					</audio>

@@ -132,7 +132,12 @@ export default function Home() {
 									</div>
 								</div>
 							</Card>
-
+							<Card className="m-4 p-4 text-center text-gray-800">
+								<div className="text-lg text-gray-600 leading-relaxed">
+									<p>曲の冒頭がインストのみの場合、</p>
+									<p>しばらく無音が続くことがあります。</p>
+								</div>
+							</Card>
 							<RamenGallery items={gallery.items} />
 						</form>
 					</Form>
