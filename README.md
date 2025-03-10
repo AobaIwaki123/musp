@@ -1,16 +1,11 @@
 # MuSP
-音楽の音源とボーカルを分離するWebアプリ
 
-# 概要
+## Vocal Extractor with YouTube Link (v2)
 
-1. YouTubeリンクを取得
-2. 音源とボーカルを分離
-3. 分離した音源がダウンロードできるリンクを発行
+<p align="center">
+  <img src="imgs/preview-v2.png" alt="alt text" width="500">
+</p>
 
-# 使用技術
+## Model
 
-- Python
-  - FastAPI: APIサーバー
-- TypeScript
-  - React: フロントエンド
-- OpenAPI: API仕様書
+- [demucs](https://github.com/facebookresearch/demucs)
