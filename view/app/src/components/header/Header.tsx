@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import { GitHubIcon } from "@/components/link/GitHub";
 
 export const Header = () => {
 	return (
@@ -13,16 +14,19 @@ export const Header = () => {
 				<nav>
 					<ul className="flex space-x-6">
 						<li>
-							<Link href="/" className="hover:text-yellow-200 transition-colors duration-300">
-							</Link>
+							<Link
+								href="/"
+								className="text-amber-50 font-extrabold italic hover:text-yellow-200 transition-colors duration-300"
+							></Link>
 						</li>
 						<li>
-							<Link href="/about" className="hover:text-yellow-200 transition-colors duration-300">
-							</Link>
+							<Link
+								href="/about"
+								className="hover:text-yellow-200 transition-colors duration-300"
+							></Link>
 						</li>
 						<li>
-							<Link href="/contact" className="hover:text-yellow-200 transition-colors duration-300">
-							</Link>
+							<GitHubIcon />
 						</li>
 					</ul>
 				</nav>
