@@ -55,7 +55,7 @@ gen-py:
 	@sudo chown $(USER) -R .
 
 gen-ts:
-	@sudo docker compose run --rm view openapi-zod-client openapi.yaml --output src/client/client.ts -t src/client/template.hbs
+	@sudo docker compose run --rm view openapi-zod-client openapi.yaml --output src/client/client.ts -t templates/zod-openapi-client.hbs
 
 gen:
 	@make gen-py
