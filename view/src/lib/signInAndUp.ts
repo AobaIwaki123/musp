@@ -38,6 +38,7 @@ export const signInOrUp = async (firebaseUser: FirebaseUser) => {
 
 		console.log(data);
     const res = await api.postUsers(data);
+    console.log(res);
 
     const user_id = res.user_id
     storeStorageUser(user_id);

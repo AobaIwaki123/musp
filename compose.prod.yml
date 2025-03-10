@@ -3,18 +3,20 @@ services:
     # image: node:20-alpine
     build:
       context: view
-      target: dev
+      target: prod
     container_name: view
     working_dir: /app
     volumes:
       - ./view:/app
       - ./view/.pnpm-store:/app/.pnpm-store
+      - ./view/.next:/app/.next
       - ./openapi.yaml:/app/openapi.yaml
     ports:
       - 3000:3000
     env_file:
       ./view/.env
-    command: pnpm dev
+    # command: pnpm start
+
   api:
     build:
       context: api
@@ -25,7 +27,7 @@ services:
       - ./secret:/root/secret
     ports:
       - 8000:8000
-    command: uvicorn openapi_server.main:app --reload --host 0.0.0.0 --port 8000
+    command: uvicorn openapi_server.main:app --host 0.0.0.0 --port 8000
     env_file:
       ./api/.env
 
@@ -37,7 +39,7 @@ services:
     volumes:
       - ./api/src:/root/app
       - ./secret:/root/secret
-    command: watchmedo auto-restart --pattern="*.py" --recursive -- celery -A celery_server.celery_app worker --loglevel=info
+    command: celery -A celery_server.celery_app worker --loglevel=info
     deploy:
       resources:
         reservations:
@@ -55,3 +57,10 @@ services:
     container_name: redis
     ports:
       - 6379:6379
+
+  cloudflare:
+    image: "cloudflare/cloudflared:2025.2.1"
+    container_name: "cloudflare"
+    volumes: [ './cloudflare:/home/nonroot/.cloudflared' ]
+    command: tunnel run
+    restart: unless-stopped

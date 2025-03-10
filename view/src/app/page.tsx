@@ -84,7 +84,8 @@ export default function Home() {
 		console.log(data);
 		try {
 			// User IDとYotube URLでCreate Jobを実行
-			api.postJobs(data);
+			const res = await api.postJobs(data);
+			console.log(res);
 		} catch (error) {
 			console.error(error);
 		}

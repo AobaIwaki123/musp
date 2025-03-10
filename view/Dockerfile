@@ -23,3 +23,23 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install
 
 CMD ["pnpm","dev"]
+
+FROM base AS prod
+
+# パッケージファイルをコピーして依存関係をインストール
+COPY package.json pnpm-lock.yaml ./
+
+RUN pnpm install
+
+EXPOSE 3000
+
+# Copy the rest of your app's source code from your host to your image filesystem.
+COPY . .
+
+# Build the app
+RUN pnpm build
+
+# Run the web service on container startup.
+CMD ["pnpm", "run", "start"]
+
+

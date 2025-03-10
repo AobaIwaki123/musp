@@ -9,11 +9,10 @@ class CreateJobImpl(BaseCreateJobApi):
         self,
         jobs_post_request: PostJobsRequest,
     ):
-        process_source_s = process_source.s(jobs_post_request.to_dict())
+        process_source_s = process_source.s(
+            jobs_post_request.to_dict()
+        )
         result = process_source_s.apply_async()
-        return PostJobsResponse.from_dict(
-            {
-                "job_id": result.id,
-                "message": "New Job Created!",
-            }
+        return PostJobsResponse(
+            job_id=result.id, message="Job created"
         )

@@ -3,14 +3,29 @@ build:
 	@docker compose build
 	@echo "Built"
 
+prod-build:
+	@echo "Building..."
+	@docker compose -f compose.prod.yml build
+	@echo "Built"
+
 up:
 	@echo "Starting..."
 	@docker compose up -d
 	@echo "Started"
 
+prod-up:
+	@echo "Starting..."
+	@docker compose -f compose.prod.yml up -d
+	@echo "Started"
+
 down:
 	@echo "Stopping..."
 	@docker compose down
+	@echo "Stopped"
+
+prod-down:
+	@echo "Stopping..."
+	@docker compose -f compose.prod.yml down
 	@echo "Stopped"
 
 restart:
@@ -19,6 +34,12 @@ restart:
 	@docker compose up -d
 	@echo "Restarted"
 
+prod-restart:
+	@echo "Restarting..."
+	@docker compose -f compose.prod.yml down
+	@docker compose -f compose.prod.yml up -d
+	@echo "Restarted"
+	
 logs:
 	@docker compose logs -f
 
