@@ -31,7 +31,7 @@ COPY package.json pnpm-lock.yaml ./
 
 RUN pnpm install
 
-EXPOSE 3000
+EXPOSE 3001
 
 # Copy the rest of your app's source code from your host to your image filesystem.
 COPY . .
@@ -40,6 +40,6 @@ COPY . .
 RUN pnpm build
 
 # Run the web service on container startup.
-CMD ["pnpm", "run", "start"]
+CMD ["pnpm","start"]
 
 

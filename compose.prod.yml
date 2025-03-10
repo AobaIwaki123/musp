@@ -1,10 +1,10 @@
 services:
-  view:
+  prod-view:
     # image: node:20-alpine
     build:
       context: view
       target: prod
-    container_name: view
+    container_name: prod-view
     working_dir: /app
     volumes:
       - ./view:/app
@@ -12,30 +12,30 @@ services:
       - ./view/.next:/app/.next
       - ./openapi.yaml:/app/openapi.yaml
     ports:
-      - 3000:3000
+      - 3001:3001
     env_file:
       ./view/prod.env
     # command: pnpm start
 
-  api:
+  prod-api:
     build:
       context: api
       target: service
-    container_name: api
+    container_name: prod-api
     volumes:
       - ./api/src:/root/app
       - ./secret:/root/secret
     ports:
-      - 8000:8000
-    command: uvicorn openapi_server.main:app --host 0.0.0.0 --port 8000
+      - 8001:8001
+    command: uvicorn openapi_server.main:app --host 0.0.0.0 --port 8001
     env_file:
       ./api/prod.env
 
-  celery:
+  prod-celery:
     build:
       context: api
       target: service
-    container_name: celery
+    container_name: prod-celery
     volumes:
       - ./api/src:/root/app
       - ./secret:/root/secret
@@ -50,13 +50,11 @@ services:
     env_file:
       ./api/prod.env
     depends_on:
-      - redis
+      - prod-redis
 
-  redis:
+  prod-redis:
     image: redis:7.4
-    container_name: redis
-    ports:
-      - 6379:6379
+    container_name: prod-redis
 
   cloudflare:
     image: "cloudflare/cloudflared:2025.2.1"
