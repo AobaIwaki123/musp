@@ -13,7 +13,7 @@ services:
     ports:
       - 3000:3000
     env_file:
-      ./view/.env
+      ./view/dev.env
     command: pnpm dev
   api:
     build:
@@ -27,7 +27,7 @@ services:
       - 8000:8000
     command: uvicorn openapi_server.main:app --reload --host 0.0.0.0 --port 8000
     env_file:
-      ./api/.env
+      ./api/dev.env
 
   celery:
     build:
@@ -46,7 +46,7 @@ services:
               count: all
               driver: nvidia
     env_file:
-      ./api/.env
+      ./api/dev.env
     depends_on:
       - redis
 

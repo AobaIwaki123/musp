@@ -46,6 +46,7 @@ async function signUp() {
 async function testSignUp() {
 	localStorage.setItem("userID", "testUserID");
 	localStorage.setItem("userName", "testUser");
+	localStorage.setItem("iconUrl", "https://lh3.googleusercontent.com/a/ACg8ocL-zGSLFghz5t4F8UpYG2h441ArtjRPDXNQj5DpWBcmmHXyKL0=s96-c");
 
 	window.location.href = "/";
 }
@@ -59,5 +60,5 @@ export const LoginButton = () => {
 		}
 	}, []);
 
-	return <Button onClick={signUp}>Googleでサインイン</Button>;
+	return <Button onClick={testSignUp}>Googleでサインイン</Button>;
 };

@@ -24,7 +24,9 @@ from openapi_server.apis.create_job_api import (
 from openapi_server.apis.get_url_api import router as GetURLApiRouter
 from openapi_server.apis.user_api import router as UserApiRouter
 
-origins = [os.getenv("FRONTEND_URL"), "https://musp.shaoba.tech/"]
+origins = [
+    os.getenv("FRONTEND_URL", "http://localhost:3000"),
+    ]
 
 app = FastAPI(
     title="MuSP API",
