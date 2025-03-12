@@ -21,26 +21,19 @@ import json
 
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
 
-class GetJobsResponse(BaseModel):
+class GetVideoIDResponse(BaseModel):
     """
-    GetJobsResponse
+    GetVideoIDResponse
     """ # noqa: E501
-    status: Annotated[str, Field(strict=True)] = Field(description="ジョブの現在の状態")
-    __properties: ClassVar[List[str]] = ["status"]
-
-    @field_validator('status')
-    def status_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in ('PENDING', 'STARTED', 'SUCCESS', 'FAILURE',):
-            raise ValueError("must be one of enum values ('PENDING', 'STARTED', 'SUCCESS', 'FAILURE')")
-        return value
+    youtube_ids: Optional[List[Annotated[str, Field(strict=True)]]] = None
+    __properties: ClassVar[List[str]] = ["youtube_ids"]
 
     model_config = {
         "populate_by_name": True,
@@ -60,7 +53,7 @@ class GetJobsResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of GetJobsResponse from a JSON string"""
+        """Create an instance of GetVideoIDResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -83,7 +76,7 @@ class GetJobsResponse(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of GetJobsResponse from a dict"""
+        """Create an instance of GetVideoIDResponse from a dict"""
         if obj is None:
             return None
 
@@ -91,7 +84,7 @@ class GetJobsResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "status": obj.get("status")
+            "youtube_ids": obj.get("youtube_ids")
         })
         return _obj
 

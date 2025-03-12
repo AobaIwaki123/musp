@@ -11,19 +11,15 @@ security:
   - ApiKeyAuth: []
 
 tags:
-  - name: CreateJob
-    description: ジョブの作成
-  - name: CheckJob
-    description: ジョブの状態確認
-  - name: GetURL
-    description: オブジェクトストレージからURLを取得
-  - name: User
-    description: ユーザー情報取得
+  - name: GET
+    description: 取得関係
+  - name: POST
+    description: 作成関係
 paths:
   /jobs:
     post:
       tags:
-        - CreateJob
+        - POST
       summary: 新規ジョブの作成
       description: YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。
       security:
@@ -47,117 +43,56 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /jobs/{job_id}:
+  /video_id/{user_id}:
     get:
-      tags: 
-        - CheckJob
-      summary: ジョブの状態確認
-      description: 指定されたジョブIDの状態を取得します。
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - $ref: "#/components/parameters/JobID"
-      responses:
-        "200":
-          description: ジョブの状態情報
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetJobsResponse"
-        "404":
-          description: ジョブが見つかりませんでした
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /url/{job_id}:
-    get:
-      tags: 
-        - GetURL
-      summary: 分離された音源の取得
-      description: 分離された音源のS3 URLを取得します。
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - $ref: "#/components/parameters/JobID"
-      responses:
-        "200":
-          description: 音源ファイルのS3 URLを返却
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetURLResponse"
-        "404":
-          description: 音源が見つかりませんでした
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  /thumbnail/{job_id}:
-    get:
-      tags: 
-        - GetURL
-      summary: 分離された音源のサムネイル画像の取得
-      description: 分離された音源のサムネイル画像のS3 URLを取得します。
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - $ref: "#/components/parameters/JobID"
-      responses:
-        "200":
-          description: サムネイル画像のS3 URLを返却
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetURLResponse"
-        "404":
-          description: サムネイル画像が見つかりませんでした
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  /info/{user_id}:
-    get:
-      tags: 
-        - GetURL
-      summary: ギャラリー表示のための情報取得
-      description: ギャラリー表示のための情報を取得します。
+      tags:
+        - GET
+      summary: ユーザーのYouTubeID一覧取得
+      description: ユーザーが作成したYouTubeIDの一覧を取得します。
       security:
         - ApiKeyAuth: []
       parameters:
         - $ref: "#/components/parameters/UserID"
       responses:
         "200":
-          description: ギャラリーを表示するために必要な情報を返却
+          description: ユーザーのYouTubeID一覧を取得しました
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetInfoListResponse"
-        "404":
-          description: ジョブが見つかりませんでした
+                $ref: "#/components/schemas/GetVideoIDResponse"
+        "400":
+          description: 不正なリクエスト
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
-  /ws/jobs/{job_id}:
+  /wav/{video_id}:
     get:
-      tags: 
-        - CheckJob
-      summary: ジョブの進捗状況をWebSocketで取得
-      description: WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。
+      tags:
+        - GET
+      summary: 分離済み音源の取得
+      description: 分離済み音源のダウンロードリンクを取得します。
+      security:
+        - ApiKeyAuth: []
       parameters:
-        - $ref: "#/components/parameters/JobID"
+        - $ref: "#/components/parameters/VideoID"
       responses:
-        "101":
-          description: WebSocket接続成功
-        "404":
-          description: ジョブが見つかりませんでした
+        "200":
+          description: 分離済み音源のダウンロードリンクを取得しました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetWavResponse"
+        "400":
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /users:
     post:
       tags:
-        - User
+        - POST
       summary: ユーザー情報の登録
       description: ユーザー情報を登録します。
       security:
@@ -190,15 +125,6 @@ paths:
 
 components:
   parameters:
-    JobID:
-      name: job_id
-      in: path
-      description: ジョブの識別子
-      required: true
-      schema:
-        type: string
-        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-        maximum: 36
     UserID:
       name: user_id
       in: path
@@ -208,6 +134,16 @@ components:
         type: string
         maximum: 100
       example: testUser
+    VideoID:
+      name: video_id
+      in: path
+      description: YouTubeの動画ID
+      required: true
+      schema:
+        type: string
+        pattern: ^[a-zA-Z0-9_-]{11}$
+        maximum: 11
+      example: 57Q4Hp46oXc
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
@@ -226,7 +162,6 @@ components:
           maximum: 100
         youtube_url:
           type: string
-          format: uri
           description: YouTubeの動画リンク
           pattern: /^(?:https?://)?(?:www\.)?(?:youtube\.com/(?:watch\?.*v=|embed/|v/)|youtu\.be/)([a-zA-Z0-9_-]{11})/
           maximum: 100
@@ -236,95 +171,47 @@ components:
       additionalProperties: false
     PostJobsResponse:
       type: object
+      example:
+        youtube_id: "57Q4Hp46oXc"
+        message: "Job Created!"
       properties:
-        job_id:
+        youtube_id:
           type: string
-          description: 作成されたジョブの識別子
-          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-          maximum: 36
-        message:
-          type: string
-          description: 状況メッセージ
-          maximum: 100
+          description: YouTubeの動画ID
+          pattern: ^[a-zA-Z0-9_-]{11}$
+          maximum: 11
       required:
-        - job_id
-        - message
+        - youtube_id
       additionalProperties: false
-    GetJobsResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          description: ジョブの現在の状態
-          enum:
-            - PENDING
-            - STARTED
-            - SUCCESS
-            - FAILURE
-          maximum: 10
-      required:
-        - status
-      additionalProperties: false
-    GetURLResponse:
-      type: object
-      properties:
-        job_id:
-          type: string
-          description: ジョブの識別子
-          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-          maximum: 36
-        url:
-          type: string
-          format: uri
-          description: 音源のS3 URL
-      required:
-        - job_id
-        - url
-      additionalProperties: false
-    GetInfoResponse:
+    GetVideoIDResponse:
       type: object
       example:
-        title: "testTitle"
-        thumbnail_url: "https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg"
-        wav_url: "https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav"
+        youtube_ids:
+          - "57Q4Hp46oXc"
+          - "57Q4Hp46oXd"
+          - "57Q4Hp46oXe"
       properties:
-        title: 
-          type: string
-          description: タイトル
-          maximum: 200
-        thumbnail_url:
-          type: string
-          format: uri
-          description: サムネイル画像のURL
-          pattern: "^https?://i.ytimg.com/vi/([a-zA-Z0-9_-]{11})/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$"
-          maximum: 200
-        wav_url:
-          oneOf:
-          - type: string
-            format: uri
-            description: 音源のURL
-          - type: "null"
-      required:
-        - title
-        - thumbnail_url
-      additionalProperties: false
-    GetInfoListResponse:
-      type: object
-      properties:
-        items:
+        youtube_ids:
           type: array
-          description: ギャラリー表示のための情報のリスト
           items:
-            $ref: "#/components/schemas/GetInfoResponse"
+            type: string
+            description: YouTubeの動画ID
+            pattern: ^[a-zA-Z0-9_-]{11}$
+            maximum: 11
       additionalProperties: false
+    GetWavResponse:
+      type: object
       example:
-        items:
-          - title: "testTitle"
-            thumbnail_url: "https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg"
-            wav_url: "https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav"
-          - title: "testTitle2"
-            thumbnail_url: "https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg"
-            wav_url: "https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav"
+        wav_url: "https://example.com/wav.wav"
+      properties:
+        wav_url:
+          type: string
+          format: uri
+          description: 分離済み音源のURL
+          maximum: 200
+      required:
+        - wav_url
+      additionalProperties: false
     PostUserRequest:
       type: object
       example:

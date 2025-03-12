@@ -14,7 +14,6 @@ export function ApplicationCard() {
       setLoaded(true);
     }, 1000);
     return () => clearTimeout(timer);
-    // setLoaded(true);
   }, []);
 
   return (

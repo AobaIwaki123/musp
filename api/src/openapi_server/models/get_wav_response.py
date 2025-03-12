@@ -20,29 +20,20 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
 
-class GetInfoResponse(BaseModel):
+class GetWavResponse(BaseModel):
     """
-    GetInfoResponse
+    GetWavResponse
     """ # noqa: E501
-    title: Annotated[str, Field(strict=True)] = Field(description="タイトル")
-    thumbnail_url: Annotated[str, Field(strict=True)] = Field(description="サムネイル画像のURL")
-    wav_url: Optional[StrictStr] = Field(default=None, description="音源のURL")
-    __properties: ClassVar[List[str]] = ["title", "thumbnail_url", "wav_url"]
-
-    @field_validator('thumbnail_url')
-    def thumbnail_url_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^https?:\/\/i.ytimg.com\/vi\/([a-zA-Z0-9_-]{11})\/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$", value):
-            raise ValueError(r"must validate the regular expression /^https?:\/\/i.ytimg.com\/vi\/([a-zA-Z0-9_-]{11})\/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$/")
-        return value
+    wav_url: Annotated[str, Field(strict=True)] = Field(description="分離済み音源のURL")
+    __properties: ClassVar[List[str]] = ["wav_url"]
 
     model_config = {
         "populate_by_name": True,
@@ -62,7 +53,7 @@ class GetInfoResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of GetInfoResponse from a JSON string"""
+        """Create an instance of GetWavResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,16 +72,11 @@ class GetInfoResponse(BaseModel):
             },
             exclude_none=True,
         )
-        # set to None if wav_url (nullable) is None
-        # and model_fields_set contains the field
-        if self.wav_url is None and "wav_url" in self.model_fields_set:
-            _dict['wav_url'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of GetInfoResponse from a dict"""
+        """Create an instance of GetWavResponse from a dict"""
         if obj is None:
             return None
 
@@ -98,8 +84,6 @@ class GetInfoResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "title": obj.get("title"),
-            "thumbnail_url": obj.get("thumbnail_url"),
             "wav_url": obj.get("wav_url")
         })
         return _obj

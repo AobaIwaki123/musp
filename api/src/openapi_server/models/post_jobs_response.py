@@ -32,15 +32,14 @@ class PostJobsResponse(BaseModel):
     """
     PostJobsResponse
     """ # noqa: E501
-    job_id: Annotated[str, Field(strict=True)] = Field(description="作成されたジョブの識別子")
-    message: Annotated[str, Field(strict=True)] = Field(description="状況メッセージ")
-    __properties: ClassVar[List[str]] = ["job_id", "message"]
+    youtube_id: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画ID")
+    __properties: ClassVar[List[str]] = ["youtube_id"]
 
-    @field_validator('job_id')
-    def job_id_validate_regular_expression(cls, value):
+    @field_validator('youtube_id')
+    def youtube_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if not re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/")
+        if not re.match(r"^[a-zA-Z0-9_-]{11}$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_-]{11}$/")
         return value
 
     model_config = {
@@ -92,8 +91,7 @@ class PostJobsResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "job_id": obj.get("job_id"),
-            "message": obj.get("message")
+            "youtube_id": obj.get("youtube_id")
         })
         return _obj
 

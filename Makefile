@@ -51,6 +51,7 @@ lint-py:
 
 gen-py:
 	@sudo find api/src/openapi_server/models -maxdepth 1 -type f -delete
+	@sudo find api/src/openapi_server/apis -maxdepth 1 -type f -delete
 	@sudo docker run --rm -v ./:/local openapitools/openapi-generator-cli generate -i /local/openapi.yaml -g python-fastapi -o /local/api -t /local/api/templates
 	@sudo chown $(USER) -R .
 
