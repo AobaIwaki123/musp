@@ -1,5 +1,4 @@
 import { Container } from '@mantine/core';
-import { MantineLogo } from '@mantinex/mantine-logo';
 import { ActionToggle } from '../ActionToggle/ActionToggle';
 import { MuspLogo } from '../MuspLogo/MuspLogo';
 import classes from './HeaderSimple.module.css';

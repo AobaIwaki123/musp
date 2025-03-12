@@ -1,5 +1,5 @@
-import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
-import { z } from "zod";
+import { makeApi, Zodios, type ZodiosOptions } from '@zodios/core';
+import { z } from 'zod';
 
 export const PostJobsRequest = z.object({
   user_id: z.string(),
@@ -15,9 +15,7 @@ export type PostJobsRequestType = z.infer<typeof PostJobsRequest>;
 export const PostJobsResponse = z.object({
   job_id: z
     .string()
-    .regex(
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-    ),
+    .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/),
   message: z.string(),
 });
 export type PostJobsResponseType = z.infer<typeof PostJobsResponse>;
@@ -26,16 +24,14 @@ export const ErrorResponse = z.object({ error: z.string() });
 export type ErrorResponseType = z.infer<typeof ErrorResponse>;
 
 export const GetJobsResponse = z.object({
-  status: z.enum(["PENDING", "STARTED", "SUCCESS", "FAILURE"]),
+  status: z.enum(['PENDING', 'STARTED', 'SUCCESS', 'FAILURE']),
 });
 export type GetJobsResponseType = z.infer<typeof GetJobsResponse>;
 
 export const GetURLResponse = z.object({
   job_id: z
     .string()
-    .regex(
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-    ),
+    .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/),
   url: z.string().url(),
 });
 export type GetURLResponseType = z.infer<typeof GetURLResponse>;
@@ -52,9 +48,7 @@ export const GetInfoResponse = z.object({
 });
 export type GetInfoResponseType = z.infer<typeof GetInfoResponse>;
 
-export const GetInfoListResponse = z
-  .object({ items: z.array(GetInfoResponse) })
-  .partial();
+export const GetInfoListResponse = z.object({ items: z.array(GetInfoResponse) }).partial();
 export type GetInfoListResponseType = z.infer<typeof GetInfoListResponse>;
 
 export const PostUserRequest = z.object({
@@ -81,15 +75,15 @@ export const schemas = {
 
 export const endpoints = makeApi([
   {
-    method: "get",
-    path: "/info/:user_id",
-    alias: "getInfoUser_id",
+    method: 'get',
+    path: '/info/:user_id',
+    alias: 'getInfoUser_id',
     description: `ギャラリー表示のための情報を取得します。`,
-    requestFormat: "json",
+    requestFormat: 'json',
     parameters: [
       {
-        name: "user_id",
-        type: "Path",
+        name: 'user_id',
+        type: 'Path',
         schema: z.string(),
       },
     ],
@@ -103,15 +97,15 @@ export const endpoints = makeApi([
     ],
   },
   {
-    method: "post",
-    path: "/jobs",
-    alias: "postJobs",
+    method: 'post',
+    path: '/jobs',
+    alias: 'postJobs',
     description: `YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。`,
-    requestFormat: "json",
+    requestFormat: 'json',
     parameters: [
       {
-        name: "body",
-        type: "Body",
+        name: 'body',
+        type: 'Body',
         schema: PostJobsRequest,
       },
     ],
@@ -125,20 +119,18 @@ export const endpoints = makeApi([
     ],
   },
   {
-    method: "get",
-    path: "/jobs/:job_id",
-    alias: "getJobsJob_id",
+    method: 'get',
+    path: '/jobs/:job_id',
+    alias: 'getJobsJob_id',
     description: `指定されたジョブIDの状態を取得します。`,
-    requestFormat: "json",
+    requestFormat: 'json',
     parameters: [
       {
-        name: "job_id",
-        type: "Path",
+        name: 'job_id',
+        type: 'Path',
         schema: z
           .string()
-          .regex(
-            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-          ),
+          .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/),
       },
     ],
     response: GetJobsResponse,
@@ -151,20 +143,18 @@ export const endpoints = makeApi([
     ],
   },
   {
-    method: "get",
-    path: "/thumbnail/:job_id",
-    alias: "getThumbnailJob_id",
+    method: 'get',
+    path: '/thumbnail/:job_id',
+    alias: 'getThumbnailJob_id',
     description: `分離された音源のサムネイル画像のS3 URLを取得します。`,
-    requestFormat: "json",
+    requestFormat: 'json',
     parameters: [
       {
-        name: "job_id",
-        type: "Path",
+        name: 'job_id',
+        type: 'Path',
         schema: z
           .string()
-          .regex(
-            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-          ),
+          .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/),
       },
     ],
     response: GetURLResponse,
@@ -177,20 +167,18 @@ export const endpoints = makeApi([
     ],
   },
   {
-    method: "get",
-    path: "/url/:job_id",
-    alias: "getUrlJob_id",
+    method: 'get',
+    path: '/url/:job_id',
+    alias: 'getUrlJob_id',
     description: `分離された音源のS3 URLを取得します。`,
-    requestFormat: "json",
+    requestFormat: 'json',
     parameters: [
       {
-        name: "job_id",
-        type: "Path",
+        name: 'job_id',
+        type: 'Path',
         schema: z
           .string()
-          .regex(
-            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-          ),
+          .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/),
       },
     ],
     response: GetURLResponse,
@@ -203,15 +191,15 @@ export const endpoints = makeApi([
     ],
   },
   {
-    method: "post",
-    path: "/users",
-    alias: "postUsers",
+    method: 'post',
+    path: '/users',
+    alias: 'postUsers',
     description: `ユーザー情報を登録します。`,
-    requestFormat: "json",
+    requestFormat: 'json',
     parameters: [
       {
-        name: "body",
-        type: "Body",
+        name: 'body',
+        type: 'Body',
         schema: PostUserRequest,
       },
     ],
@@ -225,20 +213,18 @@ export const endpoints = makeApi([
     ],
   },
   {
-    method: "get",
-    path: "/ws/jobs/:job_id",
-    alias: "getWsjobsJob_id",
+    method: 'get',
+    path: '/ws/jobs/:job_id',
+    alias: 'getWsjobsJob_id',
     description: `WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。`,
-    requestFormat: "json",
+    requestFormat: 'json',
     parameters: [
       {
-        name: "job_id",
-        type: "Path",
+        name: 'job_id',
+        type: 'Path',
         schema: z
           .string()
-          .regex(
-            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-          ),
+          .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/),
       },
     ],
     response: z.void(),
