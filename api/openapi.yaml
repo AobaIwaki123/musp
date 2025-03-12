@@ -382,6 +382,8 @@ components:
           items:
             $ref: '#/components/schemas/GetInfoResponse'
           type: array
+      required:
+      - items
       title: GetInfoListResponse
       type: object
     PostUserRequest:

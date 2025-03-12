@@ -317,6 +317,8 @@ components:
           items:
             $ref: "#/components/schemas/GetInfoResponse"
       additionalProperties: false
+      required:
+        - items
       example:
         items:
           - title: "testTitle"
