@@ -1,40 +1,36 @@
-'use client';
+"use client";
 
-import { Container, Grid, Skeleton } from '@mantine/core';
-import { ApplicationCard } from '../ApplicationCard/ApplicationCard';
+import { Container, Grid } from "@mantine/core";
+import { useAtom } from "jotai";
+import { isHalfWidthAtom } from "../../jotai/isHalfWidth";
+import { ApplicationCard } from "../ApplicationCard/ApplicationCard";
 
-
-const child = <Skeleton height={140} radius="md" animate={false} />;
+const mockData = [
+	{ videoID: "hedyQY81WeY" },
+	{ videoID: "JQowMIY2bOw" },
+	{ videoID: "k7eGPMCy_ms" },
+	{ videoID: "B2teLF9l4aI" },
+	{ videoID: "ibI6-kvD1nc" },
+	{ videoID: "qP52sh7PzYA" },
+	{ videoID: "f8k8vDcCEfc" },
+	{ videoID: "vcp7XKBylkM" },
+];
 
 export function GridAsymmetrical() {
-  return (
-    <Container my="md">
-      <Grid>
-        <Grid.Col span={{ base: 6, xs: 4 }}>
-          <ApplicationCard />
-        </Grid.Col>
-        <Grid.Col span={{ base: 6, xs: 4 }}>
-          <ApplicationCard />
-        </Grid.Col>
-        <Grid.Col span={{ base: 6, xs: 4 }}>
-          <ApplicationCard />
-        </Grid.Col>
-        <Grid.Col span={{ base: 6, xs: 4 }}>
-          <ApplicationCard />
-        </Grid.Col>
-        <Grid.Col span={{ base: 6, xs: 4 }}>
-          <ApplicationCard />
-        </Grid.Col>
-        <Grid.Col span={{ base: 6, xs: 4 }}>
-          <ApplicationCard />
-        </Grid.Col>
-        <Grid.Col span={{ base: 6, xs: 4 }}>
-          <ApplicationCard />
-        </Grid.Col>
-        <Grid.Col span={{ base: 6, xs: 4 }}>
-          <ApplicationCard />
-        </Grid.Col>
-      </Grid>
-    </Container>
-  );
+	const [isHalfWidth, setIsHalfWidth] = useAtom(isHalfWidthAtom);
+
+	return (
+		<Container my="md">
+			<Grid>
+				{mockData.map((data) => (
+					<Grid.Col
+						span={{ base: isHalfWidth ? 12 : 6, xs: 4 }}
+						key={data.videoID}
+					>
+						<ApplicationCard videoID={data.videoID} />
+					</Grid.Col>
+				))}
+			</Grid>
+		</Container>
+	);
 }

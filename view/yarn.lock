@@ -8040,6 +8040,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jotai@npm:^2.12.2":
+  version: 2.12.2
+  resolution: "jotai@npm:2.12.2"
+  peerDependencies:
+    "@types/react": ">=17.0.0"
+    react: ">=17.0.0"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    react:
+      optional: true
+  checksum: 10c0/df135d8a8c635df5d34bdb30b2e24afa93292c9c0bdac589ed9df31da50cec8c4820f66d04f23fa05f6c0ed0726e86c83b0767ca9c6abae4d281a253526d2db3
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -8522,6 +8537,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.37.4"
     jest: "npm:^29.7.0"
     jest-environment-jsdom: "npm:^29.7.0"
+    jotai: "npm:^2.12.2"
     next: "npm:15.1.5"
     postcss: "npm:^8.5.1"
     postcss-preset-mantine: "npm:1.17.0"
