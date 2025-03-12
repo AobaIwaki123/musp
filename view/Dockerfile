@@ -7,4 +7,8 @@ ENV YARN_HOME="/yarn"
 ENV PATH="$YARN_HOME:$PATH"
 RUN corepack enable
 
+RUN yarn install
+
+RUN npm add -g openapi-zod-client
+
 CMD ["yarn", "dev"]
