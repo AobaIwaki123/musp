@@ -24,7 +24,7 @@ export function GridAsymmetrical() {
 			<Grid>
 				{mockData.map((data) => (
 					<Grid.Col
-						span={{ base: isHalfWidth ? 12 : 6, xs: 4 }}
+						span={{ base: isHalfWidth ? 6 : 12, xs: 4 }}
 						key={data.videoID}
 					>
 						<ApplicationCard videoID={data.videoID} />

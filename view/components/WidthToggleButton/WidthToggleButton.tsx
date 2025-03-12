@@ -12,7 +12,7 @@ export function WidthToggleButton() {
 	};
 	return (
 		<Button onClick={toggleLayout}>
-			{isHalfWidth ? <IconColumns2 size={16} /> : <IconColumns1 size={16} />}
+			{isHalfWidth ? <IconColumns1 size={16} /> : <IconColumns2 size={16} />}
 		</Button>
 	);
 }
