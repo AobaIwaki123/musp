@@ -1,5 +1,5 @@
 import { Container } from '@mantine/core';
-import { ActionToggle } from '../ActionToggle/ActionToggle';
+import { ActionToggle } from '../ModeButton/ModeButton';
 import { MuspLogo } from '../MuspLogo/MuspLogo';
 import classes from './HeaderSimple.module.css';
 
