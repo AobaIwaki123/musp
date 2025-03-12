@@ -11,8 +11,8 @@ export function WidthToggleButton() {
 		setIsHalfWidth((prev) => !prev);
 	};
 	return (
-		<Button onClick={toggleLayout}>
-			{isHalfWidth ? <IconColumns1 size={16} /> : <IconColumns2 size={16} />}
+		<Button onClick={toggleLayout} color="transparent">
+			{isHalfWidth ? <IconColumns1 /> : <IconColumns2 />}
 		</Button>
 	);
 }
