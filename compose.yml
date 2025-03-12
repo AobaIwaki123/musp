@@ -8,13 +8,11 @@ services:
     working_dir: /app
     volumes:
       - ./view:/app
-      - ./view/.pnpm-store:/app/.pnpm-store
       - ./openapi.yaml:/app/openapi.yaml
     ports:
       - 3000:3000
-    env_file:
-      ./view/dev.env
-    command: pnpm dev
+    command: yarn dev
+    
   api:
     build:
       context: api
