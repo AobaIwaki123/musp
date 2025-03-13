@@ -5,24 +5,21 @@ import { useAtom } from "jotai";
 import { isHalfWidthAtom } from "../../jotai/isHalfWidth";
 import { ApplicationCard } from "../ApplicationCard/ApplicationCard";
 
-const mockData = [
-	{ videoID: "hedyQY81WeY" },
-	{ videoID: "JQowMIY2bOw" },
-	{ videoID: "k7eGPMCy_ms" },
-	{ videoID: "B2teLF9l4aI" },
-	{ videoID: "ibI6-kvD1nc" },
-	{ videoID: "qP52sh7PzYA" },
-	{ videoID: "f8k8vDcCEfc" },
-	{ videoID: "vcp7XKBylkM" },
-];
+export interface Video {
+	videoID: string;
+}
 
-export function GridAsymmetrical() {
+export interface GridAsymmetricalProps {
+	videos: Video[];
+}
+
+export function GridAsymmetrical({ videos }: GridAsymmetricalProps) {
 	const [isHalfWidth, setIsHalfWidth] = useAtom(isHalfWidthAtom);
 
 	return (
 		<Container my="md">
 			<Grid>
-				{mockData.map((data) => (
+				{videos.map((data) => (
 					<Grid.Col
 						span={{ base: isHalfWidth ? 6 : 12, xs: 4 }}
 						key={data.videoID}
