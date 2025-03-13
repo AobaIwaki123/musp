@@ -1,5 +1,8 @@
 "use client";
 
+import { AddMusicIcon } from "@/components/Icons/AddMusicIcon/AddMusicIcon";
+import { PasteButton } from "@/components/Icons/PasteButton/PasteButton";
+import { YouTubeIcon } from "@/components/Icons/YouTubeIcon/YouTubeIcon";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ActionIcon, Group, TextInput } from "@mantine/core";
 import {
@@ -15,7 +18,6 @@ import type { PostJobsRequestType } from "../../../client/client";
 import { LoadWabButton } from "../../Buttons/LoadWabButton/LoadWabButton";
 import { ModeIconWrapper } from "../../Icons/ModeIconWrapper/ModeIconWrapper";
 import classes from "./MuspForm.module.css";
-
 interface MuspFormProps {
 	onSubmit: (videoID: string) => void;
 }
@@ -98,43 +100,9 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 			/>
 
 			<Group justify="center" mt="xl" mb={50}>
-				<a href="https://www.youtube.com/">
-					<ActionIcon size="lg" color="gray" variant="subtle">
-						<ModeIconWrapper
-							icon={IconBrandYoutube}
-							darkColor="red"
-							lightColor="red"
-							size={30}
-						/>
-					</ActionIcon>
-				</a>
-				<ActionIcon
-					size="lg"
-					color="gray"
-					variant="subtle"
-					onClick={handlePaste}
-				>
-					<ModeIconWrapper
-						icon={IconClipboardCheck}
-						darkColor="skyblue"
-						lightColor="skyblue"
-						size={30}
-					/>
-				</ActionIcon>
-				<ActionIcon
-					type="submit"
-					size="lg"
-					color="red"
-					variant="subtle"
-					disabled={!watchYoutubeUrl} // 未入力の場合はボタンを無効化
-				>
-					<ModeIconWrapper
-						icon={IconMusicPlus}
-						darkColor={watchYoutubeUrl ? "pink" : "gray"}
-						lightColor={watchYoutubeUrl ? "pink" : "gray"}
-						size={30}
-					/>
-				</ActionIcon>
+				<YouTubeIcon />
+				<PasteButton handlePaste={handlePaste} />
+				<AddMusicIcon watchYoutubeUrl={watchYoutubeUrl} />
 				<LoadWabButton />
 			</Group>
 		</form>
