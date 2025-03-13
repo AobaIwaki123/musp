@@ -10,7 +10,7 @@ interface CustomSliderProps {
 }
 
 export function CustomSlider({ value }: CustomSliderProps) {
-	const [currentValue, setCurrentValue] = useState(50); // スライダーの値
+	const [currentValue, setCurrentValue] = useState(100); // スライダーの値
 	const [isMoving, _] = useState(false); // マウスが動いているか判定
 	const interval = useInterval(() => {
 		if (!isMoving) {
@@ -26,9 +26,6 @@ export function CustomSlider({ value }: CustomSliderProps) {
 	return (
 		<Container fluid>
 			<Progress ref={ref} value={currentValue} size="2" />
-			<Button onClick={interval.toggle} mt="md">
-				{interval.active ? "Pause" : "Start"}
-			</Button>
 		</Container>
 	);
 }

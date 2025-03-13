@@ -10,7 +10,7 @@ export default function HomePage() {
 		<>
 			<ReloadButton />
 			<Header />
-			<CustomSlider />
+			<CustomSlider value={50}/>
 			<Welcome />
 			<Home />
 			<Footer />
