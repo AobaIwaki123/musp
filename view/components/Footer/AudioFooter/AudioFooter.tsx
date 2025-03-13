@@ -31,6 +31,8 @@ export function AudioFooter() {
 	useEffect(() => {
 		if (audioRef.current) {
 			const audio = audioRef.current;
+			audio.play()
+			setIsPlaying(true);
 
 			const updateTime = () => {
 				setCurrentTime(audio.currentTime);
