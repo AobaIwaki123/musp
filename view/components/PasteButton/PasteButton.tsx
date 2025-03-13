@@ -1,8 +1,7 @@
 "use client";
 
-import { Button, Group, Textarea } from "@mantine/core";
+import { Button, Group } from "@mantine/core";
 import { IconClipboardCheck } from "@tabler/icons-react";
-import { useState } from "react";
 
 export const PasteButton = () => {
 	const handlePaste = async () => {
