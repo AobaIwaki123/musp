@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@mantine/core"; // UIライブラリはお使いのものに合わせてください
-import { useMantineColorScheme } from "@mantine/core";
+import { useMantineColorScheme, ActionIcon } from "@mantine/core";
 import { IconColumns1, IconColumns2 } from "@tabler/icons-react";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -25,12 +25,18 @@ export function WidthToggleButton() {
 	}, [colorScheme]);
 
 	return (
-		<Button onClick={toggleLayout} color="transparent">
+		<ActionIcon
+			onClick={toggleLayout}
+			color="transparent"
+			variant="default"
+			size="xl"
+			aria-label="Toggle columns"
+		>
 			{isHalfWidth ? (
 				<ModeIconWrapper icon={IconColumns1} />
 			) : (
 				<ModeIconWrapper icon={IconColumns2} />
 			)}
-		</Button>
+		</ActionIcon>
 	);
 }

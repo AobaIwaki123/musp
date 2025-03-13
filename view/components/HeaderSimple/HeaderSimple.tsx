@@ -16,7 +16,7 @@ export function HeaderSimple() {
 		<header className={classes.header}>
 			<Container size="md" className={classes.inner}>
 				<MuspLogo />
-				<Group gap={0}>
+				<Group>
 					<WidthToggleButton />
 					<ActionToggle />
 				</Group>
