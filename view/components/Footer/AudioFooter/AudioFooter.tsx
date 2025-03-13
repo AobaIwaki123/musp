@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { wavFileAtom } from "@/jotai/atom";
 import { Container, Slider, Text } from "@mantine/core";
 import { useAtom } from "jotai";
-import { CancelButton } from "./CancelButton";
+import { CustomSlider } from "./ButtomSeekBar/ProgressSlider";
 import { PlayButton } from "./PlayButton";
 
 import classes from "./AudioFooter.module.css";
@@ -31,7 +31,7 @@ export function AudioFooter() {
 	useEffect(() => {
 		if (audioRef.current) {
 			const audio = audioRef.current;
-			audio.play()
+			audio.play();
 			setIsPlaying(true);
 
 			const updateTime = () => {
@@ -60,22 +60,17 @@ export function AudioFooter() {
 
 	return (
 		<div className={classes.footer}>
-			<Container className={classes.inner}>
-				<audio ref={audioRef}>
-					<track kind="captions" />
-					<source src={wavFile} type="audio/wav" />
-				</audio>
-				<Container className={classes.sliderWrapper}>
-					<Slider
-						value={currentTime}
-						onChange={handleSeek}
-						max={duration || 1}
-						label={(val) => `${Math.floor(val)}秒`}
-						color="gray"
-						size="xs"
-					/>
+			<Container>
+				<Container className={classes.inner}>
+					<audio ref={audioRef}>
+						<track kind="captions" />
+						<source src={wavFile} type="audio/wav" />
+					</audio>
+					<Container className={classes.sliderWrapper}>
+					</Container>
+					<PlayButton isPlaying={isPlaying} onClick={togglePlay} />
 				</Container>
-				<PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+				<CustomSlider	value={currentTime} />
 			</Container>
 		</div>
 	);
