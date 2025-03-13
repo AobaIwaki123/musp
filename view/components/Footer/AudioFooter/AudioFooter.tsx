@@ -7,6 +7,7 @@ import { Container, Slider, Text } from "@mantine/core";
 import { useAtom } from "jotai";
 import { CustomSlider } from "./ButtomSeekBar/ProgressSlider";
 import { PlayButton } from "./PlayButton";
+import { ButtonProgress } from "./ButtomSeekBar/ButtonProgress";
 
 import classes from "./AudioFooter.module.css";
 
@@ -60,7 +61,7 @@ export function AudioFooter() {
 
 	return (
 		<div className={classes.footer}>
-			<Container fluid>
+			<Container fluid style={{ width: "100%", padding: 0 }}>
 				<Container fluid className={classes.inner}>
 					<audio ref={audioRef}>
 						<track kind="captions" />

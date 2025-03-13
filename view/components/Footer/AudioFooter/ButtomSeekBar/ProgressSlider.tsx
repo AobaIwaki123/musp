@@ -24,7 +24,7 @@ export function CustomSlider({ value }: CustomSliderProps) {
 	});
 
 	return (
-		<Container fluid>
+		<Container fluid style={{ width: "100%", padding: 0 }}>
 			<Progress ref={ref} value={currentValue} size="2" />
 		</Container>
 	);
