@@ -63,7 +63,7 @@ export function AudioFooter() {
 					<track kind="captions" />
 					<source src={wavFile} type="audio/wav" />
 				</audio>
-				<div>audio</div>
+				<PlayButton isPlaying={isPlaying} onClick={togglePlay} />
 			</Container>
 		</div>
 	);
