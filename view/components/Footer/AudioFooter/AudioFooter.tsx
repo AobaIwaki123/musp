@@ -40,22 +40,6 @@ export function AudioFooter() {
 			audio.addEventListener("timeupdate", updateTime);
 			audio.addEventListener("loadedmetadata", updateTime);
 
-			const playAudio = () => {
-				audioRef.current.play().catch((error) => {
-					console.error("Autoplay prevented:", error);
-				});
-			};
-
-			if (audioRef.current.readyState >= 3) {
-				// すでにロード済みならすぐ再生
-				playAudio();
-			} else {
-				// ロードが完了したら再生
-				audioRef.current.addEventListener("canplaythrough", playAudio);
-				return () => {
-					audioRef.current.removeEventListener("canplaythrough", playAudio);
-				};
-			}
 			return () => {
 				audio.removeEventListener("timeupdate", updateTime);
 				audio.removeEventListener("loadedmetadata", updateTime);
@@ -74,24 +58,12 @@ export function AudioFooter() {
 
 	return (
 		<div className={classes.footer}>
-			<audio ref={audioRef} src={wavFile}>
-				<track kind="captions" />
-			</audio>
 			<Container className={classes.inner}>
-				<PlayButton isPlaying={isPlaying} togglePlay={togglePlay} size={40} />
-
-				<Container className={classes.sliderWrapper}>
-					<Slider
-						value={currentTime}
-						onChange={handleSeek}
-						max={duration || 1}
-						label={(val) => `${Math.floor(val)}秒`}
-						color="gray"
-						size="xs"
-					/>
-				</Container>
-
-				<CancelButton size={40} />
+				<audio controls ref={audioRef}>
+					<track kind="captions" />
+					<source src={wavFile} type="audio/wav" />
+				</audio>
+				<div>audio</div>
 			</Container>
 		</div>
 	);

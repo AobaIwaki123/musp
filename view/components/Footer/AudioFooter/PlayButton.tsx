@@ -6,17 +6,17 @@ import customClasses from "./AudioFooter.module.css";
 
 interface PlayButtonProps extends ComponentProps<any> {
 	isPlaying: boolean;
-	togglePlay: () => void;
+	onClick: () => void;
 }
 
 export function PlayButton({
 	isPlaying,
-	togglePlay,
+	onClick,
 	...props
 }: PlayButtonProps) {
 	return (
 		<ActionIcon
-			onClick={togglePlay}
+			onClick={onClick}
 			color="gray"
 			className={customClasses.play}
 			{...props}
