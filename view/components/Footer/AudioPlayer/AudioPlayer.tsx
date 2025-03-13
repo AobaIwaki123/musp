@@ -1,10 +1,12 @@
 "use client";
 
-import { ActionIcon, Button, Divider, Group, Slider } from "@mantine/core";
+import { ActionIcon, Container, Group, Slider } from "@mantine/core";
 import { IconPlayerPause, IconPlayerPlay, IconX } from "@tabler/icons-react";
 import { useAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
-import { wavFileAtom } from "../../../jotai/atom";
+import { wavFileAtom } from "@/jotai/atom";
+import baseClasses from "../Footer.module.css";
+import customClasses from "./AudioPlayer.module.css";
 
 export function AudioPlayer() {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -62,63 +64,52 @@ export function AudioPlayer() {
 	if (!wavFile) return null;
 
 	return (
-		<div
-			style={{
-				position: "fixed",
-				bottom: 0,
-				width: "100%",
-				background: "#fff",
-				borderTop: "1px solid #ccc",
-				padding: "10px 0",
-			}}
-		>
+		<div className={baseClasses.footer}>
 			<audio ref={audioRef} src={wavFile}>
 				<track kind="captions" />
 			</audio>
-
-			{/* シークバー */}
-			<Slider
-				value={currentTime}
-				onChange={handleSeek}
-				min={0}
-				max={duration || 1}
-				step={0.1}
-				label={(val) => `${Math.floor(val)}秒`}
-				style={{ width: "90%", margin: "0 auto" }}
-			/>
-
-			<Divider my="sm" />
-
-			{/* ボタンコンテナ */}
-			<Group
-				align="apart"
-				style={{
-					padding: "10px",
-					position: "fixed",
-					bottom: 0,
-					width: "100%",
-					background: "#fff",
-					borderTop: "1px solid #ccc",
-				}}
-			>
-				{/* 再生ボタン (左下) */}
-				<ActionIcon
-					onClick={togglePlay}
-					style={{ position: "absolute", left: "10px", bottom: "10px" }}
-					color="gray"
+			<Container className={baseClasses.inner}>
+				<Group
+					style={{
+						padding: "10px",
+						position: "fixed",
+						bottom: 0,
+						width: "100%",
+					}}
+					className={baseClasses.links}
 				>
-					{isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
-				</ActionIcon>
+					{/* 再生ボタン (左下) */}
+					<ActionIcon
+						onClick={togglePlay}
+						color="gray"
+						className={customClasses.play}
+					>
+						{isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
+					</ActionIcon>
+					<Slider
+						value={currentTime}
+						onChange={handleSeek}
+						min={0}
+						max={duration || 1}
+						step={0.1}
+						label={(val) => `${Math.floor(val)}秒`}
+						style={{
+							width: "70%",
+							height: "1px",
+							margin: "0 auto",
+						}}
+						color="blue"
+					/>
 
-				{/* キャンセルボタン (右下) */}
-				<Button
-					onClick={handleCancel}
-					color="red"
-					style={{ position: "absolute", right: "10px", bottom: "10px" }}
-				>
-					❌ キャンセル
-				</Button>
-			</Group>
+					<ActionIcon
+						onClick={handleCancel}
+						color="gray"
+						className={customClasses.cancel}
+					>
+						<IconX />
+					</ActionIcon>
+				</Group>
+			</Container>
 		</div>
 	);
 }
