@@ -2,11 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ActionIcon, Button, Group, TextInput } from "@mantine/core";
-import { IconBrandYoutube, IconX } from "@tabler/icons-react";
+import {
+	IconBrandYoutube,
+	IconClipboardCheck,
+	IconX,
+	IconMusicPlus,
+} from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { PostJobsRequest } from "../../client/client";
 import type { PostJobsRequestType } from "../../client/client";
+import { ModeIconWrapper } from "../ModeIconWrapper/ModeIconWrapper";
 import classes from "./MuspForm.module.css";
 
 interface MuspFormProps {
@@ -31,6 +37,15 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 	});
 
 	const watchYoutubeUrl = watch("youtube_url");
+
+	const handlePaste = async () => {
+		try {
+			const clipboardText = await navigator.clipboard.readText();
+			setValue("youtube_url", clipboardText);
+		} catch (error) {
+			console.error("Failed to read clipboard:", error);
+		}
+	};
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
@@ -82,21 +97,43 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 			/>
 
 			<Group justify="center" mt="xl" mb={50}>
-				<IconBrandYoutube stroke={1.5} color="transparent" />
-				<Button
-					className={classes.button}
-					type="submit"
-					variant="gradient"
-					gradient={{ from: "pink", to: "violet", deg: 90 }}
-					disabled={!watchYoutubeUrl} // 未入力の場合はボタンを無効化
-				>
-					<div className={classes.label}>"Add Music!"</div>
-				</Button>
 				<a href="https://www.youtube.com/">
 					<ActionIcon size="lg" color="gray" variant="subtle">
-						<IconBrandYoutube stroke={1.5} color="red" />
+						<ModeIconWrapper
+							icon={IconBrandYoutube}
+							darkColor="red"
+							lightColor="red"
+							size={30}
+						/>
 					</ActionIcon>
 				</a>
+				<ActionIcon
+					size="lg"
+					color="gray"
+					variant="subtle"
+					onClick={handlePaste}
+				>
+					<ModeIconWrapper
+						icon={IconClipboardCheck}
+						darkColor="skyblue"
+						lightColor="skyblue"
+						size={30}
+					/>
+				</ActionIcon>
+				<ActionIcon
+					type="submit"
+					size="lg"
+					color="red"
+					variant="subtle"
+					disabled={!watchYoutubeUrl} // 未入力の場合はボタンを無効化
+				>
+					<ModeIconWrapper
+						icon={IconMusicPlus}
+						darkColor={watchYoutubeUrl ? "pink" : "gray"}
+						lightColor={watchYoutubeUrl ? "pink" : "gray"}
+						size={30}
+					/>
+				</ActionIcon>
 			</Group>
 		</form>
 	);
