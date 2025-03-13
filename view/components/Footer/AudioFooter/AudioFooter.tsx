@@ -69,7 +69,7 @@ export function AudioFooter() {
 					</audio>
 					<PlayButton isPlaying={isPlaying} onClick={togglePlay} />
 				</Container>
-				<CustomSlider value={currentTime} />
+				<CustomSlider value={currentTime} max={duration}/>
 			</Container>
 		</div>
 	);
