@@ -1,5 +1,7 @@
 FROM node:22-alpine AS dev
 
+ENV NODE_ENV=development
+
 WORKDIR /app
 
 # Enable pnpm
@@ -14,6 +16,8 @@ RUN npm add -g openapi-zod-client
 CMD ["yarn", "dev"]
 
 FROM node:22-alpine AS prod
+
+ENV NODE_ENV=production
 
 WORKDIR /app
 
@@ -32,4 +36,4 @@ COPY . .
 # Build the app
 RUN yarn build
 
-CMD ["yarn", "start"]
+CMD ["npx", "serve@latest", "out"]

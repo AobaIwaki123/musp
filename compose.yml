@@ -2,7 +2,7 @@ services:
   view:
     build:
       context: view
-      target: prod
+      target: dev
     container_name: view
     working_dir: /app
     volumes:
@@ -10,9 +10,7 @@ services:
       - ./openapi.yaml:/app/openapi.yaml
     ports:
       - 3000:3000
-    command: npx serve@latest out
-    env_file:
-      ./view/dev.env
+    command: yarn dev
     
   api:
     build:
@@ -55,9 +53,3 @@ services:
     ports:
       - 6379:6379
 
-  dev-cloudflare:
-    image: "cloudflare/cloudflared:2025.2.1"
-    container_name: "dev-cloudflare"
-    volumes: [ './cloudflare:/home/nonroot/.cloudflared' ]
-    command: tunnel run
-    restart: unless-stopped
