@@ -1,20 +1,20 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ActionIcon, Button, Group, TextInput } from "@mantine/core";
+import { ActionIcon, Group, TextInput } from "@mantine/core";
 import {
 	IconBrandYoutube,
 	IconClipboardCheck,
-	IconX,
 	IconMusicPlus,
+	IconX,
 } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { PostJobsRequest } from "../../client/client";
-import type { PostJobsRequestType } from "../../client/client";
-import { ModeIconWrapper } from "../ModeIconWrapper/ModeIconWrapper";
+import { PostJobsRequest } from "../../../client/client";
+import type { PostJobsRequestType } from "../../../client/client";
+import { LoadWabButton } from "../../Buttons/LoadWabButton/LoadWabButton";
+import { ModeIconWrapper } from "../../Icons/ModeIconWrapper/ModeIconWrapper";
 import classes from "./MuspForm.module.css";
-import { LoadWabButton } from "../LoadWabButton/LoadWabButton";
 
 interface MuspFormProps {
 	onSubmit: (videoID: string) => void;

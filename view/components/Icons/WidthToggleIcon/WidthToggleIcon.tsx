@@ -1,14 +1,13 @@
 "use client";
 
-import { Button } from "@mantine/core"; // UIライブラリはお使いのものに合わせてください
 import { ActionIcon, useMantineColorScheme } from "@mantine/core";
 import { IconColumns1, IconColumns2 } from "@tabler/icons-react";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { isHalfWidthAtom } from "../../jotai/atom";
+import { isHalfWidthAtom } from "../../../jotai/atom";
 import { ModeIconWrapper } from "../ModeIconWrapper/ModeIconWrapper";
 
-export function WidthToggleButton() {
+export function WidthToggleIcon() {
 	const [isHalfWidth, setIsHalfWidth] = useAtom(isHalfWidthAtom);
 	const toggleLayout = () => {
 		setIsHalfWidth((prev) => !prev);

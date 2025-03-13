@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@mantine/core";
-import { IconRefresh, IconReload } from "@tabler/icons-react";
+import { IconRefresh } from "@tabler/icons-react";
 import { useAtom } from "jotai";
 import React from "react";
-import { wavFileAtom } from "../../jotai/atom";
+import { wavFileAtom } from "../../../jotai/atom";
 import classes from "./ReloadButton.module.css";
 
 export const ReloadButton = () => {

@@ -9,7 +9,7 @@ import {
 	Loader,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { PlayButton } from "../PlayButton/PlayButton";
+import { PlayButton } from "../../Buttons/PlayButton/PlayButton";
 import classes from "./ApplicationCard.module.css";
 interface ApplicationCardProps {
 	videoID: string;

@@ -2,7 +2,7 @@
 
 import { Button } from "@mantine/core";
 import { useAtom } from "jotai";
-import { wavFileAtom } from "../../jotai/atom";
+import { wavFileAtom } from "../../../jotai/atom";
 
 export function LoadWabButton() {
 	const [wavFile, setWavFile] = useAtom(wavFileAtom);
@@ -11,7 +11,7 @@ export function LoadWabButton() {
 
 	const handleLoadWav = () => {
 		setWavFile(url); // 適当なWAV URLを設定
-    console.log("WAV URL:", wavFile);
+		console.log("WAV URL:", wavFile);
 	};
 
 	return (

@@ -1,9 +1,9 @@
-import { FooterSocial } from "../components/FooterSocial/FooterSocial";
-import { HeaderSimple } from "../components/HeaderSimple/HeaderSimple";
-import { MuspHome } from "../components/MuspHome/MuspHome";
-import { ReloadButton } from "../components/ReloadButton/ReloadButton";
-import { Welcome } from "../components/Welcome/Welcome";
-import { AudioPlayer } from "../components/AudioPlayer/AudioPlayer";
+import { ReloadButton } from "../components/Buttons/ReloadButton/ReloadButton";
+import { FooterSocial } from "../components/Footer/FooterSocial/FooterSocial";
+import { HeaderSimple } from "../components/Header/HeaderSimple/HeaderSimple";
+import { AudioPlayer } from "../components/Home/AudioPlayer/AudioPlayer";
+import { MuspHome } from "../components/Home/MuspHome/MuspHome";
+import { Welcome } from "../components/Home/Welcome/Welcome";
 
 export default function HomePage() {
 	return (

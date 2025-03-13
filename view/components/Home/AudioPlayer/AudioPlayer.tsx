@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Button, Slider, Group, Text, Divider } from "@mantine/core";
+import { ActionIcon, Button, Divider, Group, Slider } from "@mantine/core";
+import { IconPlayerPause, IconPlayerPlay, IconX } from "@tabler/icons-react";
 import { useAtom } from "jotai";
-import { wavFileAtom } from "../../jotai/atom";
+import { useEffect, useRef, useState } from "react";
+import { wavFileAtom } from "../../../jotai/atom";
 
 export function AudioPlayer() {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -101,12 +102,13 @@ export function AudioPlayer() {
 				}}
 			>
 				{/* 再生ボタン (左下) */}
-				<Button
+				<ActionIcon
 					onClick={togglePlay}
 					style={{ position: "absolute", left: "10px", bottom: "10px" }}
+					color="gray"
 				>
-					{isPlaying ? "⏸️ 一時停止" : "▶️ 再生"}
-				</Button>
+					{isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
+				</ActionIcon>
 
 				{/* キャンセルボタン (右下) */}
 				<Button
