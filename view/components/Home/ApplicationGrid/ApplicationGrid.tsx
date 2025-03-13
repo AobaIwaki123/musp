@@ -3,17 +3,17 @@
 import { Container, Grid } from "@mantine/core";
 import { useAtom } from "jotai";
 import { isHalfWidthAtom } from "../../../jotai/atom";
-import { ApplicationCard } from "../ApplicationCard/ApplicationCard";
+import { ApplicationCard } from "./ApplicationCard/ApplicationCard";
 
 export interface Video {
 	videoID: string;
 }
 
-export interface GridAsymmetricalProps {
+export interface ApplicationGridProps {
 	videos: Video[];
 }
 
-export function GridAsymmetrical({ videos }: GridAsymmetricalProps) {
+export function ApplicationGrid({ videos }: ApplicationGridProps) {
 	const [isHalfWidth, setIsHalfWidth] = useAtom(isHalfWidthAtom);
 
 	return (

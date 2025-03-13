@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GridAsymmetrical } from "../GridAsymmetrical/GridAsymmetrical";
-import type { Video } from "../GridAsymmetrical/GridAsymmetrical";
-import { MuspForm } from "../MuspForm/MuspForm";
+import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
+import type { Video } from "./ApplicationGrid/ApplicationGrid";
+import { MuspForm } from "./MuspForm/MuspForm";
 
-export function MuspHome() {
+export function Home() {
 	const [videoIDList, setVideoIDList] = useState<Video[]>([]);
 
 	const mockData = [
@@ -48,7 +48,7 @@ export function MuspHome() {
 	return (
 		<>
 			<MuspForm onSubmit={handleAddVideo} />
-			<GridAsymmetrical videos={videoIDList} />
+			<ApplicationGrid videos={videoIDList} />
 		</>
 	);
 }

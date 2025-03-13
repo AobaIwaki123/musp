@@ -1,10 +1,10 @@
 import { Container, Group } from "@mantine/core";
-import { ModeIcon } from "../../Icons/ModeIcon/ModeIcon";
-import { WidthToggleIcon } from "../../Icons/WidthToggleIcon/WidthToggleIcon";
-import { MuspLogo } from "../MuspLogo/MuspLogo";
-import classes from "./HeaderSimple.module.css";
+import { ModeIcon } from "../Icons/ModeIcon/ModeIcon";
+import { WidthToggleIcon } from "../Icons/WidthToggleIcon/WidthToggleIcon";
+import classes from "./Header.module.css";
+import { MuspLogo } from "./MuspLogo/MuspLogo";
 
-export function HeaderSimple() {
+export function Header() {
 	return (
 		<header className={classes.header}>
 			<Container size="md" className={classes.inner}>

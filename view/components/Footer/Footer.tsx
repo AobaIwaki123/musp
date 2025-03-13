@@ -1,8 +1,8 @@
 import { Container, Group, Text } from "@mantine/core";
-import { GitHubIcon } from "../../Icons/GitHubIcon/GitHubIcon";
-import classes from "./FooterSocial.module.css";
+import { GitHubIcon } from "../Icons/GitHubIcon/GitHubIcon";
+import classes from "./Footer.module.css";
 
-export function FooterSocial() {
+export function Footer() {
 	return (
 		<div className={classes.footer}>
 			<Container className={classes.inner}>

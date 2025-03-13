@@ -1,19 +1,19 @@
 import { ReloadButton } from "../components/Buttons/ReloadButton/ReloadButton";
-import { FooterSocial } from "../components/Footer/FooterSocial/FooterSocial";
-import { HeaderSimple } from "../components/Header/HeaderSimple/HeaderSimple";
+import { Footer } from "../components/Footer/Footer";
+import { Header } from "../components/Header/Header";
 import { AudioPlayer } from "../components/Home/AudioPlayer/AudioPlayer";
-import { MuspHome } from "../components/Home/MuspHome/MuspHome";
+import { Home } from "../components/Home/Home";
 import { Welcome } from "../components/Home/Welcome/Welcome";
 
 export default function HomePage() {
 	return (
 		<>
 			<ReloadButton />
-			<HeaderSimple />
+			<Header />
 			<Welcome />
 			<AudioPlayer />
-			<MuspHome />
-			<FooterSocial />
+			<Home />
+			<Footer />
 		</>
 	);
 }

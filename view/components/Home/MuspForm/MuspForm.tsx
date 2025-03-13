@@ -62,7 +62,7 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 	const handleFormSubmit = async (data: PostJobsRequestType) => {
 		console.log("送信データ:", data);
 
-		onSubmit(data.youtube_url); // `MuspHome` に動画IDを渡す
+		onSubmit(data.youtube_url); // `Home` に動画IDを渡す
 		setValue("youtube_url", ""); // 入力欄をクリア
 	};
 
