@@ -7,7 +7,7 @@ import classes from "./ModeButton.module.css";
 
 export function ActionToggle() {
   const { setColorScheme } = useMantineColorScheme();
-  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+  const computedColorScheme = useComputedColorScheme();
 
   return (
     <Group justify="center">

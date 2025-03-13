@@ -1,9 +1,9 @@
 import { FooterSocial } from "../components/FooterSocial/FooterSocial";
 import { HeaderSimple } from "../components/HeaderSimple/HeaderSimple";
 import { MuspHome } from "../components/MuspHome/MuspHome";
+import { PasteButton } from "../components/PasteButton/PasteButton";
 import { ReloadButton } from "../components/ReloadButton/ReloadButton";
 import { Welcome } from "../components/Welcome/Welcome";
-import { ClipboardPasteButton } from "../components/ClipBoardPaste/ClipBoardPaste";
 
 export default function HomePage() {
 	return (
@@ -11,7 +11,7 @@ export default function HomePage() {
 			<ReloadButton />
 			<HeaderSimple />
 			<Welcome />
-			<ClipboardPasteButton/>
+			<PasteButton />
 			<MuspHome />
 			<FooterSocial />
 		</>

@@ -5,7 +5,7 @@ services:
       target: prod
     container_name: dev-view
     working_dir: /app
-    command: npx serve@latest out
+    command: yarn start
     ports:
       - 5000:3000
 

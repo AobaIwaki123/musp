@@ -1,16 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	ActionIcon,
-	Button,
-	Group,
-	Progress,
-	TextInput,
-	rgba,
-	useMantineTheme,
-} from "@mantine/core";
-import { useInterval } from "@mantine/hooks";
+import { ActionIcon, Button, Group, TextInput } from "@mantine/core";
 import { IconBrandYoutube, IconX } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
