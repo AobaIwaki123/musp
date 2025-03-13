@@ -6,8 +6,6 @@ services:
     container_name: dev-view
     working_dir: /app
     command: yarn start
-    ports:
-      - 5000:3000
 
   prod-api:
     build:
@@ -48,5 +46,3 @@ services:
     volumes: [ './cloudflare:/home/nonroot/.cloudflared' ]
     command: tunnel run
     restart: unless-stopped
-    depends_on:
-      - dev-view

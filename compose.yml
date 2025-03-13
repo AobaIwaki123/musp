@@ -53,3 +53,9 @@ services:
     ports:
       - 6379:6379
 
+  dev-cloudflare:
+    image: "cloudflare/cloudflared:2025.2.1"
+    container_name: "dev-cloudflare"
+    volumes: [ './cloudflare:/home/nonroot/.cloudflared' ]
+    command: tunnel run
+    restart: unless-stopped
