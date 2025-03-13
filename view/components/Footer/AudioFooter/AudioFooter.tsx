@@ -59,10 +59,20 @@ export function AudioFooter() {
 	return (
 		<div className={classes.footer}>
 			<Container className={classes.inner}>
-				<audio controls ref={audioRef}>
+				<audio ref={audioRef}>
 					<track kind="captions" />
 					<source src={wavFile} type="audio/wav" />
 				</audio>
+				<Container className={classes.sliderWrapper}>
+					<Slider
+						value={currentTime}
+						onChange={handleSeek}
+						max={duration || 1}
+						label={(val) => `${Math.floor(val)}秒`}
+						color="gray"
+						size="xs"
+					/>
+				</Container>
 				<PlayButton isPlaying={isPlaying} onClick={togglePlay} />
 			</Container>
 		</div>
