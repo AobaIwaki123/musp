@@ -15,7 +15,7 @@ export function ApplicationCard({ videoID }: ApplicationCardProps) {
 		useEffect(() => {
 			const timer = setTimeout(() => {
 				setLoaded(true);
-			}, 1000);
+			}, 300);
 			return () => clearTimeout(timer);
 		}, []);
 
