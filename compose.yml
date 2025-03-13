@@ -1,9 +1,8 @@
 services:
   view:
-    # image: node:20-alpine
     build:
       context: view
-      target: dev
+      target: prod
     container_name: view
     working_dir: /app
     volumes:
@@ -11,7 +10,9 @@ services:
       - ./openapi.yaml:/app/openapi.yaml
     ports:
       - 3000:3000
-    command: yarn dev
+    command: npx serve@latest out
+    env_file:
+      ./view/dev.env
     
   api:
     build:
@@ -53,3 +54,10 @@ services:
     container_name: redis
     ports:
       - 6379:6379
+
+  dev-cloudflare:
+    image: "cloudflare/cloudflared:2025.2.1"
+    container_name: "dev-cloudflare"
+    volumes: [ './cloudflare:/home/nonroot/.cloudflared' ]
+    command: tunnel run
+    restart: unless-stopped

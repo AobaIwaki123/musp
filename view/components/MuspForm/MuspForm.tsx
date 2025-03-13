@@ -23,9 +23,6 @@ interface MuspFormProps {
 }
 
 export function MuspForm({ onSubmit }: MuspFormProps) {
-	const theme = useMantineTheme();
-	const [progress, setProgress] = useState(0);
-	const [loaded, setLoaded] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
 
 	const {
@@ -53,20 +50,6 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 			}
 		}
 	}, [setValue]);
-
-	useEffect(() => {
-		if (loaded) {
-			console.log("Process finished!");
-			// window.location.reload();
-		}
-	}, [loaded]);
-
-	useEffect(() => {
-		if (watchYoutubeUrl) {
-			setProgress(0);
-			setLoaded(false);
-		}
-	}, [watchYoutubeUrl]);
 
 	// フォーム送信時の処理
 	const handleFormSubmit = async (data: PostJobsRequestType) => {
@@ -114,11 +97,9 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 					type="submit"
 					variant="gradient"
 					gradient={{ from: "pink", to: "violet", deg: 90 }}
-					disabled={progress > 0 && !loaded}
+					disabled={!watchYoutubeUrl} // 未入力の場合はボタンを無効化
 				>
-					<div className={classes.label}>
-						{loaded ? "Process Finished!" : "Add Music!"}
-					</div>
+					<div className={classes.label}>"Add Music!"</div>
 				</Button>
 				<a href="https://www.youtube.com/">
 					<ActionIcon size="lg" color="gray" variant="subtle">

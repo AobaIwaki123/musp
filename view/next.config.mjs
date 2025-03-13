@@ -1,15 +1,23 @@
-import bundleAnalyzer from '@next/bundle-analyzer';
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const isProd = process.env.NODE_ENV === "production";
 
 const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
+	enabled: process.env.ANALYZE === "true",
 });
 
-export default withBundleAnalyzer({
-  reactStrictMode: false,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  experimental: {
-    optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
-  },
-});
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+	reactStrictMode: false,
+	eslint: {
+		ignoreDuringBuilds: true,
+	},
+	experimental: {
+		optimizePackageImports: ["@mantine/core", "@mantine/hooks"],
+	},
+	assetPrefix: isProd ? "https://musp-dev.shaoba.tech" : "",
+	output: "export",
+	trailingSlash: true, // ✅ 追加
+};
+
+export default withBundleAnalyzer(nextConfig);

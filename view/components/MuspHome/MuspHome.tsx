@@ -9,13 +9,13 @@ export function MuspHome() {
 
 	const mockData = [
 		{ videoID: "hedyQY81WeY" },
-		// { videoID: "JQowMIY2bOw" },
-		// { videoID: "k7eGPMCy_ms" },
-		// { videoID: "B2teLF9l4aI" },
-		// { videoID: "ibI6-kvD1nc" },
-		// { videoID: "qP52sh7PzYA" },
-		// { videoID: "f8k8vDcCEfc" },
-		// { videoID: "vcp7XKBylkM" },
+		{ videoID: "JQowMIY2bOw" },
+		{ videoID: "k7eGPMCy_ms" },
+		{ videoID: "B2teLF9l4aI" },
+		{ videoID: "ibI6-kvD1nc" },
+		{ videoID: "qP52sh7PzYA" },
+		{ videoID: "f8k8vDcCEfc" },
+		{ videoID: "vcp7XKBylkM" },
 	];
 
 	useEffect(() => {
