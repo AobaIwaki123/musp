@@ -1,6 +1,6 @@
 "use client";
 
-import { Container, Group, Text } from "@mantine/core";
+import { Container, Slider, Text } from "@mantine/core";
 import { useRef, useState } from "react";
 import { CancelButton } from "./CancelButton";
 import { PlayButton } from "./PlayButton";
@@ -27,9 +27,9 @@ export function AudioFooter() {
 			<Container className={classes.inner}>
 				<PlayButton isPlaying={isPlaying} togglePlay={togglePlay} size={40}/>
 
-				<Text c="dimmed" size="md">
-					Slide Bar
-				</Text>
+				<Container className={classes.sliderWrapper}>
+					<Slider color="gray" size="xs"/>
+				</Container>
 
 				<CancelButton size={40}/>
 			</Container>

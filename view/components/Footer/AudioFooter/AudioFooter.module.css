@@ -21,6 +21,14 @@
 	}
 }
 
+.sliderWrapper {
+	flex: 1;
+	margin: 0 var(--mantine-spacing-lg);
+	@media (max-width: mantine-breakpoint-xs) {
+		margin: 0;
+	}
+}
+
 .play {
 	position: "absolute";
 	left: "10px";
