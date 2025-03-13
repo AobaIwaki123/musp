@@ -9,7 +9,7 @@ import classes from "./AudioFooter.module.css";
 
 export function AudioFooter() {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+	const [isPlaying, setIsPlaying] = useState(false);
 
 	const togglePlay = () => {
 		if (audioRef.current) {
@@ -25,20 +25,13 @@ export function AudioFooter() {
 	return (
 		<div className={classes.footer}>
 			<Container className={classes.inner}>
-				<Group
-					gap={1}
-					// className={classes.links}
-					justify="space-between"
-					wrap="nowrap"
-				>
-					<PlayButton isPlaying={isPlaying} togglePlay={togglePlay} />
+				<PlayButton isPlaying={isPlaying} togglePlay={togglePlay} size={40}/>
 
-					<Text c="dimmed" size="md">
-						Slide Bar
-					</Text>
+				<Text c="dimmed" size="md">
+					Slide Bar
+				</Text>
 
-					<CancelButton />
-				</Group>
+				<CancelButton size={40}/>
 			</Container>
 		</div>
 	);

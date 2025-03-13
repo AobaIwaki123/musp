@@ -23,7 +23,7 @@ export const ReloadButton = () => {
 			onClick={handleReload}
 			style={{
 				position: "fixed",
-				bottom: wavFile ? "70px" : "20px", // wavFile があるときは少し上げる
+				bottom: wavFile ? "100px" : "20px", // wavFile があるときは少し上げる
 				right: "20px",
 				zIndex: 1000, // 他の要素より前面に表示
 			}}
