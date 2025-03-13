@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Button, Slider, Group, Text } from "@mantine/core";
+import { Button, Slider, Group, Text, Divider } from "@mantine/core";
+import { useAtom } from "jotai";
+import { wavFileAtom } from "../../jotai/atom";
 
 export function AudioPlayer() {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
+	const [wavFile, setWavFile] = useAtom(wavFileAtom);
 
 	// 再生・停止の切り替え
 	const togglePlay = () => {
@@ -19,6 +22,11 @@ export function AudioPlayer() {
 			}
 			setIsPlaying(!isPlaying);
 		}
+	};
+
+	// WAVファイルのリセット（キャンセル）
+	const handleCancel = () => {
+		setWavFile(null);
 	};
 
 	// オーディオの時間更新
@@ -49,25 +57,23 @@ export function AudioPlayer() {
 		}
 	};
 
-  const url =
-			"https://ff6681b2f33c375fda466cc24c7bad3b11e523205d3db99962f582b-apidata.googleusercontent.com/download/storage/v1/b/musp/o/0c1714f3-9461-4925-bf33-b1b84e0d4655%2Fvocals.wav?jk=AVyuY3gcJXhSYcLSlTjSq7L89r9s4ohagl5gRtMy7lUSr0le7s6jkd2yEcyTeuxmICOUY-nbBsGnvEgw4kBdYV9Ke-pACAVOkcfxbPj195jcZBpkxBSM_yIfmqjMCPUfidhjdj5iEVULZ4QKMHYbREcZh-VcmdfyFElBWM7eA9dpQuvWO7TmCvJbWicW_wf1ya4HSzND9Mfj48yTH9ruStkezrb8ZInBkAWO1tSia71bLiXy7T8rGBsQMWAtj-RptytVahLpF6Tcn3BK1jd3j2gmUNHAjoo6x5woNU5tS1I-BUHKLpcpVWqdD80m5912IuzLhICbkB6t6uRmZ5NPBa7ILz7y35hafxjtV2E2N6h_0_p70ynTmMhMBAtf4LKpQykOvtOLjUzEBJeh2Mx_-BvGQcluGgkkuNGd57Hk9hvrn5wRC8lLOTmDl1haEHQNTVtSVtLeeEGRY4EeQU7iOameiqVirR3rDaEvePE53adFRcYrJ3v2UotX3ppfTEiAzEhwd3iVeJyaxEcH-x06BpuqyewfoumCvxqjD6wPm9OD-xA65yvCIuXsjrGsgIJns5S9mzLfBD1HlN-e7PXrUQ1dt67XUsYzrk5iNdSBI-3kTbmMbCzeD9y5mgkLgUiPZtrVUfVixH4QeoEqZFMzIcpuJw48hQDE0u8ZTA9qajtBlL4F8yNXMddXouzxUsNUoEahlTH8hhD_HbSgDnIohrx7pWniK5014Gn-gMX9yLwBcG30PeVbdq1qAcQvrmUuWboLFnrcXyJMKHZcP2sHgjxo5YBMjzetQcxRI5M_g7i_FhBGO-8GtpL7mmOzKOi53Oqeac9NcQNO2-xbdvicAzSPdcTt_a03gBwdDHggudcZzVfbhcUXtcLEojYab7pi8RuzrVwikPS61fQCRouB4hR2RpKwhgzZYKSlrhRa_PcUcrJn_kBFhb-k6GoRx_73o9pr7Q0Ktnn2D8xeMLMHghS1-EeSnGDFDmYjO9HqYjNzuhaseNFX3iBuwjKzUhYJRN4RdDrHqn6o3mWgV4nDRj1QrRyJg1VauyBpInGpSlHzGWGL-DIPtt-sqwhbck2gEKgJz_-K8raXYze0QcP_jrXniiMpoOA8a6tMlnk09F76Xu_tAgW1dAU2l6G9hcO87qsTdEIk4KRdNVeisa7YQTTE&isca=1";
-	return (
-		<div style={{ width: 400, padding: 20 }}>
-			<audio ref={audioRef} src={url}>
-				<track
-					kind="captions"
-					// src="/sample.vtt"
-					srcLang="en"
-					label="English captions"
-				/>
-			</audio>
+	// WAVファイルが設定されていない場合は表示しない
+	if (!wavFile) return null;
 
-			{/* 再生・一時停止ボタン */}
-			<Group align="center" mb="md">
-				<Button onClick={togglePlay}>
-					{isPlaying ? "⏸️ 一時停止" : "▶️ 再生"}
-				</Button>
-			</Group>
+	return (
+		<div
+			style={{
+				position: "fixed",
+				bottom: 0,
+				width: "100%",
+				background: "#fff",
+				borderTop: "1px solid #ccc",
+				padding: "10px 0",
+			}}
+		>
+			<audio ref={audioRef} src={wavFile}>
+				<track kind="captions" />
+			</audio>
 
 			{/* シークバー */}
 			<Slider
@@ -77,12 +83,39 @@ export function AudioPlayer() {
 				max={duration || 1}
 				step={0.1}
 				label={(val) => `${Math.floor(val)}秒`}
+				style={{ width: "90%", margin: "0 auto" }}
 			/>
 
-			{/* タイム表示 */}
-			<Group align="apart" mt="sm">
-				<Text size="sm">{Math.floor(currentTime)}秒</Text>
-				<Text size="sm">{Math.floor(duration)}秒</Text>
+			<Divider my="sm" />
+
+			{/* ボタンコンテナ */}
+			<Group
+				align="apart"
+				style={{
+					padding: "10px",
+					position: "fixed",
+					bottom: 0,
+					width: "100%",
+					background: "#fff",
+					borderTop: "1px solid #ccc",
+				}}
+			>
+				{/* 再生ボタン (左下) */}
+				<Button
+					onClick={togglePlay}
+					style={{ position: "absolute", left: "10px", bottom: "10px" }}
+				>
+					{isPlaying ? "⏸️ 一時停止" : "▶️ 再生"}
+				</Button>
+
+				{/* キャンセルボタン (右下) */}
+				<Button
+					onClick={handleCancel}
+					color="red"
+					style={{ position: "absolute", right: "10px", bottom: "10px" }}
+				>
+					❌ キャンセル
+				</Button>
 			</Group>
 		</div>
 	);

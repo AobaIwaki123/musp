@@ -14,6 +14,7 @@ import { PostJobsRequest } from "../../client/client";
 import type { PostJobsRequestType } from "../../client/client";
 import { ModeIconWrapper } from "../ModeIconWrapper/ModeIconWrapper";
 import classes from "./MuspForm.module.css";
+import { LoadWabButton } from "../LoadWabButton/LoadWabButton";
 
 interface MuspFormProps {
 	onSubmit: (videoID: string) => void;
@@ -134,6 +135,7 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 						size={30}
 					/>
 				</ActionIcon>
+				<LoadWabButton />
 			</Group>
 		</form>
 	);
