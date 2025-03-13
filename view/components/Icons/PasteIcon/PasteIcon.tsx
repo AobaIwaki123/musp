@@ -1,12 +1,12 @@
 import { ActionIcon } from "@mantine/core";
 import { IconClipboardCheck } from "@tabler/icons-react";
-import { ModeIconWrapper } from "../../Icons/ModeIconWrapper/ModeIconWrapper";
+import { ModeIconWrapper } from "../ModeIconWrapper/ModeIconWrapper";
 
-interface PasteButtonProps {
+interface PasteIconProps {
 	handlePaste: () => void;
 }
 
-export function PasteButton({ handlePaste }: PasteButtonProps) {
+export function PasteIcon({ handlePaste }: PasteIconProps) {
 	return (
 		<ActionIcon size="lg" color="gray" variant="subtle" onClick={handlePaste}>
 			<ModeIconWrapper

@@ -1,7 +1,7 @@
 "use client";
 
 import { AddMusicIcon } from "@/components/Icons/AddMusicIcon/AddMusicIcon";
-import { PasteButton } from "@/components/Icons/PasteButton/PasteButton";
+import { PasteIcon } from "@/components/Icons/PasteIcon/PasteIcon";
 import { YouTubeIcon } from "@/components/Icons/YouTubeIcon/YouTubeIcon";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ActionIcon, Group, TextInput } from "@mantine/core";
@@ -101,7 +101,7 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 
 			<Group justify="center" mt="xl" mb={50}>
 				<YouTubeIcon />
-				<PasteButton handlePaste={handlePaste} />
+				<PasteIcon handlePaste={handlePaste} />
 				<AddMusicIcon watchYoutubeUrl={watchYoutubeUrl} />
 				<LoadWabButton />
 			</Group>
