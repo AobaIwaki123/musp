@@ -21,15 +21,3 @@
 		margin-top: var(--mantine-spacing-md);
 	}
 }
-
-.play {
-	position: "absolute";
-	left: "10px";
-	bottom: "10px";
-}
-
-.cancel {
-	position: "absolute";
-	right: "10px";
-	bottom: "10px";
-}

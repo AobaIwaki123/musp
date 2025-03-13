@@ -2,11 +2,10 @@
 
 import { Container, Group, Text } from "@mantine/core";
 import { useRef, useState } from "react";
-import { GitHubIcon } from "../../Icons/GitHubIcon/GitHubIcon";
 import { CancelButton } from "./CancelButton";
 import { PlayButton } from "./PlayButton";
 
-import baseClasses from "../Footer.module.css";
+import classes from "./AudioFooter.module.css";
 
 export function AudioFooter() {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -24,12 +23,12 @@ export function AudioFooter() {
 	};
 
 	return (
-		<div className={baseClasses.footer}>
-			<Container className={baseClasses.inner}>
+		<div className={classes.footer}>
+			<Container className={classes.inner}>
 				<Group
 					gap={1}
-					className={baseClasses.links}
-					justify="flex-end"
+					// className={classes.links}
+					justify="space-between"
 					wrap="nowrap"
 				>
 					<PlayButton isPlaying={isPlaying} togglePlay={togglePlay} />

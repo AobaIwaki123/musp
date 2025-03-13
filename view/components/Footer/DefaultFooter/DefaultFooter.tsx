@@ -1,14 +1,14 @@
 import { Container, Group, Text } from "@mantine/core";
 import { GitHubIcon } from "../../Icons/GitHubIcon/GitHubIcon";
-import baseClasses from "../Footer.module.css";
+import classes from "./DefaultFooter.module.css";
 
 export function DefaultFooter() {
 	return (
-		<div className={baseClasses.footer}>
-			<Container className={baseClasses.inner}>
+		<div className={classes.footer}>
+			<Container className={classes.inner}>
 				<Group
 					gap={1}
-					className={baseClasses.links}
+					className={classes.links}
 					justify="flex-end"
 					wrap="nowrap"
 				>
