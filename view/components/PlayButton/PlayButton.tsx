@@ -8,11 +8,12 @@ export function PlayButton() {
 
   return (
     <Button
-      variant="white"
-      color="dark"
+      variant="subtle"
+      color="white"
       radius="50%"
       size="lg"
       style={{
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         position: 'absolute',
         top: '50%',
         left: '50%',
