@@ -10,13 +10,13 @@
   padding-top: var(--mantine-spacing-lg);
   padding-bottom: var(--mantine-spacing-xl);
 
-  @media (max-width: $mantine-breakpoint-xs) {
+  @media (max-width: mantine-breakpoint-xs) {
     flex-direction: column;
   }
 }
 
 .links {
-  @media (max-width: $mantine-breakpoint-xs) {
+  @media (max-width: mantine-breakpoint-xs) {
     margin-top: var(--mantine-spacing-md);
   }
 }
