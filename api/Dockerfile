@@ -32,7 +32,7 @@ COPY ./custom-requirements.txt .
 RUN pip install -r custom-requirements.txt
 
 COPY . .
-RUN pip install --no-cache-dir .
+RUN pip install .
 
 FROM base AS service
 WORKDIR /root/app

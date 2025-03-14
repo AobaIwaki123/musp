@@ -22,7 +22,7 @@ from openapi_server.models.post_video_response import (
     PostVideoResponse,
 )
 from openapi_server.process_source import process_source
-
+from openapi_server.utils import get_youtube_video_id
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
 DATASET_ID = os.getenv("DATASET_ID")
 
@@ -51,15 +51,17 @@ class POSTApiImpl(BasePOSTApi):
     ) -> Union[PostVideoResponse, ErrorResponse400]:
         """YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。"""
         try:
-            process_source(post_video_request.dict())
-            return insert_user_video_table(
+            video_id = get_youtube_video_id(post_video_request.youtube_url)
+            res = insert_user_video_table(
                 project_id=GOOGLE_CLOUD_PROJECT,
                 dataset_id=DATASET_ID,
                 table_id="userID-videoID",
                 user_id=post_video_request.user_id,
-                video_id=post_video_request.youtube_id,
+                video_id=video_id,
             )
-
+            if res.status_code != 200:
+                process_source(post_video_request.dict())
+            return res
         except Exception as e:
             return ErrorResponse400(
                 error=f"Bad Request: {str(e)}"
