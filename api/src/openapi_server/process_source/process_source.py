@@ -1,9 +1,10 @@
-from celery import chain
+from celery, group, chord import chain
 from openapi_server.process_source.tasks import (
     fetch_source,
     post_run,
     separate_source,
     upload_source,
+    update_video_status,
 )
 from openapi_server.utils.normalize_youtube_url import (
     normalize_youtube_url,
@@ -23,10 +24,18 @@ def process_source(data: dict) -> str:
 
     # Celeryの処理チェーンを作成
     task_chain = chain(
-        fetch_source.s(data),
-        separate_source.s(),
+        group(
+            update_video_status.s(data, "processing"),
+            fetch_source.s(data)
+        ) | separate_source.s(),
         upload_source.s(),
-        post_run.s(),
+        chord(
+            [
+                post_run.s(),
+                update_video_status.s(data, "completed")
+            ],
+            body=None
+        )
     )
 
     # 非同期実行

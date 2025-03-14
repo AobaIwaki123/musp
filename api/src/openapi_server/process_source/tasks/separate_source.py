@@ -11,8 +11,7 @@ from openapi_server.utils.normalize_youtube_url import (
 
 @app.task(bind=True)
 def separate_source(self, data: dict) -> dict:
-    youtube_url = data["youtube_url"]
-    video_id = get_youtube_video_id(youtube_url)
+    video_id = get_youtube_video_id(data["youtube_url"])
 
     """音源をボーカルと伴奏に分離する"""
     source_path = f"tmp/{video_id}/source.webm"
