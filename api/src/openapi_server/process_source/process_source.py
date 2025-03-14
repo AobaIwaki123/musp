@@ -2,13 +2,10 @@ from celery import chain
 from openapi_server.models.custom.task_status import (
     TaskStatus,
 )
-from openapi_server.process_source.tasks.fetch_source import (
+from openapi_server.process_source.tasks import (
     fetch_source,
-)
-from openapi_server.process_source.tasks.separate_source import (
+    post_run,
     separate_source,
-)
-from openapi_server.process_source.tasks.upload_source import (
     upload_source,
 )
 from openapi_server.utils.normalize_youtube_url import (
@@ -35,6 +32,7 @@ def process_source(self, data: dict) -> str:
             fetch_source.s(data),
             separate_source.s(),
             upload_source.s(),
+            post_run.s(),
         ),
     )
 
