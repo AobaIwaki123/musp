@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from google.cloud import bigquery
 from openapi_server.models.post_user_response import (
     PostUserResponse,
@@ -10,61 +11,54 @@ def insert_google_user_table(
     dataset_id: str,
     table_id: str,
     google_id: str,
-    user_id: str,
 ) -> PostUserResponse:
     client = bigquery.Client()
     table_ref = f"`{project_id}.{dataset_id}.{table_id}`"
 
-    # 既存の行の存在チェック
+    # 1. `google_id` を元に `user_id` を検索
     check_query = f"""
-    SELECT COUNT(*) as count
+    SELECT userID
     FROM {table_ref}
-    WHERE userID = @user_id AND googleID = @google_id
+    WHERE googleID = @google_id
     """
     check_job = client.query(
         check_query,
         job_config=bigquery.QueryJobConfig(
             query_parameters=[
                 bigquery.ScalarQueryParameter(
-                    "user_id", "STRING", user_id
-                ),
-                bigquery.ScalarQueryParameter(
                     "google_id", "STRING", google_id
-                ),
+                )
             ]
         ),
     )
     result = check_job.result()
-    row = next(result)
+    row = next(result, None)  # 存在しない場合は `None`
 
-    if row.count > 0:
-        print("Row already exists, skipping insert.")
+    if row:
+        existing_user_id = row.userID
+        print(
+            f"User already exists with user_id: {existing_user_id}"
+        )
         return PostUserResponse(
             status_code=200,
             status_message="User already exists",
-            user_id=user_id,
+            user_id=existing_user_id,
         )
 
-    # `createdAt` と `updatedAt` を取得 (TIMESTAMP 型)
+    # 2. `user_id` が存在しない場合、新しい `user_id` を発行
+    new_user_id = str(
+        uuid.uuid4()
+    )  # UUID を文字列として発行
     timestamp = datetime.datetime.utcnow()
 
-    # 挿入データのカラムとパラメータ
-    columns = [
-        "userID",
-        "googleID",
-        "createdAt",
-        "updatedAt",
-    ]
-    values_placeholders = [
-        "@user_id",
-        "@google_id",
-        "@created_at",
-        "@updated_at",
-    ]
-
+    # 3. `user_id` をテーブルに `INSERT`
+    insert_query = f"""
+    INSERT INTO {table_ref} (userID, googleID, createdAt, updatedAt)
+    VALUES (@user_id, @google_id, @created_at, @updated_at)
+    """
     query_parameters = [
         bigquery.ScalarQueryParameter(
-            "user_id", "STRING", user_id
+            "user_id", "STRING", new_user_id
         ),
         bigquery.ScalarQueryParameter(
             "google_id", "STRING", google_id
@@ -77,11 +71,6 @@ def insert_google_user_table(
         ),
     ]
 
-    # 挿入クエリの実行
-    insert_query = f"""
-    INSERT INTO {table_ref} ({", ".join(columns)})
-    VALUES ({", ".join(values_placeholders)})
-    """
     insert_job = client.query(
         insert_query,
         job_config=bigquery.QueryJobConfig(
@@ -89,10 +78,10 @@ def insert_google_user_table(
         ),
     )
     insert_job.result()  # クエリが完了するのを待つ
-    print("Insert completed as no duplicate existed.")
+    print(f"New user created with user_id: {new_user_id}")
 
     return PostUserResponse(
         status_code=201,
         status_message="User created",
-        user_id=user_id,
+        user_id=new_user_id,
     )
