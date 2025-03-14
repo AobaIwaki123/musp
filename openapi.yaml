@@ -134,11 +134,16 @@ components:
       type: object
       example:
         status_code: 200
+        status_message: "そのvideoは既に登録されています"
         youtube_id: "57Q4Hp46oXc"
       properties:
         status_code:
           type: integer
           description: ステータスコード
+        status_message:
+          type: string
+          description: ステータスメッセージ
+          maximum: 500
         youtube_id:
           type: string
           description: YouTubeの動画ID
@@ -146,6 +151,7 @@ components:
           maximum: 11
       required:
         - status_code
+        - status_message
         - youtube_id
       additionalProperties: false
     VideoIDAndWavURL:
@@ -168,6 +174,7 @@ components:
       type: object
       example:
         status_code: 200
+        status_message: "ユーザーのYouTubeIDとWavURLの一覧を取得しました"
         data:
           - youtube_id: "57Q4Hp46oXc"
             wav_url: "https://example.com/wav.wav"
@@ -177,12 +184,17 @@ components:
         status_code:
           type: integer
           description: ステータスコード
+        status_message:
+          type: string
+          description: ステータスメッセージ
+          maximum: 500
         data:
           type: array
           items:
             $ref: "#/components/schemas/VideoIDAndWavURL"
       required:
         - status_code
+        - status_message
         - data
       additionalProperties: false
     PostUserRequest:
@@ -201,17 +213,23 @@ components:
       type: object
       example:
         status_code: 200
+        status_message: "ユーザーが存在します"
         user_id: "testUser"
       properties:
         status_code:
           type: integer
           description: ステータスコード
+        status_message:
+          type: string
+          description: ステータスメッセージ
+          maximum: 500
         user_id:
           type: string
           description: ユーザーID
           maximum: 100
       required:
         - status_code
+        - status_message
         - user_id
       additionalProperties: false
     ErrorResponse400:

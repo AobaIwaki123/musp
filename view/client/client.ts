@@ -13,6 +13,7 @@ export type PostVideoRequestType = z.infer<typeof PostVideoRequest>;
 
 export const PostVideoResponse = z.object({
   status_code: z.number().int(),
+  status_message: z.string(),
   youtube_id: z.string().regex(/^[a-zA-Z0-9_-]{11}$/),
 });
 export type PostVideoResponseType = z.infer<typeof PostVideoResponse>;
@@ -28,6 +29,7 @@ export type VideoIDAndWavURLType = z.infer<typeof VideoIDAndWavURL>;
 
 export const GetVideoIDAndWavURLResponse = z.object({
   status_code: z.number().int(),
+  status_message: z.string(),
   data: z.array(VideoIDAndWavURL),
 });
 export type GetVideoIDAndWavURLResponseType = z.infer<
@@ -39,6 +41,7 @@ export type PostUserRequestType = z.infer<typeof PostUserRequest>;
 
 export const PostUserResponse = z.object({
   status_code: z.number().int(),
+  status_message: z.string(),
   user_id: z.string(),
 });
 export type PostUserResponseType = z.infer<typeof PostUserResponse>;

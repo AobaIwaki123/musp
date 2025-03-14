@@ -33,8 +33,9 @@ class PostUserResponse(BaseModel):
     PostUserResponse
     """ # noqa: E501
     status_code: StrictInt = Field(description="ステータスコード")
+    status_message: Annotated[str, Field(strict=True)] = Field(description="ステータスメッセージ")
     user_id: Annotated[str, Field(strict=True)] = Field(description="ユーザーID")
-    __properties: ClassVar[List[str]] = ["status_code", "user_id"]
+    __properties: ClassVar[List[str]] = ["status_code", "status_message", "user_id"]
 
     model_config = {
         "populate_by_name": True,
@@ -86,6 +87,7 @@ class PostUserResponse(BaseModel):
 
         _obj = cls.model_validate({
             "status_code": obj.get("status_code"),
+            "status_message": obj.get("status_message"),
             "user_id": obj.get("user_id")
         })
         return _obj

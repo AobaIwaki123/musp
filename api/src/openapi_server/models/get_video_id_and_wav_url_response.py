@@ -22,6 +22,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from openapi_server.models.video_id_and_wav_url import VideoIDAndWavURL
 try:
     from typing import Self
@@ -33,8 +34,9 @@ class GetVideoIDAndWavURLResponse(BaseModel):
     GetVideoIDAndWavURLResponse
     """ # noqa: E501
     status_code: StrictInt = Field(description="ステータスコード")
+    status_message: Annotated[str, Field(strict=True)] = Field(description="ステータスメッセージ")
     data: List[VideoIDAndWavURL]
-    __properties: ClassVar[List[str]] = ["status_code", "data"]
+    __properties: ClassVar[List[str]] = ["status_code", "status_message", "data"]
 
     model_config = {
         "populate_by_name": True,
@@ -93,6 +95,7 @@ class GetVideoIDAndWavURLResponse(BaseModel):
 
         _obj = cls.model_validate({
             "status_code": obj.get("status_code"),
+            "status_message": obj.get("status_message"),
             "data": [VideoIDAndWavURL.from_dict(_item) for _item in obj.get("data")] if obj.get("data") is not None else None
         })
         return _obj

@@ -33,8 +33,9 @@ class PostVideoResponse(BaseModel):
     PostVideoResponse
     """ # noqa: E501
     status_code: StrictInt = Field(description="ステータスコード")
+    status_message: Annotated[str, Field(strict=True)] = Field(description="ステータスメッセージ")
     youtube_id: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画ID")
-    __properties: ClassVar[List[str]] = ["status_code", "youtube_id"]
+    __properties: ClassVar[List[str]] = ["status_code", "status_message", "youtube_id"]
 
     @field_validator('youtube_id')
     def youtube_id_validate_regular_expression(cls, value):
@@ -93,6 +94,7 @@ class PostVideoResponse(BaseModel):
 
         _obj = cls.model_validate({
             "status_code": obj.get("status_code"),
+            "status_message": obj.get("status_message"),
             "youtube_id": obj.get("youtube_id")
         })
         return _obj
