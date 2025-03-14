@@ -103,7 +103,6 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 				<YouTubeIcon />
 				<PasteIcon handlePaste={handlePaste} />
 				<AddMusicIcon watchYoutubeUrl={watchYoutubeUrl} />
-				<LoadWabButton />
 			</Group>
 		</form>
 	);
