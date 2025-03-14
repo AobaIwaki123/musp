@@ -48,7 +48,8 @@ class POSTApiImpl(BasePOSTApi):
         post_video_request: PostVideoRequest,
     ) -> Union[PostVideoResponse, ErrorResponse400]:
         """YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。"""
-        # Mock実装
+        DATASET_ID = "musp_v3"
+        TABLE_ID = "userID-videoID"
         user_id = post_video_request.user_id
         if user_id == "1":
             return PostVideoResponse(

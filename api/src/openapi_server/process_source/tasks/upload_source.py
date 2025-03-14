@@ -1,3 +1,5 @@
+import os
+
 from celery_server.celery_app import app
 from openapi_server.cloud_storage.upload_blob import (
     upload_blob,
@@ -9,7 +11,7 @@ from openapi_server.utils.normalize_youtube_url import (
     get_youtube_video_id,
 )
 
-BUCKET_NAME = "musp-dev"
+BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 
 @app.task(bind=True)
