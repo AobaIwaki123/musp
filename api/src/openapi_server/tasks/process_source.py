@@ -9,7 +9,7 @@ from openapi_server.tasks.separate_source import separate_source
 from openapi_server.tasks.upload_metadata import (
     process_youtube_metadata,
 )
-from openapi_server.tasks.upload_source import upload_source
+from api.src.openapi_server.cloud_storage.upload_source import upload_source
 
 
 @app.task(bind=True)
