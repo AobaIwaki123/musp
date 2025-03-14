@@ -8,5 +8,5 @@ import { DefaultFooter } from "./DefaultFooter/DefaultFooter";
 export function Footer() {
 	const [wavFile, _] = useAtom(wavFileAtom);
 
-	return <>{wavFile ? <AudioFooter /> : <DefaultFooter />}</>;
+	return <>{wavFile ? <AudioFooter key={wavFile} /> : <DefaultFooter />}</>;
 }

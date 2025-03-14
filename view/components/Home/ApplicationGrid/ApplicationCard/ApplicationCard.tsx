@@ -21,6 +21,7 @@ export function ApplicationCard({ videoID, wav_url }: ApplicationCardProps) {
 	const [wavFile, setWavFile] = useAtom(wavFileAtom);
 
 	const handleLoadWav = (wav_url: string) => {
+		setWavFile(null); // 一旦nullにしておく
 		setWavFile(wav_url); // 適当なWAV URLを設定
 		console.log("WAV URL:", wavFile);
 	};
