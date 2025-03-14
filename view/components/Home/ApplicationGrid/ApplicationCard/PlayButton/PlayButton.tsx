@@ -26,9 +26,6 @@ export function PlayButton() {
         padding: 0,
       }}
       className={classes.button}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      onMouseLeave={() => setIsPressed(false)} // ホバー外れた時に元に戻す
     >
       <IconPlayerPlay size={24} />
     </Button>
