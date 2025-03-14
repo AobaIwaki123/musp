@@ -1,10 +1,21 @@
 from typing import Union
+
 from openapi_server.apis.post_api_base import BasePOSTApi
-from openapi_server.models.error_response400 import ErrorResponse400
-from openapi_server.models.post_user_request import PostUserRequest
-from openapi_server.models.post_user_response import PostUserResponse
-from openapi_server.models.post_video_request import PostVideoRequest
-from openapi_server.models.post_video_response import PostVideoResponse
+from openapi_server.models.error_response400 import (
+    ErrorResponse400,
+)
+from openapi_server.models.post_user_request import (
+    PostUserRequest,
+)
+from openapi_server.models.post_user_response import (
+    PostUserResponse,
+)
+from openapi_server.models.post_video_request import (
+    PostVideoRequest,
+)
+from openapi_server.models.post_video_response import (
+    PostVideoResponse,
+)
 
 
 class POSTApiImpl(BasePOSTApi):
@@ -23,6 +34,19 @@ class POSTApiImpl(BasePOSTApi):
         # Mock実装
         user_id = post_video_request.user_id
         if user_id == "1":
-            return PostVideoResponse(staus_code=200, youtube_id="test")
+            return PostVideoResponse(
+                status_code=201,
+                status_message="Job created",
+                youtube_id="3Uem84SdteM",
+            )
         elif user_id == "2":
-            return ErrorResponse400(message="User not found")
+            return PostVideoResponse(
+                status_code=200,
+                status_message="Video already exists",
+                youtube_id="3Uem84SdteM",
+            )
+        else:
+            return ErrorResponse400(
+                status_code=400,
+                status_message="Bad Request",
+            )
