@@ -3,29 +3,25 @@ info:
   title: MuSP API
   version: "1.0.0"
   description: |
-    MuSPは、YouTubeリンクから音源をダウンロードし、Demucsで音源とボーカルを分離するWebアプリです。
-    本API仕様書は、ジョブの作成、状態確認、分離済み音源の取得を提供します。
+    MuSP is a web application that downloads audio from YouTube links and separates the audio and vocals using Demucs.
+    This API specification provides endpoints for job creation, status checking, and retrieving separated audio files.
 servers:
   - url: http://localhost:8000
 security:
   - ApiKeyAuth: []
 
 tags:
-  - name: CreateJob
-    description: ジョブの作成
-  - name: CheckJob
-    description: ジョブの状態確認
-  - name: GetURL
-    description: オブジェクトストレージからURLを取得
-  - name: User
-    description: ユーザー情報取得
+  - name: GET
+    description: Retrieval operations
+  - name: POST
+    description: Creation operations
 paths:
-  /jobs:
+  /video:
     post:
       tags:
-        - CreateJob
-      summary: 新規ジョブの作成
-      description: YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。
+        - POST
+      summary: Create a new job
+      description: Creates a job to download audio from a YouTube link and separate the audio and vocals.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -33,133 +29,49 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PostJobsRequest"
+              $ref: "#/components/schemas/PostVideoRequest"
       responses:
-        "201":
-          description: ジョブが正常に作成されました
+        "200":
+          description: The video is already registered
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PostJobsResponse"
+                $ref: "#/components/schemas/PostVideoResponse"
         "400":
-          description: 不正なリクエスト
+          description: Invalid request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  /jobs/{job_id}:
+                $ref: "#/components/schemas/ErrorResponse400"
+  /{user_id}:
     get:
-      tags: 
-        - CheckJob
-      summary: ジョブの状態確認
-      description: 指定されたジョブIDの状態を取得します。
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - $ref: "#/components/parameters/JobID"
-      responses:
-        "200":
-          description: ジョブの状態情報
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetJobsResponse"
-        "404":
-          description: ジョブが見つかりませんでした
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /url/{job_id}:
-    get:
-      tags: 
-        - GetURL
-      summary: 分離された音源の取得
-      description: 分離された音源のS3 URLを取得します。
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - $ref: "#/components/parameters/JobID"
-      responses:
-        "200":
-          description: 音源ファイルのS3 URLを返却
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetURLResponse"
-        "404":
-          description: 音源が見つかりませんでした
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  /thumbnail/{job_id}:
-    get:
-      tags: 
-        - GetURL
-      summary: 分離された音源のサムネイル画像の取得
-      description: 分離された音源のサムネイル画像のS3 URLを取得します。
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - $ref: "#/components/parameters/JobID"
-      responses:
-        "200":
-          description: サムネイル画像のS3 URLを返却
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetURLResponse"
-        "404":
-          description: サムネイル画像が見つかりませんでした
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  /info/{user_id}:
-    get:
-      tags: 
-        - GetURL
-      summary: ギャラリー表示のための情報取得
-      description: ギャラリー表示のための情報を取得します。
+      tags:
+        - GET
+      summary: Retrieve a list of YouTube IDs and Wav URLs for a user
+      description: Retrieves a list of YouTube IDs and Wav URLs created by a user.
       security:
         - ApiKeyAuth: []
       parameters:
         - $ref: "#/components/parameters/UserID"
       responses:
         "200":
-          description: ギャラリーを表示するために必要な情報を返却
+          description: Retrieved the list of YouTube IDs and Wav URLs for the user
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetInfoListResponse"
-        "404":
-          description: ジョブが見つかりませんでした
+                $ref: "#/components/schemas/GetVideoIDAndWavURLResponse"
+        "400":
+          description: Invalid request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /ws/jobs/{job_id}:
-    get:
-      tags: 
-        - CheckJob
-      summary: ジョブの進捗状況をWebSocketで取得
-      description: WebSocketを使用して、ジョブの進捗状況をリアルタイムで取得します。
-      parameters:
-        - $ref: "#/components/parameters/JobID"
-      responses:
-        "101":
-          description: WebSocket接続成功
-        "404":
-          description: ジョブが見つかりませんでした
+                $ref: "#/components/schemas/ErrorResponse400"
   /users:
     post:
       tags:
-        - User
-      summary: ユーザー情報の登録
-      description: ユーザー情報を登録します。
+        - POST
+      summary: Register user information
+      description: Registers user information.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -170,39 +82,24 @@ paths:
               $ref: "#/components/schemas/PostUserRequest"
       responses:
         "200":
-          description: ユーザーが存在します
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PostUserResponse"
-        "201":
-          description: ユーザー情報が正常に登録されました
+          description: User already exists
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PostUserResponse"
         "400":
-          description: 不正なリクエスト
+          description: Invalid request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse400"
 
 components:
   parameters:
-    JobID:
-      name: job_id
-      in: path
-      description: ジョブの識別子
-      required: true
-      schema:
-        type: string
-        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-        maximum: 36
     UserID:
       name: user_id
       in: path
-      description: ユーザーID
+      description: User ID
       required: true
       schema:
         type: string
@@ -214,7 +111,7 @@ components:
       in: header
       name: X-API-KEY
   schemas:
-    PostJobsRequest:
+    PostVideoRequest:
       type: object
       example:
         user_id: "testUser"
@@ -222,150 +119,125 @@ components:
       properties:
         user_id:
           type: string
-          description: ユーザーID
+          description: User ID
           maximum: 100
         youtube_url:
           type: string
-          format: uri
-          description: YouTubeの動画リンク
+          description: YouTube video link
           pattern: /^(?:https?://)?(?:www\.)?(?:youtube\.com/(?:watch\?.*v=|embed/|v/)|youtu\.be/)([a-zA-Z0-9_-]{11})/
           maximum: 100
       required:
         - user_id
         - youtube_url
       additionalProperties: false
-    PostJobsResponse:
-      type: object
-      properties:
-        job_id:
-          type: string
-          description: 作成されたジョブの識別子
-          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-          maximum: 36
-        message:
-          type: string
-          description: 状況メッセージ
-          maximum: 100
-      required:
-        - job_id
-        - message
-      additionalProperties: false
-    GetJobsResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          description: ジョブの現在の状態
-          enum:
-            - PENDING
-            - STARTED
-            - SUCCESS
-            - FAILURE
-          maximum: 10
-      required:
-        - status
-      additionalProperties: false
-    GetURLResponse:
-      type: object
-      properties:
-        job_id:
-          type: string
-          description: ジョブの識別子
-          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-          maximum: 36
-        url:
-          type: string
-          format: uri
-          description: 音源のS3 URL
-      required:
-        - job_id
-        - url
-      additionalProperties: false
-    GetInfoResponse:
+    PostVideoResponse:
       type: object
       example:
-        title: "testTitle"
-        thumbnail_url: "https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg"
-        wav_url: "https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav"
+        status_code: 200
+        status_message: "The video is already registered"
+        youtube_id: "57Q4Hp46oXc"
       properties:
-        title: 
+        status_code:
+          type: integer
+          description: Status code
+        status_message:
           type: string
-          description: タイトル
-          maximum: 200
-        thumbnail_url:
+          description: Status message
+          maximum: 500
+        youtube_id:
           type: string
-          format: uri
-          description: サムネイル画像のURL
-          pattern: "^https?://i.ytimg.com/vi/([a-zA-Z0-9_-]{11})/(hqdefault|default|mqdefault|sddefault|maxresdefault).jpg$"
-          maximum: 200
+          description: YouTube video ID
+          pattern: ^[a-zA-Z0-9_-]{11}$
+          maximum: 11
+      required:
+        - status_code
+        - status_message
+        - youtube_id
+      additionalProperties: false
+    VideoIDAndWavURL:
+      type: object
+      properties:
+        youtube_id:
+          type: string
+          description: YouTube video ID
+          pattern: ^[a-zA-Z0-9_-]{11}$
+          maximum: 11
         wav_url:
-          oneOf:
-          - type: string
-            format: uri
-            description: 音源のURL
-          - type: "null"
+          type: string
+          format: uri
+          description: Separated audio file URL
+          maximum: 200
       required:
-        - title
-        - thumbnail_url
+        - youtube_id
       additionalProperties: false
-    GetInfoListResponse:
+    GetVideoIDAndWavURLResponse:
       type: object
-      properties:
-        items:
-          type: array
-          description: ギャラリー表示のための情報のリスト
-          items:
-            $ref: "#/components/schemas/GetInfoResponse"
-      additionalProperties: false
       example:
-        items:
-          - title: "testTitle"
-            thumbnail_url: "https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg"
-            wav_url: "https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav"
-          - title: "testTitle2"
-            thumbnail_url: "https://i.ytimg.com/vi/57Q4Hp46oXc/hqdefault.jpg"
-            wav_url: "https://musp-audio.s3.ap-northeast-1.amazonaws.com/57Q4Hp46oXc.wav"
+        status_code: 200
+        status_message: "Retrieved the list of YouTube IDs and Wav URLs for the user"
+        data:
+          - youtube_id: "57Q4Hp46oXc"
+            wav_url: "https://example.com/wav.wav"
+          - youtube_id: "57Q4Hp46oXc"
+            wav_url: null
+      properties:
+        status_code:
+          type: integer
+          description: Status code
+        status_message:
+          type: string
+          description: Status message
+          maximum: 500
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/VideoIDAndWavURL"
+      required:
+        - status_code
+        - status_message
+        - data
+      additionalProperties: false
     PostUserRequest:
       type: object
       example:
         google_id: "testGoogleID"
-        nickname: "testNickname"
-        icon_url: "https://example.com/icon.jpg"
       properties:
         google_id:
           type: string
-          description: GoogleのユーザーID
+          description: Google user ID
           maximum: 100
-        nickname:
-          type: string
-          description: ニックネーム
-          maximum: 100
-        icon_url:
-          type: string
-          format: uri
-          description: アイコン画像のURL
-          maximum: 200
       required:
         - google_id
-        - nickname
-        - icon_url
       additionalProperties: false
     PostUserResponse:
       type: object
+      example:
+        status_code: 200
+        status_message: "User already exists"
+        user_id: "testUser"
       properties:
+        status_code:
+          type: integer
+          description: Status code
+        status_message:
+          type: string
+          description: Status message
+          maximum: 500
         user_id:
           type: string
-          description: ユーザーID
+          description: User ID
           maximum: 100
       required:
+        - status_code
+        - status_message
         - user_id
       additionalProperties: false
-    ErrorResponse:
+    ErrorResponse400:
       type: object
       properties:
         error:
           type: string
-          description: エラーメッセージ
+          description: Error message
           maximum: 500
       required:
         - error

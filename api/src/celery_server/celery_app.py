@@ -14,7 +14,7 @@ app = Celery(
     broker=CELERY_BROKER,
     backend=CELERY_BACKEND,
     include=[
-        "openapi_server.tasks.process_source",
+        "openapi_server.process_source.process_source",
     ],
 )
 
