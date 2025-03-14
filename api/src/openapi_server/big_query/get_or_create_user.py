@@ -14,10 +14,10 @@ class UserManager:
             table_id
         )
 
-    def check_and_create_user(
+    def get_and_create_user(
         self, google_id: str, nickname: str, icon_url: str
     ) -> str:
-        # Check if google_id exists in the table
+        # Get if google_id exists in the table
         query = f"""
             SELECT user_id
             FROM `{self.dataset_id}.{self.table_id}`
