@@ -3,7 +3,7 @@ import datetime
 from google.cloud import bigquery
 
 
-def insert_video_status(
+def insert_or_update_video_status(
     project_id: str,
     dataset_id: str,
     table_id: str,
@@ -15,10 +15,16 @@ def insert_video_status(
 
     timestamp = datetime.datetime.utcnow()
 
-    # 常に新しいレコードを挿入
-    insert_query = f"""
-    INSERT INTO {table_ref} (videoID, status, createdAt, updatedAt)
-    VALUES (@video_id, @status, @created_at, @updated_at)
+    # video_id が存在する場合は更新、存在しない場合は挿入
+    upsert_query = f"""
+    MERGE {table_ref} AS target
+    USING (SELECT @video_id AS videoID, @status AS status, @created_at AS createdAt, @updated_at AS updatedAt) AS source
+    ON target.videoID = source.videoID
+    WHEN MATCHED THEN
+        UPDATE SET status = source.status, updatedAt = source.updatedAt
+    WHEN NOT MATCHED THEN
+        INSERT (videoID, status, createdAt, updatedAt)
+        VALUES (source.videoID, source.status, source.createdAt, source.updatedAt)
     """
     query_parameters = [
         bigquery.ScalarQueryParameter(
@@ -34,13 +40,13 @@ def insert_video_status(
             "updated_at", "TIMESTAMP", timestamp
         ),
     ]
-    insert_job = client.query(
-        insert_query,
+    upsert_job = client.query(
+        upsert_query,
         job_config=bigquery.QueryJobConfig(
             query_parameters=query_parameters
         ),
     )
-    insert_job.result()
+    upsert_job.result()
     print(
-        f"New video entry created with video_id: {video_id}"
+        f"Video entry updated/inserted with video_id: {video_id}"
     )
