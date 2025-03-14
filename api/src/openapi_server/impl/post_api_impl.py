@@ -42,7 +42,6 @@ class POSTApiImpl(BasePOSTApi):
             return ErrorResponse400(
                 error="Bad Request",
             )
-        
 
     async def video_post(
         self,

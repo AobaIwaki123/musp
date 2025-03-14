@@ -9,7 +9,7 @@ from openapi_server.utils.normalize_youtube_url import (
     get_youtube_video_id,
 )
 
-BUCKET_NAME = "musp-v3"
+BUCKET_NAME = "musp-dev"
 
 
 @app.task(bind=True)
