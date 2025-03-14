@@ -1,19 +1,20 @@
 "use client";
 
+import { userIDAtom } from "@/jotai/atom";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Group, TextInput } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
-import React, { useEffect, useState } from "react";
 import { useAtom } from "jotai";
+import React, { useEffect, useState } from "react";
 
 import { AddMusicIcon } from "@/components/Icons/AddMusicIcon/AddMusicIcon";
 import { PasteIcon } from "@/components/Icons/PasteIcon/PasteIcon";
 import { YouTubeIcon } from "@/components/Icons/YouTubeIcon/YouTubeIcon";
-import { Group, TextInput } from "@mantine/core";
 import { useForm } from "react-hook-form";
-import { userIDAtom } from "@/jotai/atom";
+import { CurlButton } from "@/components/Buttons/CurlButton/CurlButton";
 
-import { PostJobsRequest } from "@/client/client";
-import type { PostJobsRequestType } from "@/client/client";
+import { PostVideoRequest } from "@/client/client";
+import type { PostVideoRequestType } from "@/client/client";
 
 import classes from "./MuspForm.module.css";
 interface MuspFormProps {
@@ -23,15 +24,15 @@ interface MuspFormProps {
 export function MuspForm({ onSubmit }: MuspFormProps) {
 	const [isFocused, setIsFocused] = useState(false);
 	const [userID, _] = useAtom(userIDAtom);
-	
+
 	const {
 		register,
 		handleSubmit,
 		watch,
 		setValue,
 		formState: { errors },
-	} = useForm<PostJobsRequestType>({
-		resolver: zodResolver(PostJobsRequest),
+	} = useForm<PostVideoRequestType>({
+		resolver: zodResolver(PostVideoRequest),
 		defaultValues: {
 			user_id: "",
 			youtube_url: "",
@@ -59,7 +60,7 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 	}, [setValue, userID]);
 
 	// フォーム送信時の処理
-	const handleFormSubmit = async (data: PostJobsRequestType) => {
+	const handleFormSubmit = async (data: PostVideoRequestType) => {
 		console.log("送信データ:", data);
 
 		onSubmit(data.youtube_url); // `Home` に動画IDを渡す
@@ -101,6 +102,7 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 				<YouTubeIcon />
 				<PasteIcon handlePaste={handlePaste} />
 				<AddMusicIcon watchYoutubeUrl={watchYoutubeUrl} />
+				<CurlButton/>
 			</Group>
 		</form>
 	);
