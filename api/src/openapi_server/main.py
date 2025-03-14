@@ -21,7 +21,7 @@ from openapi_server.apis.get_api import router as GETApiRouter
 from openapi_server.apis.post_api import router as POSTApiRouter
 
 origins = [
-    os.getenv("FRONTEND_URL", "http://localhost:3000"),
+    os.getenv("FRONTEND_URL", "http://100.92.146.108:3000"),
 ]
 
 app = FastAPI(
