@@ -20,7 +20,7 @@ class BasePOSTApi:
         self,
         post_user_request: PostUserRequest,
     ) -> Union[PostUserResponse, ErrorResponse400]:
-        """ユーザー情報を登録します。"""
+        """Registers user information."""
         ...
 
 
@@ -29,6 +29,6 @@ class BasePOSTApi:
         self,
         post_video_request: PostVideoRequest,
     ) -> Union[PostVideoResponse, ErrorResponse400]:
-        """YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。"""
+        """Creates a job to download audio from a YouTube link and separate the audio and vocals."""
         ...
 

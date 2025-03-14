@@ -61,7 +61,8 @@ export const endpoints = makeApi([
     method: "get",
     path: "/:user_id",
     alias: "getUser_id",
-    description: `ユーザーが作成したYouTubeIDとWavURLの一覧を取得します。`,
+    description:
+      "Retrieves a list of YouTube IDs and Wav URLs created by a user.",
     requestFormat: "json",
     parameters: [
       {
@@ -74,7 +75,7 @@ export const endpoints = makeApi([
     errors: [
       {
         status: 400,
-        description: `不正なリクエスト`,
+        description: "Invalid request",
         schema: z.object({ error: z.string() }),
       },
     ],
@@ -83,7 +84,7 @@ export const endpoints = makeApi([
     method: "post",
     path: "/users",
     alias: "postUsers",
-    description: `ユーザー情報を登録します。`,
+    description: "Registers user information.",
     requestFormat: "json",
     parameters: [
       {
@@ -96,7 +97,7 @@ export const endpoints = makeApi([
     errors: [
       {
         status: 400,
-        description: `不正なリクエスト`,
+        description: "Invalid request",
         schema: z.object({ error: z.string() }),
       },
     ],
@@ -105,7 +106,8 @@ export const endpoints = makeApi([
     method: "post",
     path: "/video",
     alias: "postVideo",
-    description: `YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。`,
+    description:
+      "Creates a job to download audio from a YouTube link and separate the audio and vocals.",
     requestFormat: "json",
     parameters: [
       {
@@ -118,7 +120,7 @@ export const endpoints = makeApi([
     errors: [
       {
         status: 400,
-        description: `不正なリクエスト`,
+        description: "Invalid request",
         schema: z.object({ error: z.string() }),
       },
     ],

@@ -41,7 +41,7 @@ export const endpoints = makeApi([
 		{{/if}}
 		{{/if}}
 		{{#if description}}
-		description: `{{description}}`,
+		description: '{{description}}',
 		{{/if}}
 		{{#if requestFormat}}
 		requestFormat: "{{requestFormat}}",
@@ -52,7 +52,7 @@ export const endpoints = makeApi([
 			{
 				name: "{{name}}",
 				{{#if description}}
-				description: `{{description}}`,
+				description: '{{description}}',
 				{{/if}}
 				{{#if type}}
 				type: "{{type}}",
@@ -73,7 +73,7 @@ export const endpoints = makeApi([
 				status: {{status}},
 				{{/ifeq}}
 				{{#if description}}
-				description: `{{description}}`,
+				description: '{{description}}',
 				{{/if}}
 				schema: {{{schema}}}
 			},

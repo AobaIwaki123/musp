@@ -40,11 +40,11 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 @router.post(
     "/users",
     responses={
-        200: {"model": PostUserResponse, "description": "ユーザーが存在します"},
-        400: {"model": ErrorResponse400, "description": "不正なリクエスト"},
+        200: {"model": PostUserResponse, "description": "User already exists"},
+        400: {"model": ErrorResponse400, "description": "Invalid request"},
     },
     tags=["POST"],
-    summary="ユーザー情報の登録",
+    summary="Register user information",
     response_model_by_alias=True,
 )
 async def users_post(
@@ -53,7 +53,7 @@ async def users_post(
         get_token_ApiKeyAuth
     ),
 ) -> Union[PostUserResponse, ErrorResponse400]:
-    """ユーザー情報を登録します。"""
+    """Registers user information."""
     if not BasePOSTApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     
@@ -74,11 +74,11 @@ async def users_post(
 @router.post(
     "/video",
     responses={
-        200: {"model": PostVideoResponse, "description": "そのvideoは既に登録されています"},
-        400: {"model": ErrorResponse400, "description": "不正なリクエスト"},
+        200: {"model": PostVideoResponse, "description": "The video is already registered"},
+        400: {"model": ErrorResponse400, "description": "Invalid request"},
     },
     tags=["POST"],
-    summary="新規ジョブの作成",
+    summary="Create a new job",
     response_model_by_alias=True,
 )
 async def video_post(
@@ -87,7 +87,7 @@ async def video_post(
         get_token_ApiKeyAuth
     ),
 ) -> Union[PostVideoResponse, ErrorResponse400]:
-    """YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。"""
+    """Creates a job to download audio from a YouTube link and separate the audio and vocals."""
     if not BasePOSTApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     

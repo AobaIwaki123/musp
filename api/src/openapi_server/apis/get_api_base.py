@@ -17,8 +17,8 @@ class BaseGETApi:
 
     async def user_id_get(
         self,
-        user_id: Annotated[str, Field(strict=True, description="ユーザーID")],
+        user_id: Annotated[str, Field(strict=True, description="User ID")],
     ) -> Union[GetVideoIDAndWavURLResponse, ErrorResponse400]:
-        """ユーザーが作成したYouTubeIDとWavURLの一覧を取得します。"""
+        """Retrieves a list of YouTube IDs and Wav URLs created by a user."""
         ...
 

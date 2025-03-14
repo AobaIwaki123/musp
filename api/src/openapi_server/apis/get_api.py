@@ -39,20 +39,20 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 @router.get(
     "/{user_id}",
     responses={
-        200: {"model": GetVideoIDAndWavURLResponse, "description": "ユーザーのYouTubeIDとWavURLの一覧を取得しました"},
-        400: {"model": ErrorResponse400, "description": "不正なリクエスト"},
+        200: {"model": GetVideoIDAndWavURLResponse, "description": "Retrieved the list of YouTube IDs and Wav URLs for the user"},
+        400: {"model": ErrorResponse400, "description": "Invalid request"},
     },
     tags=["GET"],
-    summary="ユーザーのYouTubeIDとWavURLの一覧取得",
+    summary="Retrieve a list of YouTube IDs and Wav URLs for a user",
     response_model_by_alias=True,
 )
 async def user_id_get(
-    user_id: Annotated[str, Field(strict=True, description="ユーザーID")] = Path(..., description="ユーザーID"),
+    user_id: Annotated[str, Field(strict=True, description="User ID")] = Path(..., description="User ID"),
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
     ),
 ) -> Union[GetVideoIDAndWavURLResponse, ErrorResponse400]:
-    """ユーザーが作成したYouTubeIDとWavURLの一覧を取得します。"""
+    """Retrieves a list of YouTube IDs and Wav URLs created by a user."""
     if not BaseGETApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     

@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   description: |
-    MuSPは、YouTubeリンクから音源をダウンロードし、Demucsで音源とボーカルを分離するWebアプリです。
-    本API仕様書は、ジョブの作成、状態確認、分離済み音源の取得を提供します。
+    MuSP is a web application that downloads audio from YouTube links and separates the audio and vocals using Demucs.
+    This API specification provides endpoints for job creation, status checking, and retrieving separated audio files.
   title: MuSP API
   version: 1.0.0
 servers:
@@ -10,14 +10,15 @@ servers:
 security:
 - ApiKeyAuth: []
 tags:
-- description: 取得関係
+- description: Retrieval operations
   name: GET
-- description: 作成関係
+- description: Creation operations
   name: POST
 paths:
   /video:
     post:
-      description: YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。
+      description: Creates a job to download audio from a YouTube link and separate
+        the audio and vocals.
       requestBody:
         content:
           application/json:
@@ -30,23 +31,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PostVideoResponse'
-          description: そのvideoは既に登録されています
+          description: The video is already registered
         "400":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse400'
-          description: 不正なリクエスト
+          description: Invalid request
       security:
       - ApiKeyAuth: []
-      summary: 新規ジョブの作成
+      summary: Create a new job
       tags:
       - POST
   /{user_id}:
     get:
-      description: ユーザーが作成したYouTubeIDとWavURLの一覧を取得します。
+      description: Retrieves a list of YouTube IDs and Wav URLs created by a user.
       parameters:
-      - description: ユーザーID
+      - description: User ID
         example: testUser
         explode: false
         in: path
@@ -62,21 +63,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetVideoIDAndWavURLResponse'
-          description: ユーザーのYouTubeIDとWavURLの一覧を取得しました
+          description: Retrieved the list of YouTube IDs and Wav URLs for the user
         "400":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse400'
-          description: 不正なリクエスト
+          description: Invalid request
       security:
       - ApiKeyAuth: []
-      summary: ユーザーのYouTubeIDとWavURLの一覧取得
+      summary: Retrieve a list of YouTube IDs and Wav URLs for a user
       tags:
       - GET
   /users:
     post:
-      description: ユーザー情報を登録します。
+      description: Registers user information.
       requestBody:
         content:
           application/json:
@@ -89,22 +90,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PostUserResponse'
-          description: ユーザーが存在します
+          description: User already exists
         "400":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse400'
-          description: 不正なリクエスト
+          description: Invalid request
       security:
       - ApiKeyAuth: []
-      summary: ユーザー情報の登録
+      summary: Register user information
       tags:
       - POST
 components:
   parameters:
     UserID:
-      description: ユーザーID
+      description: User ID
       example: testUser
       explode: false
       in: path
@@ -122,11 +123,11 @@ components:
         youtube_url: https://www.youtube.com/watch?v=57Q4Hp46oXc
       properties:
         user_id:
-          description: ユーザーID
+          description: User ID
           maximum: 100
           type: string
         youtube_url:
-          description: YouTubeの動画リンク
+          description: YouTube video link
           maximum: 100
           pattern: "/^(?:https?://)?(?:www\\.)?(?:youtube\\.com/(?:watch\\?.*v=|embed/|v/)|youtu\\\
             .be/)([a-zA-Z0-9_-]{11})/"
@@ -140,18 +141,18 @@ components:
       additionalProperties: false
       example:
         status_code: 200
-        status_message: そのvideoは既に登録されています
+        status_message: The video is already registered
         youtube_id: 57Q4Hp46oXc
       properties:
         status_code:
-          description: ステータスコード
+          description: Status code
           type: integer
         status_message:
-          description: ステータスメッセージ
+          description: Status message
           maximum: 500
           type: string
         youtube_id:
-          description: YouTubeの動画ID
+          description: YouTube video ID
           maximum: 11
           pattern: "^[a-zA-Z0-9_-]{11}$"
           type: string
@@ -165,13 +166,13 @@ components:
       additionalProperties: false
       properties:
         youtube_id:
-          description: YouTubeの動画ID
+          description: YouTube video ID
           maximum: 11
           pattern: "^[a-zA-Z0-9_-]{11}$"
           title: youtube_id
           type: string
         wav_url:
-          description: 分離済み音源のURL
+          description: Separated audio file URL
           format: uri
           maximum: 200
           title: wav_url
@@ -184,7 +185,7 @@ components:
       additionalProperties: false
       example:
         status_code: 200
-        status_message: ユーザーのYouTubeIDとWavURLの一覧を取得しました
+        status_message: Retrieved the list of YouTube IDs and Wav URLs for the user
         data:
         - youtube_id: 57Q4Hp46oXc
           wav_url: https://example.com/wav.wav
@@ -192,10 +193,10 @@ components:
           wav_url: null
       properties:
         status_code:
-          description: ステータスコード
+          description: Status code
           type: integer
         status_message:
-          description: ステータスメッセージ
+          description: Status message
           maximum: 500
           type: string
         data:
@@ -214,7 +215,7 @@ components:
         google_id: testGoogleID
       properties:
         google_id:
-          description: GoogleのユーザーID
+          description: Google user ID
           maximum: 100
           type: string
       required:
@@ -225,18 +226,18 @@ components:
       additionalProperties: false
       example:
         status_code: 200
-        status_message: ユーザーが存在します
+        status_message: User already exists
         user_id: testUser
       properties:
         status_code:
-          description: ステータスコード
+          description: Status code
           type: integer
         status_message:
-          description: ステータスメッセージ
+          description: Status message
           maximum: 500
           type: string
         user_id:
-          description: ユーザーID
+          description: User ID
           maximum: 100
           type: string
       required:
@@ -251,7 +252,7 @@ components:
         error: error
       properties:
         error:
-          description: エラーメッセージ
+          description: Error message
           maximum: 500
           title: error
           type: string
