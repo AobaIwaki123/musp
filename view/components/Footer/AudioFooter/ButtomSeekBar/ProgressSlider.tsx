@@ -8,9 +8,14 @@ import React, { useEffect, useState } from "react";
 interface CustomSliderProps {
 	value: number;
 	max?: number; // 最大値をオプションとして追加
+	handleSeek: (value: number) => void;
 }
 
-export function CustomSlider({ value, max = 100 }: CustomSliderProps) {
+export function CustomSlider({
+	value,
+	max = 100,
+	handleSeek,
+}: CustomSliderProps) {
 	const [currentValue, setCurrentValue] = useState((value / max) * 100); // 0-100に正規化
 	const [isMoving, setIsMoving] = useState(false); // マウスが動いているか判定
 	const interval = useInterval(() => {

@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { wavFileAtom } from "@/jotai/atom";
 import { Container, Slider, Text } from "@mantine/core";
 import { useAtom } from "jotai";
+import { ButtonProgress } from "./ButtomSeekBar/ButtonProgress";
 import { CustomSlider } from "./ButtomSeekBar/ProgressSlider";
 import { PlayButton } from "./PlayButton";
-import { ButtonProgress } from "./ButtomSeekBar/ButtonProgress";
 
 import classes from "./AudioFooter.module.css";
 
@@ -32,8 +32,6 @@ export function AudioFooter() {
 	useEffect(() => {
 		if (audioRef.current) {
 			const audio = audioRef.current;
-			audio.play();
-			setIsPlaying(true);
 
 			const updateTime = () => {
 				setCurrentTime(audio.currentTime);
@@ -49,6 +47,19 @@ export function AudioFooter() {
 			};
 		}
 	}, []);
+
+	useEffect(() => {
+		console.log("WAV FILE Changed", wavFile);
+		if (audioRef.current) {
+			audioRef.current.pause();
+			audioRef.current.currentTime = 0;
+			audioRef.current.load();
+			setCurrentTime(0);
+			setDuration(0);
+			audioRef.current.play();
+			setIsPlaying(true);
+		}
+	}, [wavFile]);
 
 	const handleSeek = (value: number) => {
 		if (audioRef.current) {
@@ -69,7 +80,11 @@ export function AudioFooter() {
 					</audio>
 					<PlayButton isPlaying={isPlaying} onClick={togglePlay} />
 				</Container>
-				<CustomSlider value={currentTime} max={duration}/>
+				<CustomSlider
+					value={currentTime}
+					max={duration}
+					handleSeek={handleSeek}
+				/>
 			</Container>
 		</div>
 	);
