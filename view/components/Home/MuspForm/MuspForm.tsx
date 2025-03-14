@@ -1,22 +1,20 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { IconX } from "@tabler/icons-react";
+import React, { useEffect, useState } from "react";
+import { useAtom } from "jotai";
+
 import { AddMusicIcon } from "@/components/Icons/AddMusicIcon/AddMusicIcon";
 import { PasteIcon } from "@/components/Icons/PasteIcon/PasteIcon";
 import { YouTubeIcon } from "@/components/Icons/YouTubeIcon/YouTubeIcon";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ActionIcon, Group, TextInput } from "@mantine/core";
-import {
-	IconBrandYoutube,
-	IconClipboardCheck,
-	IconMusicPlus,
-	IconX,
-} from "@tabler/icons-react";
-import React, { useEffect, useState } from "react";
+import { Group, TextInput } from "@mantine/core";
 import { useForm } from "react-hook-form";
-import { PostJobsRequest } from "../../../client/client";
-import type { PostJobsRequestType } from "../../../client/client";
-import { LoadWabButton } from "../../Buttons/LoadWabButton/LoadWabButton";
-import { ModeIconWrapper } from "../../Icons/ModeIconWrapper/ModeIconWrapper";
+import { userIDAtom } from "@/jotai/atom";
+
+import { PostJobsRequest } from "@/client/client";
+import type { PostJobsRequestType } from "@/client/client";
+
 import classes from "./MuspForm.module.css";
 interface MuspFormProps {
 	onSubmit: (videoID: string) => void;
@@ -24,7 +22,8 @@ interface MuspFormProps {
 
 export function MuspForm({ onSubmit }: MuspFormProps) {
 	const [isFocused, setIsFocused] = useState(false);
-
+	const [userID, _] = useAtom(userIDAtom);
+	
 	const {
 		register,
 		handleSubmit,
@@ -52,13 +51,12 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
-			const storedUserId = localStorage.getItem("userID");
-			if (storedUserId) {
-				setValue("user_id", storedUserId);
-				console.log("Stored user_id:", storedUserId);
+			if (userID) {
+				setValue("user_id", userID);
+				console.log("Stored user_id:", userID);
 			}
 		}
-	}, [setValue]);
+	}, [setValue, userID]);
 
 	// フォーム送信時の処理
 	const handleFormSubmit = async (data: PostJobsRequestType) => {

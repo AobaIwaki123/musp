@@ -7,3 +7,6 @@ export const isHalfWidthAtom = atomWithStorage('isHalfWidth', true);
 
 // WAVファイルのURLを管理するAtom
 export const wavFileAtom = atom<string | null>(null);
+
+// User Info
+export const userIDAtom = atomWithStorage('userID', '');
