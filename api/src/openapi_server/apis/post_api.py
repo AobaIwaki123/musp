@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from typing import Dict, List  # noqa: F401
+from typing import Dict, List, Union  # noqa: F401
 import importlib
 import pkgutil
 
@@ -22,14 +22,13 @@ from fastapi import (  # noqa: F401
     status,
 )
 
+from fastapi.responses import JSONResponse
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from openapi_server.models.error_response400 import ErrorResponse400
 from openapi_server.models.post_user_request import PostUserRequest
-from openapi_server.models.post_user_response200 import PostUserResponse200
-from openapi_server.models.post_user_response201 import PostUserResponse201
+from openapi_server.models.post_user_response import PostUserResponse
 from openapi_server.models.post_video_request import PostVideoRequest
-from openapi_server.models.post_video_response200 import PostVideoResponse200
-from openapi_server.models.post_video_response202 import PostVideoResponse202
+from openapi_server.models.post_video_response import PostVideoResponse
 from openapi_server.security_api import get_token_ApiKeyAuth
 
 router = APIRouter()
@@ -38,12 +37,10 @@ ns_pkg = openapi_server.impl
 for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     importlib.import_module(name)
 
-
 @router.post(
     "/users",
     responses={
-        200: {"model": PostUserResponse200, "description": "ユーザーが存在します"},
-        201: {"model": PostUserResponse201, "description": "ユーザー情報が正常に登録されました"},
+        200: {"model": PostUserResponse, "description": "ユーザーが存在します"},
         400: {"model": ErrorResponse400, "description": "不正なリクエスト"},
     },
     tags=["POST"],
@@ -55,18 +52,29 @@ async def users_post(
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
     ),
-) -> PostUserResponse200:
+) -> Union[PostUserResponse, ErrorResponse400]:
     """ユーザー情報を登録します。"""
     if not BasePOSTApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BasePOSTApi.subclasses[0]().users_post(post_user_request)
+    
+    result = await BasePOSTApi.subclasses[0]().users_post(post_user_request)
+    
+    if isinstance(result, Response):
+        return result
+    
+    if isinstance(result, PostUserResponse):
+        return JSONResponse(content=result.dict(), status_code=200)
+    if isinstance(result, ErrorResponse400):
+        return JSONResponse(content=result.dict(), status_code=400)
+    
+    raise HTTPException(status_code=500, detail="Unexpected response type")
+
 
 
 @router.post(
     "/video",
     responses={
-        200: {"model": PostVideoResponse200, "description": "そのvideoは既に登録されています"},
-        202: {"model": PostVideoResponse202, "description": "ジョブが正常に作成されました"},
+        200: {"model": PostVideoResponse, "description": "そのvideoは既に登録されています"},
         400: {"model": ErrorResponse400, "description": "不正なリクエスト"},
     },
     tags=["POST"],
@@ -78,8 +86,20 @@ async def video_post(
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
     ),
-) -> PostVideoResponse200:
+) -> Union[PostVideoResponse, ErrorResponse400]:
     """YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。"""
     if not BasePOSTApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BasePOSTApi.subclasses[0]().video_post(post_video_request)
+    
+    result = await BasePOSTApi.subclasses[0]().video_post(post_video_request)
+    
+    if isinstance(result, Response):
+        return result
+    
+    if isinstance(result, PostVideoResponse):
+        return JSONResponse(content=result.dict(), status_code=200)
+    if isinstance(result, ErrorResponse400):
+        return JSONResponse(content=result.dict(), status_code=400)
+    
+    raise HTTPException(status_code=500, detail="Unexpected response type")
+

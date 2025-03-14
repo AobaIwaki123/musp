@@ -36,13 +36,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PostVideoResponse200"
-        "202":
-          description: ジョブが正常に作成されました
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PostVideoResponse202"
+                $ref: "#/components/schemas/PostVideoResponse"
         "400":
           description: 不正なリクエスト
           content:
@@ -65,7 +59,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetVideoIDAndWavURLResponse200"
+                $ref: "#/components/schemas/GetVideoIDAndWavURLResponse"
         "400":
           description: 不正なリクエスト
           content:
@@ -92,13 +86,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PostUserResponse200"
-        "201":
-          description: ユーザー情報が正常に登録されました
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PostUserResponse201"
+                $ref: "#/components/schemas/PostUserResponse"
         "400":
           description: 不正なリクエスト
           content:
@@ -142,32 +130,22 @@ components:
         - user_id
         - youtube_url
       additionalProperties: false
-    PostVideoResponse200:
+    PostVideoResponse:
       type: object
       example:
+        status_code: 200
         youtube_id: "57Q4Hp46oXc"
-        message: "Video already exists!"
       properties:
+        status_code:
+          type: integer
+          description: ステータスコード
         youtube_id:
           type: string
           description: YouTubeの動画ID
           pattern: ^[a-zA-Z0-9_-]{11}$
           maximum: 11
       required:
-        - youtube_id
-      additionalProperties: false
-    PostVideoResponse202:
-      type: object
-      example:
-        youtube_id: "57Q4Hp46oXc"
-        message: "Job Created!"
-      properties:
-        youtube_id:
-          type: string
-          description: YouTubeの動画ID
-          pattern: ^[a-zA-Z0-9_-]{11}$
-          maximum: 11
-      required:
+        - status_code
         - youtube_id
       additionalProperties: false
     VideoIDAndWavURL:
@@ -186,20 +164,25 @@ components:
       required:
         - youtube_id
       additionalProperties: false
-    GetVideoIDAndWavURLResponse200:
+    GetVideoIDAndWavURLResponse:
       type: object
       example:
+        status_code: 200
         data:
           - youtube_id: "57Q4Hp46oXc"
             wav_url: "https://example.com/wav.wav"
           - youtube_id: "57Q4Hp46oXc"
             wav_url: null
       properties:
+        status_code:
+          type: integer
+          description: ステータスコード
         data:
           type: array
           items:
             $ref: "#/components/schemas/VideoIDAndWavURL"
       required:
+        - status_code
         - data
       additionalProperties: false
     PostUserRequest:
@@ -214,24 +197,21 @@ components:
       required:
         - google_id
       additionalProperties: false
-    PostUserResponse200:
+    PostUserResponse:
       type: object
+      example:
+        status_code: 200
+        user_id: "testUser"
       properties:
+        status_code:
+          type: integer
+          description: ステータスコード
         user_id:
           type: string
           description: ユーザーID
           maximum: 100
       required:
-        - user_id
-      additionalProperties: false
-    PostUserResponse201:
-      type: object
-      properties:
-        user_id:
-          type: string
-          description: ユーザーID
-          maximum: 100
-      required:
+        - status_code
         - user_id
       additionalProperties: false
     ErrorResponse400:

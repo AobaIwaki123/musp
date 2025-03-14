@@ -11,15 +11,11 @@ export const PostVideoRequest = z.object({
 });
 export type PostVideoRequestType = z.infer<typeof PostVideoRequest>;
 
-export const PostVideoResponse200 = z.object({
+export const PostVideoResponse = z.object({
+  status_code: z.number().int(),
   youtube_id: z.string().regex(/^[a-zA-Z0-9_-]{11}$/),
 });
-export type PostVideoResponse200Type = z.infer<typeof PostVideoResponse200>;
-
-export const PostVideoResponse202 = z.object({
-  youtube_id: z.string().regex(/^[a-zA-Z0-9_-]{11}$/),
-});
-export type PostVideoResponse202Type = z.infer<typeof PostVideoResponse202>;
+export type PostVideoResponseType = z.infer<typeof PostVideoResponse>;
 
 export const ErrorResponse400 = z.object({ error: z.string() });
 export type ErrorResponse400Type = z.infer<typeof ErrorResponse400>;
@@ -30,32 +26,31 @@ export const VideoIDAndWavURL = z.object({
 });
 export type VideoIDAndWavURLType = z.infer<typeof VideoIDAndWavURL>;
 
-export const GetVideoIDAndWavURLResponse200 = z.object({
+export const GetVideoIDAndWavURLResponse = z.object({
+  status_code: z.number().int(),
   data: z.array(VideoIDAndWavURL),
 });
-export type GetVideoIDAndWavURLResponse200Type = z.infer<
-  typeof GetVideoIDAndWavURLResponse200
+export type GetVideoIDAndWavURLResponseType = z.infer<
+  typeof GetVideoIDAndWavURLResponse
 >;
 
 export const PostUserRequest = z.object({ google_id: z.string() });
 export type PostUserRequestType = z.infer<typeof PostUserRequest>;
 
-export const PostUserResponse200 = z.object({ user_id: z.string() });
-export type PostUserResponse200Type = z.infer<typeof PostUserResponse200>;
-
-export const PostUserResponse201 = z.object({ user_id: z.string() });
-export type PostUserResponse201Type = z.infer<typeof PostUserResponse201>;
+export const PostUserResponse = z.object({
+  status_code: z.number().int(),
+  user_id: z.string(),
+});
+export type PostUserResponseType = z.infer<typeof PostUserResponse>;
 
 export const schemas = {
   PostVideoRequest,
-  PostVideoResponse200,
-  PostVideoResponse202,
+  PostVideoResponse,
   ErrorResponse400,
   VideoIDAndWavURL,
-  GetVideoIDAndWavURLResponse200,
+  GetVideoIDAndWavURLResponse,
   PostUserRequest,
-  PostUserResponse200,
-  PostUserResponse201,
+  PostUserResponse,
 };
 
 export const endpoints = makeApi([
@@ -72,7 +67,7 @@ export const endpoints = makeApi([
         schema: z.string(),
       },
     ],
-    response: GetVideoIDAndWavURLResponse200,
+    response: GetVideoIDAndWavURLResponse,
     errors: [
       {
         status: 400,
@@ -94,7 +89,7 @@ export const endpoints = makeApi([
         schema: z.object({ google_id: z.string() }),
       },
     ],
-    response: z.object({ user_id: z.string() }),
+    response: PostUserResponse,
     errors: [
       {
         status: 400,
@@ -116,7 +111,7 @@ export const endpoints = makeApi([
         schema: PostVideoRequest,
       },
     ],
-    response: z.object({ youtube_id: z.string().regex(/^[a-zA-Z0-9_-]{11}$/) }),
+    response: PostVideoResponse,
     errors: [
       {
         status: 400,

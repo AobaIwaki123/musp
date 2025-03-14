@@ -29,14 +29,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostVideoResponse200'
+                $ref: '#/components/schemas/PostVideoResponse'
           description: そのvideoは既に登録されています
-        "202":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PostVideoResponse202'
-          description: ジョブが正常に作成されました
         "400":
           content:
             application/json:
@@ -67,7 +61,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetVideoIDAndWavURLResponse200'
+                $ref: '#/components/schemas/GetVideoIDAndWavURLResponse'
           description: ユーザーのYouTubeIDとWavURLの一覧を取得しました
         "400":
           content:
@@ -94,14 +88,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostUserResponse200'
+                $ref: '#/components/schemas/PostUserResponse'
           description: ユーザーが存在します
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PostUserResponse201'
-          description: ユーザー情報が正常に登録されました
         "400":
           content:
             application/json:
@@ -148,35 +136,24 @@ components:
       - youtube_url
       title: PostVideoRequest
       type: object
-    PostVideoResponse200:
+    PostVideoResponse:
       additionalProperties: false
       example:
+        status_code: 200
         youtube_id: 57Q4Hp46oXc
-        message: Video already exists!
       properties:
+        status_code:
+          description: ステータスコード
+          type: integer
         youtube_id:
           description: YouTubeの動画ID
           maximum: 11
           pattern: "^[a-zA-Z0-9_-]{11}$"
           type: string
       required:
+      - status_code
       - youtube_id
-      title: PostVideoResponse200
-      type: object
-    PostVideoResponse202:
-      additionalProperties: false
-      example:
-        youtube_id: 57Q4Hp46oXc
-        message: Job Created!
-      properties:
-        youtube_id:
-          description: YouTubeの動画ID
-          maximum: 11
-          pattern: "^[a-zA-Z0-9_-]{11}$"
-          type: string
-      required:
-      - youtube_id
-      title: PostVideoResponse202
+      title: PostVideoResponse
       type: object
     VideoIDAndWavURL:
       additionalProperties: false
@@ -197,22 +174,27 @@ components:
       - youtube_id
       title: VideoIDAndWavURL
       type: object
-    GetVideoIDAndWavURLResponse200:
+    GetVideoIDAndWavURLResponse:
       additionalProperties: false
       example:
+        status_code: 200
         data:
         - youtube_id: 57Q4Hp46oXc
           wav_url: https://example.com/wav.wav
         - youtube_id: 57Q4Hp46oXc
           wav_url: null
       properties:
+        status_code:
+          description: ステータスコード
+          type: integer
         data:
           items:
             $ref: '#/components/schemas/VideoIDAndWavURL'
           type: array
       required:
       - data
-      title: GetVideoIDAndWavURLResponse200
+      - status_code
+      title: GetVideoIDAndWavURLResponse
       type: object
     PostUserRequest:
       additionalProperties: false
@@ -227,33 +209,23 @@ components:
       - google_id
       title: PostUserRequest
       type: object
-    PostUserResponse200:
+    PostUserResponse:
       additionalProperties: false
       example:
-        user_id: user_id
+        status_code: 200
+        user_id: testUser
       properties:
+        status_code:
+          description: ステータスコード
+          type: integer
         user_id:
           description: ユーザーID
           maximum: 100
-          title: user_id
           type: string
       required:
+      - status_code
       - user_id
-      title: PostUserResponse200
-      type: object
-    PostUserResponse201:
-      additionalProperties: false
-      example:
-        user_id: user_id
-      properties:
-        user_id:
-          description: ユーザーID
-          maximum: 100
-          title: user_id
-          type: string
-      required:
-      - user_id
-      title: PostUserResponse201
+      title: PostUserResponse
       type: object
     ErrorResponse400:
       additionalProperties: false

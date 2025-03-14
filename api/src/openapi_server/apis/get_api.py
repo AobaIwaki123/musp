@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from typing import Dict, List  # noqa: F401
+from typing import Dict, List, Union  # noqa: F401
 import importlib
 import pkgutil
 
@@ -22,11 +22,12 @@ from fastapi import (  # noqa: F401
     status,
 )
 
+from fastapi.responses import JSONResponse
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from pydantic import Field
 from typing_extensions import Annotated
 from openapi_server.models.error_response400 import ErrorResponse400
-from openapi_server.models.get_video_id_and_wav_url_response200 import GetVideoIDAndWavURLResponse200
+from openapi_server.models.get_video_id_and_wav_url_response import GetVideoIDAndWavURLResponse
 from openapi_server.security_api import get_token_ApiKeyAuth
 
 router = APIRouter()
@@ -35,11 +36,10 @@ ns_pkg = openapi_server.impl
 for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     importlib.import_module(name)
 
-
 @router.get(
     "/{user_id}",
     responses={
-        200: {"model": GetVideoIDAndWavURLResponse200, "description": "ユーザーのYouTubeIDとWavURLの一覧を取得しました"},
+        200: {"model": GetVideoIDAndWavURLResponse, "description": "ユーザーのYouTubeIDとWavURLの一覧を取得しました"},
         400: {"model": ErrorResponse400, "description": "不正なリクエスト"},
     },
     tags=["GET"],
@@ -51,8 +51,20 @@ async def user_id_get(
     token_ApiKeyAuth: TokenModel = Security(
         get_token_ApiKeyAuth
     ),
-) -> GetVideoIDAndWavURLResponse200:
+) -> Union[GetVideoIDAndWavURLResponse, ErrorResponse400]:
     """ユーザーが作成したYouTubeIDとWavURLの一覧を取得します。"""
     if not BaseGETApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseGETApi.subclasses[0]().user_id_get(user_id)
+    
+    result = await BaseGETApi.subclasses[0]().user_id_get(user_id)
+    
+    if isinstance(result, Response):
+        return result
+    
+    if isinstance(result, GetVideoIDAndWavURLResponse):
+        return JSONResponse(content=result.dict(), status_code=200)
+    if isinstance(result, ErrorResponse400):
+        return JSONResponse(content=result.dict(), status_code=400)
+    
+    raise HTTPException(status_code=500, detail="Unexpected response type")
+

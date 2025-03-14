@@ -20,7 +20,7 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 try:
@@ -28,12 +28,13 @@ try:
 except ImportError:
     from typing_extensions import Self
 
-class PostUserResponse200(BaseModel):
+class PostUserResponse(BaseModel):
     """
-    PostUserResponse200
+    PostUserResponse
     """ # noqa: E501
+    status_code: StrictInt = Field(description="ステータスコード")
     user_id: Annotated[str, Field(strict=True)] = Field(description="ユーザーID")
-    __properties: ClassVar[List[str]] = ["user_id"]
+    __properties: ClassVar[List[str]] = ["status_code", "user_id"]
 
     model_config = {
         "populate_by_name": True,
@@ -53,7 +54,7 @@ class PostUserResponse200(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of PostUserResponse200 from a JSON string"""
+        """Create an instance of PostUserResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,7 +77,7 @@ class PostUserResponse200(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of PostUserResponse200 from a dict"""
+        """Create an instance of PostUserResponse from a dict"""
         if obj is None:
             return None
 
@@ -84,6 +85,7 @@ class PostUserResponse200(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "status_code": obj.get("status_code"),
             "user_id": obj.get("user_id")
         })
         return _obj

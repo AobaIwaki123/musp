@@ -20,20 +20,28 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from typing import Any, ClassVar, Dict, List
-from openapi_server.models.video_id_and_wav_url import VideoIDAndWavURL
+from typing_extensions import Annotated
 try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
 
-class GetVideoIDAndWavURLResponse200(BaseModel):
+class PostVideoResponse(BaseModel):
     """
-    GetVideoIDAndWavURLResponse200
+    PostVideoResponse
     """ # noqa: E501
-    data: List[VideoIDAndWavURL]
-    __properties: ClassVar[List[str]] = ["data"]
+    status_code: StrictInt = Field(description="ステータスコード")
+    youtube_id: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画ID")
+    __properties: ClassVar[List[str]] = ["status_code", "youtube_id"]
+
+    @field_validator('youtube_id')
+    def youtube_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9_-]{11}$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_-]{11}$/")
+        return value
 
     model_config = {
         "populate_by_name": True,
@@ -53,7 +61,7 @@ class GetVideoIDAndWavURLResponse200(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of GetVideoIDAndWavURLResponse200 from a JSON string"""
+        """Create an instance of PostVideoResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,18 +80,11 @@ class GetVideoIDAndWavURLResponse200(BaseModel):
             },
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
-        _items = []
-        if self.data:
-            for _item in self.data:
-                if _item:
-                    _items.append(_item.to_dict())
-            _dict['data'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of GetVideoIDAndWavURLResponse200 from a dict"""
+        """Create an instance of PostVideoResponse from a dict"""
         if obj is None:
             return None
 
@@ -91,7 +92,8 @@ class GetVideoIDAndWavURLResponse200(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "data": [VideoIDAndWavURL.from_dict(_item) for _item in obj.get("data")] if obj.get("data") is not None else None
+            "status_code": obj.get("status_code"),
+            "youtube_id": obj.get("youtube_id")
         })
         return _obj
 
