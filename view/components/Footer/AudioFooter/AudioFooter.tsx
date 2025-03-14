@@ -32,6 +32,8 @@ export function AudioFooter() {
 	useEffect(() => {
 		if (audioRef.current) {
 			const audio = audioRef.current;
+			audio.play();
+			setIsPlaying(true);
 
 			const updateTime = () => {
 				setCurrentTime(audio.currentTime);
@@ -47,19 +49,6 @@ export function AudioFooter() {
 			};
 		}
 	}, []);
-
-	useEffect(() => {
-		console.log("WAV FILE Changed", wavFile);
-		if (audioRef.current) {
-			audioRef.current.pause();
-			audioRef.current.currentTime = 0;
-			audioRef.current.load();
-			setCurrentTime(0);
-			setDuration(0);
-			audioRef.current.play();
-			setIsPlaying(true);
-		}
-	}, [wavFile]);
 
 	const handleSeek = (value: number) => {
 		if (audioRef.current) {

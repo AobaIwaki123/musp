@@ -18,7 +18,7 @@ export function CustomSlider({
 }: CustomSliderProps) {
 	const [currentValue, setCurrentValue] = useState((value / max) * 100); // 0-100に正規化
 	const [_, setIsMoving] = useState(false); // マウスが動いているか判定
-	const disabled = value < 0.1 // 音声がロードされる前は操作を無効化 
+	const disabled = value < 0.1; // 音声がロードされる前は操作を無効化
 
 	// useMove を活用してスライダーの値を手動変更
 	const { ref } = useMove(
