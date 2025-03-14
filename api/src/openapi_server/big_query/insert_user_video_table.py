@@ -46,17 +46,23 @@ def insert_user_video_table(
             youtube_id=video_id,
         )
 
-    # `createdAt` と `updatedAt` を取得
-    timestamp = datetime.datetime.utcnow().strftime(
-        "%Y-%m-%d %H:%M:%S"
-    )
+    # `createdAt` と `updatedAt` を取得 (TIMESTAMP 型)
+    timestamp = datetime.datetime.utcnow()
 
-    # 追加のカラムに `createdAt` と `updatedAt` を加える
-    other_columns = {}
-    other_columns["createdAt"] = timestamp
-    other_columns["updatedAt"] = timestamp
+    # 挿入データのカラムとパラメータ
+    columns = [
+        "userID",
+        "videoID",
+        "createdAt",
+        "updatedAt",
+    ]
+    values_placeholders = [
+        "@user_id",
+        "@video_id",
+        "@created_at",
+        "@updated_at",
+    ]
 
-    # パラメータ用リストを作成
     query_parameters = [
         bigquery.ScalarQueryParameter(
             "user_id", "STRING", user_id
@@ -64,21 +70,13 @@ def insert_user_video_table(
         bigquery.ScalarQueryParameter(
             "video_id", "STRING", video_id
         ),
+        bigquery.ScalarQueryParameter(
+            "created_at", "TIMESTAMP", timestamp
+        ),
+        bigquery.ScalarQueryParameter(
+            "updated_at", "TIMESTAMP", timestamp
+        ),
     ]
-
-    # カラム名と対応する値のプレースホルダを生成
-    columns = ["userID", "videoID"] + list(
-        other_columns.keys()
-    )
-    values_placeholders = []
-
-    for key, value in other_columns.items():
-        query_parameters.append(
-            bigquery.ScalarQueryParameter(
-                key, "STRING", value
-            )
-        )
-        values_placeholders.append(f"@{key}")
 
     # 挿入クエリの実行
     insert_query = f"""
