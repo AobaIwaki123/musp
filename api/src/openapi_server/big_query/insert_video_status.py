@@ -3,7 +3,7 @@ import datetime
 from google.cloud import bigquery
 
 
-def insert_or_update_video_status(
+def insert_video_status(
     project_id: str,
     dataset_id: str,
     table_id: str,

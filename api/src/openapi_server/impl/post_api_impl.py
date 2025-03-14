@@ -52,19 +52,19 @@ class POSTApiImpl(BasePOSTApi):
     ) -> Union[PostVideoResponse, ErrorResponse400]:
         """YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。"""
         try:
+            process_source.apply_async(
+                args=[post_video_request.to_dict()]
+            )
             video_id = get_youtube_video_id(
                 post_video_request.youtube_url
             )
-            res = insert_user_video_table(
+            return insert_user_video_table(
                 project_id=GOOGLE_CLOUD_PROJECT,
                 dataset_id=DATASET_ID,
                 table_id="userID-videoID",
                 user_id=post_video_request.user_id,
                 video_id=video_id,
             )
-            if res.status_code != 200:
-                process_source(post_video_request.dict())
-            return res
         except Exception as e:
             return ErrorResponse400(
                 error=f"Bad Request: {str(e)}"
