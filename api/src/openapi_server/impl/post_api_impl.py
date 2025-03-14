@@ -1,6 +1,11 @@
+import os
 from typing import Union
 
 from openapi_server.apis.post_api_base import BasePOSTApi
+from openapi_server.big_query import (
+    insert_google_user_table,
+    insert_user_video_table,
+)
 from openapi_server.models.error_response400 import (
     ErrorResponse400,
 )
@@ -16,6 +21,10 @@ from openapi_server.models.post_video_request import (
 from openapi_server.models.post_video_response import (
     PostVideoResponse,
 )
+from openapi_server.process_source import process_source
+
+GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
+DATASET_ID = os.getenv("DATASET_ID")
 
 
 class POSTApiImpl(BasePOSTApi):
@@ -24,23 +33,16 @@ class POSTApiImpl(BasePOSTApi):
         post_user_request: PostUserRequest,
     ) -> Union[PostUserResponse, ErrorResponse400]:
         """ユーザー情報を登録します。"""
-        # Mock実装
-        google_id = post_user_request.google_id
-        if google_id == "1":
-            return PostUserResponse(
-                status_code=201,
-                status_message="User created",
-                user_id="1",
+        try:
+            return insert_google_user_table(
+                project_id=GOOGLE_CLOUD_PROJECT,
+                dataset_id=DATASET_ID,
+                table_id="googleID-userID",
+                google_id=post_user_request.google_id,
             )
-        elif google_id == "2":
-            return PostUserResponse(
-                status_code=200,
-                status_message="User already exists",
-                user_id="2",
-            )
-        else:
+        except Exception as e:
             return ErrorResponse400(
-                error="Bad Request",
+                error=f"Bad Request: {str(e)}"
             )
 
     async def video_post(
@@ -48,22 +50,17 @@ class POSTApiImpl(BasePOSTApi):
         post_video_request: PostVideoRequest,
     ) -> Union[PostVideoResponse, ErrorResponse400]:
         """YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。"""
-        DATASET_ID = "musp_v3"
-        TABLE_ID = "userID-videoID"
-        user_id = post_video_request.user_id
-        if user_id == "1":
-            return PostVideoResponse(
-                status_code=201,
-                status_message="Job created",
-                youtube_id="3Uem84SdteM",
+        try:
+            process_source(post_video_request.dict())
+            return insert_user_video_table(
+                project_id=GOOGLE_CLOUD_PROJECT,
+                dataset_id=DATASET_ID,
+                table_id="userID-videoID",
+                user_id=post_video_request.user_id,
+                video_id=post_video_request.youtube_id,
             )
-        elif user_id == "2":
-            return PostVideoResponse(
-                status_code=200,
-                status_message="Video already exists",
-                youtube_id="3Uem84SdteM",
-            )
-        else:
+
+        except Exception as e:
             return ErrorResponse400(
-                error="Bad Request",
+                error=f"Bad Request: {str(e)}"
             )
