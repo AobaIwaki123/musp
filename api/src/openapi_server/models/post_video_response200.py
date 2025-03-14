@@ -28,19 +28,18 @@ try:
 except ImportError:
     from typing_extensions import Self
 
-class PostJobsRequest(BaseModel):
+class PostVideoResponse200(BaseModel):
     """
-    PostJobsRequest
+    PostVideoResponse200
     """ # noqa: E501
-    user_id: Annotated[str, Field(strict=True)] = Field(description="ユーザーID")
-    youtube_url: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画リンク")
-    __properties: ClassVar[List[str]] = ["user_id", "youtube_url"]
+    youtube_id: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画ID")
+    __properties: ClassVar[List[str]] = ["youtube_id"]
 
-    @field_validator('youtube_url')
-    def youtube_url_validate_regular_expression(cls, value):
+    @field_validator('youtube_id')
+    def youtube_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if not re.match(r"^(?:https?://)?(?:www\.)?(?:youtube\.com/(?:watch\?.*v=|embed/|v/)|youtu\.be/)([a-zA-Z0-9_-]{11})", value):
-            raise ValueError(r"must validate the regular expression /^(?:https?://)?(?:www\.)?(?:youtube\.com/(?:watch\?.*v=|embed/|v/)|youtu\.be/)([a-zA-Z0-9_-]{11})/")
+        if not re.match(r"^[a-zA-Z0-9_-]{11}$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_-]{11}$/")
         return value
 
     model_config = {
@@ -61,7 +60,7 @@ class PostJobsRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of PostJobsRequest from a JSON string"""
+        """Create an instance of PostVideoResponse200 from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -84,7 +83,7 @@ class PostJobsRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of PostJobsRequest from a dict"""
+        """Create an instance of PostVideoResponse200 from a dict"""
         if obj is None:
             return None
 
@@ -92,8 +91,7 @@ class PostJobsRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "user_id": obj.get("user_id"),
-            "youtube_url": obj.get("youtube_url")
+            "youtube_id": obj.get("youtube_id")
         })
         return _obj
 

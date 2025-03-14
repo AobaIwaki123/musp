@@ -20,7 +20,7 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 try:
@@ -28,12 +28,20 @@ try:
 except ImportError:
     from typing_extensions import Self
 
-class GetWavResponse(BaseModel):
+class PostVideoRequest(BaseModel):
     """
-    GetWavResponse
+    PostVideoRequest
     """ # noqa: E501
-    wav_url: Annotated[str, Field(strict=True)] = Field(description="分離済み音源のURL")
-    __properties: ClassVar[List[str]] = ["wav_url"]
+    user_id: Annotated[str, Field(strict=True)] = Field(description="ユーザーID")
+    youtube_url: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画リンク")
+    __properties: ClassVar[List[str]] = ["user_id", "youtube_url"]
+
+    @field_validator('youtube_url')
+    def youtube_url_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^(?:https?://)?(?:www\.)?(?:youtube\.com/(?:watch\?.*v=|embed/|v/)|youtu\.be/)([a-zA-Z0-9_-]{11})", value):
+            raise ValueError(r"must validate the regular expression /^(?:https?://)?(?:www\.)?(?:youtube\.com/(?:watch\?.*v=|embed/|v/)|youtu\.be/)([a-zA-Z0-9_-]{11})/")
+        return value
 
     model_config = {
         "populate_by_name": True,
@@ -53,7 +61,7 @@ class GetWavResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of GetWavResponse from a JSON string"""
+        """Create an instance of PostVideoRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,7 +84,7 @@ class GetWavResponse(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of GetWavResponse from a dict"""
+        """Create an instance of PostVideoRequest from a dict"""
         if obj is None:
             return None
 
@@ -84,7 +92,8 @@ class GetWavResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "wav_url": obj.get("wav_url")
+            "user_id": obj.get("user_id"),
+            "youtube_url": obj.get("youtube_url")
         })
         return _obj
 

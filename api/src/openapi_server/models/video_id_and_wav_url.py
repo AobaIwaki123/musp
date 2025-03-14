@@ -20,20 +20,28 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
 
-class PostUserRequest(BaseModel):
+class VideoIDAndWavURL(BaseModel):
     """
-    PostUserRequest
+    VideoIDAndWavURL
     """ # noqa: E501
-    google_id: Annotated[str, Field(strict=True)] = Field(description="GoogleのユーザーID")
-    __properties: ClassVar[List[str]] = ["google_id"]
+    youtube_id: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画ID")
+    wav_url: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="分離済み音源のURL")
+    __properties: ClassVar[List[str]] = ["youtube_id", "wav_url"]
+
+    @field_validator('youtube_id')
+    def youtube_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9_-]{11}$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_-]{11}$/")
+        return value
 
     model_config = {
         "populate_by_name": True,
@@ -53,7 +61,7 @@ class PostUserRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of PostUserRequest from a JSON string"""
+        """Create an instance of VideoIDAndWavURL from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,7 +84,7 @@ class PostUserRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of PostUserRequest from a dict"""
+        """Create an instance of VideoIDAndWavURL from a dict"""
         if obj is None:
             return None
 
@@ -84,7 +92,8 @@ class PostUserRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "google_id": obj.get("google_id")
+            "youtube_id": obj.get("youtube_id"),
+            "wav_url": obj.get("wav_url")
         })
         return _obj
 

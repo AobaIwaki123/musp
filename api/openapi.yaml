@@ -15,36 +15,42 @@ tags:
 - description: 作成関係
   name: POST
 paths:
-  /jobs:
+  /video:
     post:
       description: YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostJobsRequest'
+              $ref: '#/components/schemas/PostVideoRequest'
         required: true
       responses:
-        "201":
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostJobsResponse'
+                $ref: '#/components/schemas/PostVideoResponse200'
+          description: そのvideoは既に登録されています
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostVideoResponse202'
           description: ジョブが正常に作成されました
         "400":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse400'
           description: 不正なリクエスト
       security:
       - ApiKeyAuth: []
       summary: 新規ジョブの作成
       tags:
       - POST
-  /video_id/{user_id}:
+  /{user_id}:
     get:
-      description: ユーザーが作成したYouTubeIDの一覧を取得します。
+      description: ユーザーが作成したYouTubeIDとWavURLの一覧を取得します。
       parameters:
       - description: ユーザーID
         example: testUser
@@ -61,50 +67,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetVideoIDResponse'
-          description: ユーザーのYouTubeID一覧を取得しました
+                $ref: '#/components/schemas/GetVideoIDAndWavURLResponse200'
+          description: ユーザーのYouTubeIDとWavURLの一覧を取得しました
         "400":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse400'
           description: 不正なリクエスト
       security:
       - ApiKeyAuth: []
-      summary: ユーザーのYouTubeID一覧取得
-      tags:
-      - GET
-  /wav/{video_id}:
-    get:
-      description: 分離済み音源のダウンロードリンクを取得します。
-      parameters:
-      - description: YouTubeの動画ID
-        example: 57Q4Hp46oXc
-        explode: false
-        in: path
-        name: video_id
-        required: true
-        schema:
-          maximum: 11
-          pattern: "^[a-zA-Z0-9_-]{11}$"
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetWavResponse'
-          description: 分離済み音源のダウンロードリンクを取得しました
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: 不正なリクエスト
-      security:
-      - ApiKeyAuth: []
-      summary: 分離済み音源の取得
+      summary: ユーザーのYouTubeIDとWavURLの一覧取得
       tags:
       - GET
   /users:
@@ -121,19 +94,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostUserResponse'
+                $ref: '#/components/schemas/PostUserResponse200'
           description: ユーザーが存在します
         "201":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostUserResponse'
+                $ref: '#/components/schemas/PostUserResponse201'
           description: ユーザー情報が正常に登録されました
         "400":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse400'
           description: 不正なリクエスト
       security:
       - ApiKeyAuth: []
@@ -153,20 +126,8 @@ components:
         maximum: 100
         type: string
       style: simple
-    VideoID:
-      description: YouTubeの動画ID
-      example: 57Q4Hp46oXc
-      explode: false
-      in: path
-      name: video_id
-      required: true
-      schema:
-        maximum: 11
-        pattern: "^[a-zA-Z0-9_-]{11}$"
-        type: string
-      style: simple
   schemas:
-    PostJobsRequest:
+    PostVideoRequest:
       additionalProperties: false
       example:
         user_id: testUser
@@ -185,9 +146,24 @@ components:
       required:
       - user_id
       - youtube_url
-      title: PostJobsRequest
+      title: PostVideoRequest
       type: object
-    PostJobsResponse:
+    PostVideoResponse200:
+      additionalProperties: false
+      example:
+        youtube_id: 57Q4Hp46oXc
+        message: Video already exists!
+      properties:
+        youtube_id:
+          description: YouTubeの動画ID
+          maximum: 11
+          pattern: "^[a-zA-Z0-9_-]{11}$"
+          type: string
+      required:
+      - youtube_id
+      title: PostVideoResponse200
+      type: object
+    PostVideoResponse202:
       additionalProperties: false
       example:
         youtube_id: 57Q4Hp46oXc
@@ -200,66 +176,58 @@ components:
           type: string
       required:
       - youtube_id
-      title: PostJobsResponse
+      title: PostVideoResponse202
       type: object
-    GetVideoIDResponse:
+    VideoIDAndWavURL:
       additionalProperties: false
-      example:
-        youtube_ids:
-        - 57Q4Hp46oXc
-        - 57Q4Hp46oXd
-        - 57Q4Hp46oXe
       properties:
-        youtube_ids:
-          items:
-            description: YouTubeの動画ID
-            maximum: 11
-            pattern: "^[a-zA-Z0-9_-]{11}$"
-            type: string
-          type: array
-      title: GetVideoIDResponse
-      type: object
-    GetWavResponse:
-      additionalProperties: false
-      example:
-        wav_url: https://example.com/wav.wav
-      properties:
+        youtube_id:
+          description: YouTubeの動画ID
+          maximum: 11
+          pattern: "^[a-zA-Z0-9_-]{11}$"
+          title: youtube_id
+          type: string
         wav_url:
           description: 分離済み音源のURL
           format: uri
           maximum: 200
+          title: wav_url
           type: string
       required:
-      - wav_url
-      title: GetWavResponse
+      - youtube_id
+      title: VideoIDAndWavURL
+      type: object
+    GetVideoIDAndWavURLResponse200:
+      additionalProperties: false
+      example:
+        data:
+        - youtube_id: 57Q4Hp46oXc
+          wav_url: https://example.com/wav.wav
+        - youtube_id: 57Q4Hp46oXc
+          wav_url: null
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/VideoIDAndWavURL'
+          type: array
+      required:
+      - data
+      title: GetVideoIDAndWavURLResponse200
       type: object
     PostUserRequest:
       additionalProperties: false
       example:
         google_id: testGoogleID
-        nickname: testNickname
-        icon_url: https://example.com/icon.jpg
       properties:
         google_id:
           description: GoogleのユーザーID
           maximum: 100
           type: string
-        nickname:
-          description: ニックネーム
-          maximum: 100
-          type: string
-        icon_url:
-          description: アイコン画像のURL
-          format: uri
-          maximum: 200
-          type: string
       required:
       - google_id
-      - icon_url
-      - nickname
       title: PostUserRequest
       type: object
-    PostUserResponse:
+    PostUserResponse200:
       additionalProperties: false
       example:
         user_id: user_id
@@ -271,9 +239,23 @@ components:
           type: string
       required:
       - user_id
-      title: PostUserResponse
+      title: PostUserResponse200
       type: object
-    ErrorResponse:
+    PostUserResponse201:
+      additionalProperties: false
+      example:
+        user_id: user_id
+      properties:
+        user_id:
+          description: ユーザーID
+          maximum: 100
+          title: user_id
+          type: string
+      required:
+      - user_id
+      title: PostUserResponse201
+      type: object
+    ErrorResponse400:
       additionalProperties: false
       example:
         error: error
@@ -285,7 +267,7 @@ components:
           type: string
       required:
       - error
-      title: ErrorResponse
+      title: ErrorResponse400
       type: object
   securitySchemes:
     ApiKeyAuth:

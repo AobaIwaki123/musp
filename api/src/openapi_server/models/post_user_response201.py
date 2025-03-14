@@ -28,12 +28,12 @@ try:
 except ImportError:
     from typing_extensions import Self
 
-class PostUserRequest(BaseModel):
+class PostUserResponse201(BaseModel):
     """
-    PostUserRequest
+    PostUserResponse201
     """ # noqa: E501
-    google_id: Annotated[str, Field(strict=True)] = Field(description="GoogleのユーザーID")
-    __properties: ClassVar[List[str]] = ["google_id"]
+    user_id: Annotated[str, Field(strict=True)] = Field(description="ユーザーID")
+    __properties: ClassVar[List[str]] = ["user_id"]
 
     model_config = {
         "populate_by_name": True,
@@ -53,7 +53,7 @@ class PostUserRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of PostUserRequest from a JSON string"""
+        """Create an instance of PostUserResponse201 from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,7 +76,7 @@ class PostUserRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of PostUserRequest from a dict"""
+        """Create an instance of PostUserResponse201 from a dict"""
         if obj is None:
             return None
 
@@ -84,7 +84,7 @@ class PostUserRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "google_id": obj.get("google_id")
+            "user_id": obj.get("user_id")
         })
         return _obj
 

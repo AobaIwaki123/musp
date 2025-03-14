@@ -20,20 +20,20 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
 
-class GetVideoIDResponse(BaseModel):
+class ErrorResponse400(BaseModel):
     """
-    GetVideoIDResponse
+    ErrorResponse400
     """ # noqa: E501
-    youtube_ids: Optional[List[Annotated[str, Field(strict=True)]]] = None
-    __properties: ClassVar[List[str]] = ["youtube_ids"]
+    error: Annotated[str, Field(strict=True)] = Field(description="エラーメッセージ")
+    __properties: ClassVar[List[str]] = ["error"]
 
     model_config = {
         "populate_by_name": True,
@@ -53,7 +53,7 @@ class GetVideoIDResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of GetVideoIDResponse from a JSON string"""
+        """Create an instance of ErrorResponse400 from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,7 +76,7 @@ class GetVideoIDResponse(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of GetVideoIDResponse from a dict"""
+        """Create an instance of ErrorResponse400 from a dict"""
         if obj is None:
             return None
 
@@ -84,7 +84,7 @@ class GetVideoIDResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "youtube_ids": obj.get("youtube_ids")
+            "error": obj.get("error")
         })
         return _obj
 

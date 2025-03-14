@@ -20,20 +20,20 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
+from openapi_server.models.video_id_and_wav_url import VideoIDAndWavURL
 try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
 
-class PostUserResponse(BaseModel):
+class GetVideoIDAndWavURLResponse200(BaseModel):
     """
-    PostUserResponse
+    GetVideoIDAndWavURLResponse200
     """ # noqa: E501
-    user_id: Annotated[str, Field(strict=True)] = Field(description="ユーザーID")
-    __properties: ClassVar[List[str]] = ["user_id"]
+    data: List[VideoIDAndWavURL]
+    __properties: ClassVar[List[str]] = ["data"]
 
     model_config = {
         "populate_by_name": True,
@@ -53,7 +53,7 @@ class PostUserResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of PostUserResponse from a JSON string"""
+        """Create an instance of GetVideoIDAndWavURLResponse200 from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,11 +72,18 @@ class PostUserResponse(BaseModel):
             },
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
+        _items = []
+        if self.data:
+            for _item in self.data:
+                if _item:
+                    _items.append(_item.to_dict())
+            _dict['data'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of PostUserResponse from a dict"""
+        """Create an instance of GetVideoIDAndWavURLResponse200 from a dict"""
         if obj is None:
             return None
 
@@ -84,7 +91,7 @@ class PostUserResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "user_id": obj.get("user_id")
+            "data": [VideoIDAndWavURL.from_dict(_item) for _item in obj.get("data")] if obj.get("data") is not None else None
         })
         return _obj
 

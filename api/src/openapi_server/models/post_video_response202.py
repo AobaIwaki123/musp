@@ -20,7 +20,7 @@ import json
 
 
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 try:
@@ -28,12 +28,19 @@ try:
 except ImportError:
     from typing_extensions import Self
 
-class ErrorResponse(BaseModel):
+class PostVideoResponse202(BaseModel):
     """
-    ErrorResponse
+    PostVideoResponse202
     """ # noqa: E501
-    error: Annotated[str, Field(strict=True)] = Field(description="エラーメッセージ")
-    __properties: ClassVar[List[str]] = ["error"]
+    youtube_id: Annotated[str, Field(strict=True)] = Field(description="YouTubeの動画ID")
+    __properties: ClassVar[List[str]] = ["youtube_id"]
+
+    @field_validator('youtube_id')
+    def youtube_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^[a-zA-Z0-9_-]{11}$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_-]{11}$/")
+        return value
 
     model_config = {
         "populate_by_name": True,
@@ -53,7 +60,7 @@ class ErrorResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of ErrorResponse from a JSON string"""
+        """Create an instance of PostVideoResponse202 from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,7 +83,7 @@ class ErrorResponse(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of ErrorResponse from a dict"""
+        """Create an instance of PostVideoResponse202 from a dict"""
         if obj is None:
             return None
 
@@ -84,7 +91,7 @@ class ErrorResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "error": obj.get("error")
+            "youtube_id": obj.get("youtube_id")
         })
         return _obj
 
