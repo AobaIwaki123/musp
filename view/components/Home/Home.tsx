@@ -8,15 +8,15 @@ import { MuspForm } from "./MuspForm/MuspForm";
 export function Home() {
 	const [videoIDList, setVideoIDList] = useState<Video[]>([]);
 
-	const mockData = [
-		{ videoID: "hedyQY81WeY" },
-		{ videoID: "JQowMIY2bOw" },
-		{ videoID: "k7eGPMCy_ms" },
-		{ videoID: "B2teLF9l4aI" },
-		{ videoID: "ibI6-kvD1nc" },
-		{ videoID: "qP52sh7PzYA" },
-		{ videoID: "f8k8vDcCEfc" },
-		{ videoID: "vcp7XKBylkM" },
+	const mockData: Video[] = [
+		{ videoID: "hedyQY81WeY", wav_url: null },
+		{ videoID: "JQowMIY2bOw", wav_url: null },
+		{ videoID: "k7eGPMCy_ms", wav_url: null },
+		{ videoID: "B2teLF9l4aI", wav_url: null },
+		{ videoID: "ibI6-kvD1nc", wav_url: null },
+		{ videoID: "qP52sh7PzYA", wav_url: null },
+		{ videoID: "f8k8vDcCEfc", wav_url: null },
+		{ videoID: "vcp7XKBylkM", wav_url: null },
 	];
 
 	useEffect(() => {
@@ -24,7 +24,6 @@ export function Home() {
 	}, []);
 
 	const handleAddVideo = (url: string) => {
-		// TODO: 本質的には不要なので削除する
 		const extractVideoID = (url: string): string | null => {
 			const regex =
 				/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/ ]{11})/;
@@ -36,13 +35,14 @@ export function Home() {
 			console.error("Invalid URL");
 			return;
 		}
-		// TODO: APIのレスポンスでVideoIDとstatus code(200, 201)が返却される
+
+		// TODO: API のレスポンスで VideoID と status code (200, 201) が返却される
 		// 200: すでに存在 -> 何もしない
 		// 201: 新規追加 -> 追加
 		// その他: エラー -> エラーメッセージを表示
 		// const videoID = api.postVideoID(url);
 
-		setVideoIDList((prevList) => [...prevList, { videoID }]);
+		setVideoIDList((prevList) => [...prevList, { videoID, wav_url: null }]);
 	};
 
 	return (

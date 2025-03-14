@@ -7,14 +7,15 @@ import { ApplicationCard } from "./ApplicationCard/ApplicationCard";
 
 export interface Video {
 	videoID: string;
+	wav_url?: string | null; // wav_urlを追加（nullable）
 }
 
-export interface ApplicationGridProps {
+interface ApplicationGridProps {
 	videos: Video[];
 }
 
 export function ApplicationGrid({ videos }: ApplicationGridProps) {
-	const [isHalfWidth, setIsHalfWidth] = useAtom(isHalfWidthAtom);
+	const [isHalfWidth, _] = useAtom(isHalfWidthAtom);
 
 	return (
 		<Container my="md">
@@ -24,7 +25,7 @@ export function ApplicationGrid({ videos }: ApplicationGridProps) {
 						span={{ base: isHalfWidth ? 6 : 12, xs: 4 }}
 						key={data.videoID}
 					>
-						<ApplicationCard videoID={data.videoID} />
+						<ApplicationCard {...data} />
 					</Grid.Col>
 				))}
 			</Grid>
