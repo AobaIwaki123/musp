@@ -9,19 +9,10 @@ import { ModeIconWrapper } from "../ModeIconWrapper/ModeIconWrapper";
 
 export function WidthToggleIcon() {
 	const [isHalfWidth, setIsHalfWidth] = useAtom(isHalfWidthAtom);
+	
 	const toggleLayout = () => {
 		setIsHalfWidth((prev) => !prev);
 	};
-	const { colorScheme } = useMantineColorScheme();
-	const [iconColor, setIconColor] = useState("black");
-
-	useEffect(() => {
-		if (colorScheme === "dark") {
-			setIconColor("white");
-		} else {
-			setIconColor("black");
-		}
-	}, [colorScheme]);
 
 	return (
 		<ActionIcon
