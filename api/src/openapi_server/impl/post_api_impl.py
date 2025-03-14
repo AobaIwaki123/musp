@@ -24,7 +24,25 @@ class POSTApiImpl(BasePOSTApi):
         post_user_request: PostUserRequest,
     ) -> Union[PostUserResponse, ErrorResponse400]:
         """ユーザー情報を登録します。"""
-        ...
+        # Mock実装
+        google_id = post_user_request.google_id
+        if google_id == "1":
+            return PostUserResponse(
+                status_code=201,
+                status_message="User created",
+                user_id="1",
+            )
+        elif google_id == "2":
+            return PostUserResponse(
+                status_code=200,
+                status_message="User already exists",
+                user_id="2",
+            )
+        else:
+            return ErrorResponse400(
+                error="Bad Request",
+            )
+        
 
     async def video_post(
         self,
@@ -47,6 +65,5 @@ class POSTApiImpl(BasePOSTApi):
             )
         else:
             return ErrorResponse400(
-                status_code=400,
-                status_message="Bad Request",
+                error="Bad Request",
             )
