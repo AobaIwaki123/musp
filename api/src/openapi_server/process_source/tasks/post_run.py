@@ -1,6 +1,6 @@
 import shutil
 
-from celery_server.celery_app import app
+from openapi_server.celery_app import app
 from openapi_server.utils.normalize_youtube_url import (
     get_youtube_video_id,
 )

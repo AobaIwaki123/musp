@@ -1,6 +1,6 @@
 import os
 
-from celery_server.celery_app import app
+from openapi_server.celery_app import app
 from openapi_server.cloud_storage.upload_blob import (
     upload_blob,
 )
