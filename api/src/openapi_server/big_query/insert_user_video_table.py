@@ -1,16 +1,18 @@
 import datetime
 
 from google.cloud import bigquery
+from openapi_server.models.post_video_response import (
+    PostVideoResponse,
+)
 
 
 def insert_user_video_table(
-    project_id,
-    dataset_id,
-    table_id,
-    user_id,
-    video_id,
-    other_columns,
-):
+    project_id: str,
+    dataset_id: str,
+    table_id: str,
+    user_id: str,
+    video_id: str,
+) -> PostVideoResponse:
     client = bigquery.Client()
     table_ref = f"`{project_id}.{dataset_id}.{table_id}`"
 
@@ -25,10 +27,10 @@ def insert_user_video_table(
         job_config=bigquery.QueryJobConfig(
             query_parameters=[
                 bigquery.ScalarQueryParameter(
-                    "user_id", "INT64", user_id
+                    "user_id", "STRING", user_id
                 ),
                 bigquery.ScalarQueryParameter(
-                    "video_id", "INT64", video_id
+                    "video_id", "STRING", video_id
                 ),
             ]
         ),
@@ -38,7 +40,11 @@ def insert_user_video_table(
 
     if row.count > 0:
         print("Row already exists, skipping insert.")
-        return
+        return PostVideoResponse(
+            status_code=200,
+            status_message="Video already exists",
+            youtube_id=video_id,
+        )
 
     # `createdAt` と `updatedAt` を取得
     timestamp = datetime.datetime.utcnow().strftime(
@@ -46,16 +52,17 @@ def insert_user_video_table(
     )
 
     # 追加のカラムに `createdAt` と `updatedAt` を加える
+    other_columns = {}
     other_columns["createdAt"] = timestamp
     other_columns["updatedAt"] = timestamp
 
     # パラメータ用リストを作成
     query_parameters = [
         bigquery.ScalarQueryParameter(
-            "user_id", "INT64", user_id
+            "user_id", "STRING", user_id
         ),
         bigquery.ScalarQueryParameter(
-            "video_id", "INT64", video_id
+            "video_id", "STRING", video_id
         ),
     ]
 
@@ -66,20 +73,12 @@ def insert_user_video_table(
     values_placeholders = []
 
     for key, value in other_columns.items():
-        if isinstance(value, int):
-            query_parameters.append(
-                bigquery.ScalarQueryParameter(
-                    key, "INT64", value
-                )
+        query_parameters.append(
+            bigquery.ScalarQueryParameter(
+                key, "STRING", value
             )
-            values_placeholders.append(f"@{key}")
-        else:
-            query_parameters.append(
-                bigquery.ScalarQueryParameter(
-                    key, "STRING", value
-                )
-            )
-            values_placeholders.append(f"@{key}")
+        )
+        values_placeholders.append(f"@{key}")
 
     # 挿入クエリの実行
     insert_query = f"""
@@ -94,3 +93,9 @@ def insert_user_video_table(
     )
     insert_job.result()  # クエリが完了するのを待つ
     print("Insert completed as no duplicate existed.")
+
+    return PostVideoResponse(
+        status_code=201,
+        status_message="Job created",
+        youtube_id=video_id,
+    )

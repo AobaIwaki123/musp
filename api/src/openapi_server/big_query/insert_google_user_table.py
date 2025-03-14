@@ -1,16 +1,17 @@
 import datetime
 
 from google.cloud import bigquery
-
+from openapi_server.models.post_user_response import (
+    PostUserResponse,
+)
 
 def insert_google_user_table(
-    project_id,
-    dataset_id,
-    table_id,
-    user_id,
-    video_id,
-    other_columns,
-):
+    project_id: str,
+    dataset_id: str,
+    table_id: str,
+    google_id: str,
+    user_id: str,
+) -> PostUserResponse:
     client = bigquery.Client()
     table_ref = f"`{project_id}.{dataset_id}.{table_id}`"
 
@@ -18,17 +19,17 @@ def insert_google_user_table(
     check_query = f"""
     SELECT COUNT(*) as count
     FROM {table_ref}
-    WHERE userID = @user_id AND videoID = @video_id
+    WHERE userID = @user_id AND videoID = @google_id
     """
     check_job = client.query(
         check_query,
         job_config=bigquery.QueryJobConfig(
             query_parameters=[
                 bigquery.ScalarQueryParameter(
-                    "user_id", "INT64", user_id
+                    "user_id", "STRING", user_id
                 ),
                 bigquery.ScalarQueryParameter(
-                    "video_id", "INT64", video_id
+                    "google_id", "STRING", google_id
                 ),
             ]
         ),
@@ -38,7 +39,11 @@ def insert_google_user_table(
 
     if row.count > 0:
         print("Row already exists, skipping insert.")
-        return
+        return PostUserResponse(
+            status_code=200,
+            status_message="User already exists",
+            user_id=user_id,
+        )
 
     # `createdAt` と `updatedAt` を取得
     timestamp = datetime.datetime.utcnow().strftime(
@@ -46,16 +51,17 @@ def insert_google_user_table(
     )
 
     # 追加のカラムに `createdAt` と `updatedAt` を加える
+    other_columns = {}
     other_columns["createdAt"] = timestamp
     other_columns["updatedAt"] = timestamp
 
     # パラメータ用リストを作成
     query_parameters = [
         bigquery.ScalarQueryParameter(
-            "user_id", "INT64", user_id
+            "user_id", "STRING", user_id
         ),
         bigquery.ScalarQueryParameter(
-            "video_id", "INT64", video_id
+            "google_id", "STRING", google_id
         ),
     ]
 
@@ -66,20 +72,12 @@ def insert_google_user_table(
     values_placeholders = []
 
     for key, value in other_columns.items():
-        if isinstance(value, int):
-            query_parameters.append(
-                bigquery.ScalarQueryParameter(
-                    key, "INT64", value
-                )
+        query_parameters.append(
+            bigquery.ScalarQueryParameter(
+                key, "STRING", value
             )
-            values_placeholders.append(f"@{key}")
-        else:
-            query_parameters.append(
-                bigquery.ScalarQueryParameter(
-                    key, "STRING", value
-                )
-            )
-            values_placeholders.append(f"@{key}")
+        )
+        values_placeholders.append(f"@{key}")
 
     # 挿入クエリの実行
     insert_query = f"""
@@ -94,3 +92,9 @@ def insert_google_user_table(
     )
     insert_job.result()  # クエリが完了するのを待つ
     print("Insert completed as no duplicate existed.")
+
+    return PostUserResponse(
+        status_code=201,
+        status_message="User created",
+        user_id=user_id,
+    )
