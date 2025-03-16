@@ -4,7 +4,6 @@ import { signInOrUp } from "@/lib/login/signInAndUp";
 import { initializeApp } from "@firebase/app";
 import { getAuth, signInWithPopup } from "@firebase/auth";
 import { GoogleAuthProvider } from "@firebase/auth";
-import { Button } from "@mantine/core";
 import { useEffect } from "react";
 import { GoogleButton } from "../GoogleButton/GoogleButton";
 
@@ -46,7 +45,7 @@ async function signUp() {
 }
 
 async function testSignUp() {
-	storage.set("userID", "testUserID");
+	storage.set("userID", "testuser");
 
 	window.location.href = "/";
 }
