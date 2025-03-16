@@ -13,6 +13,9 @@ from openapi_server.process_source.tasks.upload_source import (
 from openapi_server.process_source.tasks.update_video_status import (
     update_video_status,
 )
+from openapi_server.process_source.tasks.publish_source import (
+    publish_source,
+)
 
 __all__ = [
     "fetch_source",
@@ -20,4 +23,5 @@ __all__ = [
     "upload_source",
     "post_run",
     "update_video_status",
+    "publish_source",
 ]

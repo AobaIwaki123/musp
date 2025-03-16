@@ -7,6 +7,7 @@ from openapi_server.process_source.tasks import (
     separate_source,
     update_video_status,
     upload_source,
+    publish_source,
 )
 from openapi_server.utils import (
     get_youtube_video_id,
@@ -50,8 +51,9 @@ def process_source(self, data: dict) -> str:
         fetch_source.s(),
         separate_source.s(),
         upload_source.s(),
-        post_run.s(),
         update_video_status.s(TaskStatus.COMPLETED.value),
+        publish_source.s(),
+        post_run.s(),
     )
     # 非同期実行
 
