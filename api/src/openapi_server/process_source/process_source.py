@@ -14,6 +14,7 @@ from openapi_server.utils import (
 )
 from openapi_server.big_query import is_video_exists
 from celery_server.celery_app import app
+from openapi_server.models.custom import TaskStatus
 
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
 DATASET_ID = os.getenv("DATASET_ID")
@@ -43,12 +44,14 @@ def process_source(self, data: dict) -> str:
 
     # Celeryの処理チェーンを作成
     task_chain = chain(
-        update_video_status.s(data, "processing"),
+        update_video_status.s(
+            data, TaskStatus.PROCESSING.value
+        ),
         fetch_source.s(),
         separate_source.s(),
         upload_source.s(),
         post_run.s(),
-        update_video_status.s("completed"),
+        update_video_status.s(TaskStatus.COMPLETED.value),
     )
     # 非同期実行
 

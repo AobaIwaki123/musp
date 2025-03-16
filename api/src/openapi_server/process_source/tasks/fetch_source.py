@@ -18,7 +18,7 @@ def fetch_source(self, data: dict) -> dict:
     out_path = f"tmp/{video_id}/source.webm"
 
     self.update_state(
-        state=TaskStatus.STARTED.value,
+        state=TaskStatus.PROCESSING.value,
         meta={"step": "Downloading", "progress": 0},
     )
 
@@ -29,7 +29,7 @@ def fetch_source(self, data: dict) -> dict:
     )
 
     self.update_state(
-        state=TaskStatus.SUCCESS.value,
+        state=TaskStatus.COMPLETED.value,
         meta={"step": "Download completed", "progress": 33},
     )
 

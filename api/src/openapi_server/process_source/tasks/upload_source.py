@@ -23,7 +23,7 @@ def upload_source(self, data: dict) -> dict:
     source_path = f"tmp/{video_id}/separated/htdemucs/source/vocals.wav"
 
     self.update_state(
-        state=TaskStatus.STARTED.value,
+        state=TaskStatus.PROCESSING.value,
         meta={"step": "Uploading to cloud"},
     )
 
@@ -35,7 +35,7 @@ def upload_source(self, data: dict) -> dict:
     )
 
     self.update_state(
-        state=TaskStatus.SUCCESS.value,
+        state=TaskStatus.COMPLETED.value,
         meta={"step": "Upload completed"},
     )
 

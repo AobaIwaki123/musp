@@ -22,7 +22,7 @@ def update_video_status(
 
     """動画のステータスを更新する"""
     self.update_state(
-        state=TaskStatus.STARTED.value,
+        state=TaskStatus.PROCESSING.value,
         meta={"step": "Updating video status"},
     )
 
@@ -35,7 +35,7 @@ def update_video_status(
     )
 
     self.update_state(
-        state=TaskStatus.SUCCESS.value,
+        state=TaskStatus.COMPLETED.value,
         meta={
             "step": "Video status updated",
         },
