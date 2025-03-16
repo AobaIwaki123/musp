@@ -3,7 +3,7 @@ import { LoginButton } from "@/components/Buttons/LoginButton/LoginButton";
 import { useState } from "react";
 
 export function LoginModal() {
-	const [opened, setOpened] = useState(true);
+	const [opened, _] = useState(true);
 
 	return (
 		<>

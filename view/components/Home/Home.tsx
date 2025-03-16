@@ -68,7 +68,7 @@ export function Home() {
 	return (
 		<>
 			{isShowLoginModal && <LoginModal />}
-			<ReloadButton onClick={handleAddWav} />
+			{!isShowLoginModal && <ReloadButton onClick={handleAddWav} />}
 			<MuspForm onSubmit={handleAddVideo} />
 			<ApplicationGrid videos={videoIDList} />
 		</>
