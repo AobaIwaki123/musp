@@ -29,6 +29,7 @@
     "@next/bundle-analyzer": "^15.1.5",
     "@tabler/icons-react": "^3.28.1",
     "@zodios/core": "^10.9.6",
+    "@zodios/plugins": "^10.6.0",
     "axios": "^1.8.3",
     "jotai": "^2.12.2",
     "next": "15.1.5",

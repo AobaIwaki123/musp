@@ -3736,6 +3736,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@zodios/plugins@npm:^10.6.0":
+  version: 10.6.0
+  resolution: "@zodios/plugins@npm:10.6.0"
+  dependencies:
+    qs: "npm:^6.11.0"
+  peerDependencies:
+    "@zodios/core": ^10.x
+    axios: ^0.x || ^1.0.0
+  checksum: 10c0/ed51be39c38b9116e1b9b5523ca4c335023656a3a22b9871006320228a00a4668d4cc94ee398d37105d804c51988265b8252393086e9ba9acfa5e782833ab3a7
+  languageName: node
+  linkType: hard
+
 "abab@npm:^2.0.6":
   version: 2.0.6
   resolution: "abab@npm:2.0.6"
@@ -8716,6 +8728,7 @@ __metadata:
     "@types/node": "npm:^22.10.7"
     "@types/react": "npm:19.0.7"
     "@zodios/core": "npm:^10.9.6"
+    "@zodios/plugins": "npm:^10.6.0"
     ajv: "npm:^8.17.1"
     ajv-draft-04: "npm:^1.0.0"
     axios: "npm:^1.8.3"
@@ -10110,7 +10123,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.12.3":
+"qs@npm:^6.11.0, qs@npm:^6.12.3":
   version: 6.14.0
   resolution: "qs@npm:6.14.0"
   dependencies:
