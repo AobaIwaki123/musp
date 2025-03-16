@@ -28,6 +28,9 @@ services:
       context: api
       target: service
     container_name: prod-celery
+    volumes:
+      - ./api/src:/root/app
+      - ./secret:/root/secret
     command: celery -A celery_server.celery_app worker --loglevel=info
     deploy:
       resources:
@@ -46,6 +49,9 @@ services:
       context: api
       target: service
     container_name: prod-cron
+    volumes:
+      - ./api/src:/root/app
+      - ./secret:/root/secret
     environment:
       - CRON_INTERVAL_MINUTE=60
     command: python cron_job/refresh_wav_url.py

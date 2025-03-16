@@ -8,7 +8,7 @@ import { createApiClient } from '@/client/client';
 //   throw new Error('NEXT_PUBLIC_API_URL is required');
 // }
 
-export const api = createApiClient('https://musp-dev-api.shaoba.tech');
+export const api = createApiClient('https://musp-api.shaoba.tech');
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 

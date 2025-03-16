@@ -3,6 +3,8 @@ import { api } from '@/client/api';
 import type { PostUserRequestType } from '@/client/client';
 import { storage } from '@/helper/localStorageHelper';
 
+const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+
 export const signInOrUp = async (firebaseUser: FirebaseUser) => {
   try {
     console.log('firebaseUser', firebaseUser);
@@ -13,7 +15,9 @@ export const signInOrUp = async (firebaseUser: FirebaseUser) => {
     };
 
     console.log(data);
-    const res = await api.postUsers(data);
+    const res = await api.postUsers(data, {
+      headers: { 'X-API-KEY': apiKey },
+    });
     console.log(res);
 
     const user_id = res.user_id;

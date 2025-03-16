@@ -22,6 +22,7 @@ from openapi_server.apis.post_api import router as POSTApiRouter
 
 origins = [
     os.getenv("FRONTEND_URL", "http://localhost:3000"),
+    "https://musp.shaoba.tech",
 ]
 
 app = FastAPI(
