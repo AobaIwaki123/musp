@@ -2,6 +2,7 @@ import concurrent.futures
 import os
 import time
 import logging
+from datetime import datetime, timezone
 from typing import Optional
 
 from google.cloud import bigquery
@@ -37,27 +38,33 @@ def fetch_completed_video_ids() -> list[str]:
     logging.info(
         "Fetching completed video IDs from BigQuery..."
     )
-    credentials: Optional[service_account.Credentials] = (
-        None
-    )
-    if CREDENTIAL_PATH and os.path.exists(CREDENTIAL_PATH):
-        credentials = service_account.Credentials.from_service_account_file(
+    try:
+        credentials: Optional[
+            service_account.Credentials
+        ] = None
+        if CREDENTIAL_PATH and os.path.exists(
             CREDENTIAL_PATH
+        ):
+            credentials = service_account.Credentials.from_service_account_file(
+                CREDENTIAL_PATH
+            )
+        bq_client = bigquery.Client(
+            credentials=credentials, project=BQ_PROJECT
         )
-    bq_client = bigquery.Client(
-        credentials=credentials, project=BQ_PROJECT
-    )
 
-    query: str = f"""
-        SELECT videoID FROM `{BQ_PROJECT}.{BQ_DATASET}.{BQ_STATUS_TABLE}`
-        WHERE status = '{TaskStatus.COMPLETED.value}'
-    """
-    query_job = bq_client.query(query)
-    video_ids = [row.videoID for row in query_job]
-    logging.info(
-        f"Fetched {len(video_ids)} completed video IDs."
-    )
-    return video_ids
+        query: str = f"""
+            SELECT videoID FROM `{BQ_PROJECT}.{BQ_DATASET}.{BQ_STATUS_TABLE}`
+            WHERE status = '{TaskStatus.COMPLETED.value}'
+        """
+        query_job = bq_client.query(query)
+        video_ids = [row.videoID for row in query_job]
+        logging.info(
+            f"Fetched {len(video_ids)} completed video IDs."
+        )
+        return video_ids
+    except Exception as e:
+        logging.error(f"Error fetching video IDs: {e}")
+        return []
 
 
 def process_video_id(video_id: str, duration: int) -> None:
@@ -67,44 +74,54 @@ def process_video_id(video_id: str, duration: int) -> None:
         video_id (str): 署名付き URL を生成する対象の videoID。
         duration (int): URL の有効期限（分）。
     """
-    logging.info(f"Processing video ID: {video_id}")
-    blob_name: str = f"{video_id}/vocals.wav"
-    wav_url: Optional[str] = get_download_link(
-        BUCKET_NAME, blob_name, expiration_minutes=duration
-    )
-
-    if not wav_url:
-        logging.warning(
-            f"No URL generated for {video_id}. Skipping..."
+    try:
+        logging.info(f"Processing video ID: {video_id}")
+        blob_name: str = f"{video_id}/vocals.wav"
+        wav_url: Optional[str] = get_download_link(
+            BUCKET_NAME,
+            blob_name,
+            expiration_minutes=duration,
         )
-        return
 
-    logging.info(
-        f"Generated signed URL for {video_id}: {wav_url}"
-    )
-    credentials: Optional[service_account.Credentials] = (
-        None
-    )
-    if CREDENTIAL_PATH and os.path.exists(CREDENTIAL_PATH):
-        credentials = service_account.Credentials.from_service_account_file(
+        if not wav_url:
+            logging.warning(
+                f"No URL generated for {video_id}. Skipping..."
+            )
+            return
+
+        logging.info(
+            f"Generated signed URL for {video_id}: {wav_url}"
+        )
+        credentials: Optional[
+            service_account.Credentials
+        ] = None
+        if CREDENTIAL_PATH and os.path.exists(
             CREDENTIAL_PATH
+        ):
+            credentials = service_account.Credentials.from_service_account_file(
+                CREDENTIAL_PATH
+            )
+        bq_client = bigquery.Client(
+            credentials=credentials, project=BQ_PROJECT
         )
-    bq_client = bigquery.Client(
-        credentials=credentials, project=BQ_PROJECT
-    )
 
-    table_id: str = (
-        f"{BQ_PROJECT}.{BQ_DATASET}.{BQ_WAVURL_TABLE}"
-    )
-    query: str = f"""
-        INSERT INTO `{table_id}` (videoID, wavURL)
-        VALUES ('{video_id}', '{wav_url}')
-        ON DUPLICATE KEY UPDATE wavURL = VALUES(wavURL)
-    """
-    bq_client.query(query)
-    logging.info(
-        f"Inserted/Updated {video_id} in BigQuery."
-    )
+        table_id: str = (
+            f"{BQ_PROJECT}.{BQ_DATASET}.{BQ_WAVURL_TABLE}"
+        )
+        now_utc = datetime.now(timezone.utc).isoformat()
+        query: str = f"""
+            INSERT INTO `{table_id}` (videoID, wavURL, createdAt, updatedAt)
+            VALUES ('{video_id}', '{wav_url}', '{now_utc}', '{now_utc}')
+            ON DUPLICATE KEY UPDATE wavURL = VALUES(wavURL), updatedAt = '{now_utc}'
+        """
+        bq_client.query(query)
+        logging.info(
+            f"Inserted/Updated {video_id} in BigQuery."
+        )
+    except Exception as e:
+        logging.error(
+            f"Error processing video ID {video_id}: {e}"
+        )
 
 
 def refresh_wav_url(duration: int = 60) -> None:
@@ -116,6 +133,12 @@ def refresh_wav_url(duration: int = 60) -> None:
     """
     logging.info("Starting refresh_wav_url job...")
     video_ids: list[str] = fetch_completed_video_ids()
+
+    if not video_ids:
+        logging.warning(
+            "No completed video IDs found. Exiting job."
+        )
+        return
 
     with (
         concurrent.futures.ThreadPoolExecutor() as executor
@@ -129,13 +152,7 @@ def refresh_wav_url(duration: int = 60) -> None:
 
 if __name__ == "__main__":
     logging.info("Starting cron job...")
-    # refresh_wav_url(CRON_INTERVAL_MINUTE)
-    # next_run_time: int = (
-    #     CRON_INTERVAL_MINUTE - 5
-    # )  # 5分前に再実行
-    # while True:
-    #     logging.info(
-    #         f"Sleeping for {next_run_time} minutes before next execution..."
-    #     )
-    #     time.sleep(next_run_time * 60)
-    refresh_wav_url(CRON_INTERVAL_MINUTE)
+    try:
+        refresh_wav_url(CRON_INTERVAL_MINUTE)
+    except Exception as e:
+        logging.error(f"Critical error in cron job: {e}")
