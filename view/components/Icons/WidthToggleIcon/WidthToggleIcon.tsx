@@ -1,15 +1,15 @@
 "use client";
 
+import { isHalfWidthAtom } from "@/jotai/atom";
 import { ActionIcon, useMantineColorScheme } from "@mantine/core";
 import { IconColumns1, IconColumns2 } from "@tabler/icons-react";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { isHalfWidthAtom } from "../../../jotai/atom";
 import { ModeIconWrapper } from "../ModeIconWrapper/ModeIconWrapper";
 
 export function WidthToggleIcon() {
 	const [isHalfWidth, setIsHalfWidth] = useAtom(isHalfWidthAtom);
-	
+
 	const toggleLayout = () => {
 		setIsHalfWidth((prev) => !prev);
 	};

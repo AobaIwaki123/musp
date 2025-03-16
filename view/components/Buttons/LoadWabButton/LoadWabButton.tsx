@@ -1,8 +1,8 @@
 "use client";
 
+import { wavFileAtom } from "@/jotai/atom";
 import { Button } from "@mantine/core";
 import { useAtom } from "jotai";
-import { wavFileAtom } from "../../../jotai/atom";
 
 export function LoadWabButton() {
 	const [wavFile, setWavFile] = useAtom(wavFileAtom);

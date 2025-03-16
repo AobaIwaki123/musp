@@ -1,8 +1,8 @@
 "use client";
 
+import { isHalfWidthAtom } from "@/jotai/atom";
 import { Container, Grid } from "@mantine/core";
 import { useAtom } from "jotai";
-import { isHalfWidthAtom } from "../../../jotai/atom";
 import { ApplicationCard } from "./ApplicationCard/ApplicationCard";
 
 export interface Video {

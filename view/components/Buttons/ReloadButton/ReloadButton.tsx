@@ -1,18 +1,16 @@
 "use client";
 
+import { wavFileAtom } from "@/jotai/atom";
 import { Button } from "@mantine/core";
 import { IconRefresh } from "@tabler/icons-react";
 import { useAtom } from "jotai";
-import { wavFileAtom } from "../../../jotai/atom";
 import classes from "./ReloadButton.module.css";
 
 interface ReloadButtonProps {
 	onClick: () => void; // クリック時の関数
 }
 
-export const ReloadButton = ({
-	onClick,
-}: ReloadButtonProps) => {
+export const ReloadButton = ({ onClick }: ReloadButtonProps) => {
 	const [wavFile] = useAtom(wavFileAtom);
 
 	return (
