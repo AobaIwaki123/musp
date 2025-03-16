@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import os
 from typing import Optional
 
 from fastapi import (  # noqa: F401
@@ -32,7 +33,7 @@ from openapi_server.models.extra_models import TokenModel
 # APIキーのヘッダー名を設定
 API_KEY_NAME = "X-API-KEY"
 VALID_API_KEYS = {  # 実際の運用ではデータベースなどで管理する
-    "secret-api-key-123": "user1",
+    os.getenv("API_KEY"): "user1",
     "another-secret-key": "user2",
 }
 
