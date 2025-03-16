@@ -59,5 +59,5 @@ export const LoginButton = () => {
 		}
 	}, []);
 
-	return <GoogleButton onClick={testSignUp}>Googleでサインイン</GoogleButton>;
+	return <GoogleButton onClick={signUp}>Googleでサインイン</GoogleButton>;
 };
