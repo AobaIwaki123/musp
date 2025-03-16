@@ -1,32 +1,39 @@
 "use client";
 
+import { api } from "@/client/api";
+import type { VideoIDAndWavURLType } from "@/client/client";
 import { ReloadButton } from "@/components/Buttons/ReloadButton/ReloadButton";
+import { storage } from "@/helper/localStorageHelper";
 import { isShowLoginModalAtom } from "@/jotai/atom";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
-import type { Video } from "./ApplicationGrid/ApplicationGrid";
 import { LoginModal } from "./LoginModal/LoginModal";
 import { MuspForm } from "./MuspForm/MuspForm";
 
+const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+
 export function Home() {
-	const [videoIDList, setVideoIDList] = useState<Video[]>([]);
+	const [videoIDList, setVideoIDList] = useState<VideoIDAndWavURLType[]>([]);
 	const [isShowLoginModal] = useAtom(isShowLoginModalAtom);
 
 	useEffect(() => {
-		// const res = await api.getVideoAndWav(UserID);
-		const res: Video[] = [
-			{ videoID: "hedyQY81WeY", wav_url: null },
-			{ videoID: "JQowMIY2bOw", wav_url: null },
-			{ videoID: "k7eGPMCy_ms", wav_url: null },
-			{ videoID: "B2teLF9l4aI", wav_url: null },
-			{ videoID: "ibI6-kvD1nc", wav_url: null },
-			{ videoID: "qP52sh7PzYA", wav_url: null },
-			{ videoID: "f8k8vDcCEfc", wav_url: null },
-			{ videoID: "vcp7XKBylkM", wav_url: null },
-		];
-
-		setVideoIDList(res);
+		const userID = storage.get("userID", "");
+		if (!userID) {
+			return;
+		}
+		api
+			.getUser_id({
+				params: { user_id: userID },
+				headers: { "X-API-KEY": apiKey },
+			})
+			.then((res) => {
+				setVideoIDList(res.data);
+			})
+			.catch((err) => {
+				console.error(err);
+				return [];
+			});
 	}, []);
 
 	const handleAddVideo = (url: string) => {

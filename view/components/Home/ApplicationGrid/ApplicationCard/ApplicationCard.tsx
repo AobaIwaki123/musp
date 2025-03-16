@@ -6,17 +6,13 @@ import { useState } from "react";
 import { wavFileAtom } from "@/jotai/atom";
 import { useAtom } from "jotai";
 
+import type { VideoIDAndWavURLType } from "@/client/client";
 import { LoaderIcon } from "./LoaderIcon";
 import { PlayButton } from "./PlayButton/PlayButton";
 
 import classes from "./ApplicationCard.module.css";
 
-interface ApplicationCardProps {
-	videoID: string;
-	wav_url?: string | null; // wav_urlを追加（nullable）
-}
-
-export function ApplicationCard({ videoID, wav_url }: ApplicationCardProps) {
+export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 	const [isPressed, setIsPressed] = useState(false);
 	const [wavFile, setWavFile] = useAtom(wavFileAtom);
 
@@ -28,7 +24,7 @@ export function ApplicationCard({ videoID, wav_url }: ApplicationCardProps) {
 
 	return (
 		<Card
-			key={videoID}
+			key={youtube_id}
 			p="0"
 			radius="md"
 			component="a"
@@ -53,7 +49,7 @@ export function ApplicationCard({ videoID, wav_url }: ApplicationCardProps) {
 			}}
 		>
 			<AspectRatio ratio={1920 / 1080}>
-				<Image src={`https://img.youtube.com/vi/${videoID}/hqdefault.jpg`} />
+				<Image src={`https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`} />
 				{!wav_url ? <LoaderIcon /> : <PlayButton />}
 			</AspectRatio>
 		</Card>
