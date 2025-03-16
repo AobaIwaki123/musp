@@ -1,16 +1,13 @@
 services:
   prod-view:
-    # image: node:20-alpine
     build:
       context: view
       target: prod
     container_name: prod-view
-    working_dir: /app
     volumes:
       - ./view:/app
-      - ./view/.pnpm-store:/app/.pnpm-store
-      - ./view/.next:/app/.next
-      - ./openapi.yaml:/app/openapi.yaml
+    working_dir: /app
+    command: yarn start
     env_file:
       ./view/prod.env
 
@@ -31,9 +28,6 @@ services:
       context: api
       target: service
     container_name: prod-celery
-    volumes:
-      - ./api/src:/root/app
-      - ./secret:/root/secret
     command: celery -A celery_server.celery_app worker --loglevel=info
     deploy:
       resources:
@@ -47,13 +41,24 @@ services:
     depends_on:
       - prod-redis
 
+  prod-cron:
+    build:
+      context: api
+      target: service
+    container_name: prod-cron
+    environment:
+      - CRON_INTERVAL_MINUTE=60
+    command: python cron_job/refresh_wav_url.py
+    env_file:
+      ./api/prod.env
+
   prod-redis:
     image: redis:7.4
     container_name: prod-redis
 
-  cloudflare:
+  prod-cloudflare:
     image: "cloudflare/cloudflared:2025.2.1"
-    container_name: "cloudflare"
+    container_name: "prod-cloudflare"
     volumes: [ './cloudflare:/home/nonroot/.cloudflared' ]
     command: tunnel run
     restart: unless-stopped

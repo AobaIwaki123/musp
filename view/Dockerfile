@@ -1,45 +1,39 @@
-# Use the official Node.js image as the base image
-FROM node:20-alpine AS base
+FROM node:22-alpine AS dev
 
-# Set the working directory
+ENV NODE_ENV=development
+
 WORKDIR /app
 
-# pnpmをインストール
-RUN npm install -g pnpm
+RUN npm install -g npm@11.2.0
 
-# pnpm のグローバルバイナリディレクトリを設定
-RUN pnpm config set global-bin-dir /usr/local/bin
+# Enable pnpm
+ENV YARN_HOME="/yarn"
+ENV PATH="$YARN_HOME:$PATH"
+RUN corepack enable
 
-RUN pnpm add openapi-zod-client -g
+CMD ["yarn", "dev"]
 
-FROM base AS dev
+FROM node:22-alpine AS prod
 
-# Expose the port the app runs on
-EXPOSE 3000
+ENV NODE_ENV=production
 
-# パッケージファイルをコピーして依存関係をインストール
-COPY package.json pnpm-lock.yaml ./
+WORKDIR /app
 
-RUN pnpm install
+# Enable pnpm
+ENV YARN_HOME="/yarn"
+ENV PATH="$YARN_HOME:$PATH"
+RUN corepack enable
 
-CMD ["pnpm","dev"]
+COPY . .
 
-FROM base AS prod
-
-# パッケージファイルをコピーして依存関係をインストール
-COPY package.json pnpm-lock.yaml ./
-
-RUN pnpm install
+RUN yarn install
 
 EXPOSE 3000
 
 # Copy the rest of your app's source code from your host to your image filesystem.
-COPY . .
 
 # Build the app
-RUN pnpm build
 
-# Run the web service on container startup.
-CMD ["pnpm","start"]
+# RUN yarn build
 
-
+CMD ["yarn", "start"]

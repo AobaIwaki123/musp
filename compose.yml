@@ -1,6 +1,5 @@
 services:
   view:
-    # image: node:20-alpine
     build:
       context: view
       target: dev
@@ -8,13 +7,14 @@ services:
     working_dir: /app
     volumes:
       - ./view:/app
-      - ./view/.pnpm-store:/app/.pnpm-store
+      - ./view/node_modules:/app/node_modules
       - ./openapi.yaml:/app/openapi.yaml
     ports:
       - 3000:3000
+    command: yarn dev
     env_file:
       ./view/dev.env
-    command: pnpm dev
+    
   api:
     build:
       context: api
@@ -50,8 +50,23 @@ services:
     depends_on:
       - redis
 
+  cron:
+    build:
+      context: api
+      target: service
+    container_name: cron
+    volumes:
+      - ./api/src:/root/app
+      - ./secret:/root/secret
+    environment:
+      - CRON_INTERVAL_MINUTE=60
+    command: python cron_job/refresh_wav_url.py
+    env_file:
+      ./api/dev.env
+
   redis:
     image: redis:7.4
     container_name: redis
     ports:
       - 6379:6379
+

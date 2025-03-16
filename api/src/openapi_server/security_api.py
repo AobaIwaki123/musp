@@ -1,9 +1,18 @@
 # coding: utf-8
 
-from typing import List
+import os
+from typing import Optional
 
-from fastapi import Depends, Security  # noqa: F401
-from fastapi.openapi.models import OAuthFlowImplicit, OAuthFlows  # noqa: F401
+from fastapi import (  # noqa: F401
+    Depends,
+    HTTPException,
+    Security,
+    status,
+)
+from fastapi.openapi.models import (  # noqa: F401
+    OAuthFlowImplicit,
+    OAuthFlows,
+)
 from fastapi.security import (  # noqa: F401
     HTTPAuthorizationCredentials,
     HTTPBasic,
@@ -14,26 +23,43 @@ from fastapi.security import (  # noqa: F401
     OAuth2PasswordBearer,
     SecurityScopes,
 )
-from fastapi.security.api_key import APIKeyCookie, APIKeyHeader, APIKeyQuery  # noqa: F401
-
+from fastapi.security.api_key import (  # noqa: F401
+    APIKeyCookie,
+    APIKeyHeader,
+    APIKeyQuery,
+)
 from openapi_server.models.extra_models import TokenModel
+
+# APIキーのヘッダー名を設定
+API_KEY_NAME = "X-API-KEY"
+VALID_API_KEYS = {  # 実際の運用ではデータベースなどで管理する
+    os.getenv("API_KEY"): "user1",
+    "another-secret-key": "user2",
+}
+
+api_key_header = APIKeyHeader(
+    name=API_KEY_NAME, auto_error=False
+)
 
 
 def get_token_ApiKeyAuth(
-    token_api_key_header: str = Security(
-        APIKeyHeader(name="X-API-KEY", auto_error=False)
+    token_api_key_header: Optional[str] = Security(
+        api_key_header
     ),
 ) -> TokenModel:
     """
     Check and retrieve authentication information from api_key.
 
-    :param token_api_key_header API key provided by Authorization[X-API-KEY] header
-    
-    
-    :type token_api_key_header: str
-    :return: Information attached to provided api_key or None if api_key is invalid or does not allow access to called API
-    :rtype: TokenModel | None
+    :param token_api_key_header: API key provided by Authorization[X-API-KEY] header
+    :return: Information attached to provided api_key or None if api_key is invalid
     """
+    if token_api_key_header in VALID_API_KEYS:
+        return TokenModel(
+            sub=VALID_API_KEYS[token_api_key_header]
+        )
 
-    ...
-
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or missing API key",
+        headers={"WWW-Authenticate": "API key"},
+    )
