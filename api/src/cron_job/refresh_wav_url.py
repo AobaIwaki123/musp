@@ -108,16 +108,42 @@ def process_video_id(video_id: str, duration: int) -> None:
         table_id: str = (
             f"{BQ_PROJECT}.{BQ_DATASET}.{BQ_WAVURL_TABLE}"
         )
-        now_utc = datetime.now(timezone.utc).isoformat()
+        now_utc = datetime.now(timezone.utc)
+
         query: str = f"""
-            INSERT INTO `{table_id}` (videoID, wavURL, createdAt, updatedAt)
-            VALUES ('{video_id}', '{wav_url}', '{now_utc}', '{now_utc}')
-            ON DUPLICATE KEY UPDATE wavURL = VALUES(wavURL), updatedAt = '{now_utc}'
+            MERGE `{table_id}` AS target
+            USING (SELECT @video_id AS videoID, @wav_url AS wavURL, @created_at AS createdAt, @updated_at AS updatedAt) AS source
+            ON target.videoID = source.videoID
+            WHEN MATCHED THEN
+                UPDATE SET target.wavURL = source.wavURL, target.updatedAt = source.updatedAt
+            WHEN NOT MATCHED THEN
+                INSERT (videoID, wavURL, createdAt, updatedAt)
+                VALUES (source.videoID, source.wavURL, source.createdAt, source.updatedAt)
         """
-        bq_client.query(query)
+
+        query_parameters = [
+            bigquery.ScalarQueryParameter(
+                "video_id", "STRING", video_id
+            ),
+            bigquery.ScalarQueryParameter(
+                "wav_url", "STRING", wav_url
+            ),
+            bigquery.ScalarQueryParameter(
+                "created_at", "TIMESTAMP", now_utc
+            ),
+            bigquery.ScalarQueryParameter(
+                "updated_at", "TIMESTAMP", now_utc
+            ),
+        ]
+
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=query_parameters
+        )
+        bq_client.query(query, job_config=job_config)
         logging.info(
             f"Inserted/Updated {video_id} in BigQuery."
         )
+
     except Exception as e:
         logging.error(
             f"Error processing video ID {video_id}: {e}"
