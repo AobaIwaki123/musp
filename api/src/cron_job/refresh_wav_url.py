@@ -75,7 +75,6 @@ def process_video_id(video_id: str, duration: int) -> None:
         duration (int): URL の有効期限（分）。
     """
     try:
-        logging.info(f"Processing video ID: {video_id}")
         blob_name: str = f"{video_id}/vocals.wav"
         wav_url: Optional[str] = get_download_link(
             BUCKET_NAME,
@@ -84,14 +83,8 @@ def process_video_id(video_id: str, duration: int) -> None:
         )
 
         if not wav_url:
-            logging.warning(
-                f"No URL generated for {video_id}. Skipping..."
-            )
             return
 
-        logging.info(
-            f"Generated signed URL for {video_id}: {wav_url}"
-        )
         credentials: Optional[
             service_account.Credentials
         ] = None
@@ -140,10 +133,6 @@ def process_video_id(video_id: str, duration: int) -> None:
             query_parameters=query_parameters
         )
         bq_client.query(query, job_config=job_config)
-        logging.info(
-            f"Inserted/Updated {video_id} in BigQuery."
-        )
-
     except Exception as e:
         logging.error(
             f"Error processing video ID {video_id}: {e}"
@@ -157,13 +146,8 @@ def refresh_wav_url(duration: int = 60) -> None:
     Args:
         duration (int, optional): 生成する署名付き URL の有効期限（分）。デフォルトは 60 分。
     """
-    logging.info("Starting refresh_wav_url job...")
     video_ids: list[str] = fetch_completed_video_ids()
-
     if not video_ids:
-        logging.warning(
-            "No completed video IDs found. Exiting job."
-        )
         return
 
     with (
@@ -173,12 +157,16 @@ def refresh_wav_url(duration: int = 60) -> None:
             lambda vid: process_video_id(vid, duration),
             video_ids,
         )
-    logging.info("Completed refresh_wav_url job.")
 
 
 if __name__ == "__main__":
-    logging.info("Starting cron job...")
-    try:
-        refresh_wav_url(CRON_INTERVAL_MINUTE)
-    except Exception as e:
-        logging.error(f"Critical error in cron job: {e}")
+    while True:
+        logging.info("Starting refresh_wav_url job...")
+        try:
+            refresh_wav_url(duration=CRON_INTERVAL_MINUTE+5) # 5分追加
+        except Exception as e:
+            logging.error(f"Error in cron job: {e}")
+        logging.info(
+            f"Sleeping for {CRON_INTERVAL_MINUTE} minutes before next run..."
+        )
+        time.sleep(CRON_INTERVAL_MINUTE * 60)

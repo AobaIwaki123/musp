@@ -58,6 +58,7 @@ services:
       - ./secret:/root/secret
     environment:
       - CRON_INTERVAL_MINUTE=60
+    command: python cron_job/refresh_wav_url.py
     env_file:
       ./api/dev.env
 
