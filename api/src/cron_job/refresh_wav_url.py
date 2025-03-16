@@ -1,6 +1,7 @@
 import concurrent.futures
 import os
 import time
+import logging
 from typing import Optional
 
 from google.cloud import bigquery
@@ -8,14 +9,23 @@ from google.oauth2 import service_account
 from openapi_server.cloud_storage import get_download_link
 from openapi_server.models.custom import TaskStatus
 
+# ロギング設定
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
 CREDENTIAL_PATH = os.getenv(
     "GOOGLE_APPLICATION_CREDENTIALS"
 )
-BUCKET_NAME = "mudp-dev"  # バケット名を指定
+BUCKET_NAME = "musp-dev"  # バケット名を指定
 BQ_PROJECT = "zennaihackason"  # BigQuery プロジェクト ID
 BQ_DATASET = "musp_v3"  # BigQuery データセット名
 BQ_STATUS_TABLE = "videoID-status"
 BQ_WAVURL_TABLE = "videoID-wavURL"
+CRON_INTERVAL_MINUTE = int(
+    os.getenv("CRON_INTERVAL_MINUTE", 60)
+)
 
 
 def fetch_completed_video_ids() -> list[str]:
@@ -24,6 +34,9 @@ def fetch_completed_video_ids() -> list[str]:
     Returns:
         list[str]: COMPLETED の videoID のリスト。
     """
+    logging.info(
+        "Fetching completed video IDs from BigQuery..."
+    )
     credentials: Optional[service_account.Credentials] = (
         None
     )
@@ -40,7 +53,11 @@ def fetch_completed_video_ids() -> list[str]:
         WHERE status = '{TaskStatus.COMPLETED.value}'
     """
     query_job = bq_client.query(query)
-    return [row.videoID for row in query_job]
+    video_ids = [row.videoID for row in query_job]
+    logging.info(
+        f"Fetched {len(video_ids)} completed video IDs."
+    )
+    return video_ids
 
 
 def process_video_id(video_id: str, duration: int) -> None:
@@ -50,14 +67,21 @@ def process_video_id(video_id: str, duration: int) -> None:
         video_id (str): 署名付き URL を生成する対象の videoID。
         duration (int): URL の有効期限（分）。
     """
+    logging.info(f"Processing video ID: {video_id}")
     blob_name: str = f"{video_id}/vocals.wav"
     wav_url: Optional[str] = get_download_link(
         BUCKET_NAME, blob_name, expiration_minutes=duration
     )
 
     if not wav_url:
+        logging.warning(
+            f"No URL generated for {video_id}. Skipping..."
+        )
         return
 
+    logging.info(
+        f"Generated signed URL for {video_id}: {wav_url}"
+    )
     credentials: Optional[service_account.Credentials] = (
         None
     )
@@ -78,6 +102,9 @@ def process_video_id(video_id: str, duration: int) -> None:
         ON DUPLICATE KEY UPDATE wavURL = VALUES(wavURL)
     """
     bq_client.query(query)
+    logging.info(
+        f"Inserted/Updated {video_id} in BigQuery."
+    )
 
 
 def refresh_wav_url(duration: int = 60) -> None:
@@ -87,6 +114,7 @@ def refresh_wav_url(duration: int = 60) -> None:
     Args:
         duration (int, optional): 生成する署名付き URL の有効期限（分）。デフォルトは 60 分。
     """
+    logging.info("Starting refresh_wav_url job...")
     video_ids: list[str] = fetch_completed_video_ids()
 
     with (
@@ -96,12 +124,18 @@ def refresh_wav_url(duration: int = 60) -> None:
             lambda vid: process_video_id(vid, duration),
             video_ids,
         )
+    logging.info("Completed refresh_wav_url job.")
 
 
 if __name__ == "__main__":
-    duration: int = 60  # 認証URLの有効期限（分）
-    refresh_wav_url(duration)
-    next_run_time: int = duration - 5  # 5分前に再実行
-    while True:
-        time.sleep(next_run_time * 60)
-        refresh_wav_url(duration)
+    logging.info("Starting cron job...")
+    # refresh_wav_url(CRON_INTERVAL_MINUTE)
+    # next_run_time: int = (
+    #     CRON_INTERVAL_MINUTE - 5
+    # )  # 5分前に再実行
+    # while True:
+    #     logging.info(
+    #         f"Sleeping for {next_run_time} minutes before next execution..."
+    #     )
+    #     time.sleep(next_run_time * 60)
+    refresh_wav_url(CRON_INTERVAL_MINUTE)
