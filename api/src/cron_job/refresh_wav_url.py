@@ -19,7 +19,11 @@ BQ_WAVURL_TABLE = "videoID-wavURL"
 
 
 def fetch_completed_video_ids() -> List[str]:
-    """COMPLETED の videoID を取得"""
+    """BigQuery から TaskStatus.COMPLETED の videoID を取得する。
+
+    Returns:
+        List[str]: COMPLETED の videoID のリスト。
+    """
     credentials: Optional[service_account.Credentials] = (
         None
     )
@@ -42,7 +46,15 @@ def fetch_completed_video_ids() -> List[str]:
 def generate_signed_url(
     video_id: str, duration: int
 ) -> Tuple[str, Optional[str]]:
-    """GCSのオブジェクトに対する署名付きURL（ダウンロード用）を生成"""
+    """GCS のオブジェクトに対する署名付き URL（ダウンロード用）を生成する。
+
+    Args:
+        video_id (str): 署名付き URL を生成する対象の videoID。
+        duration (int): URL の有効期限（分）。
+
+    Returns:
+        Tuple[str, Optional[str]]: videoID と生成された署名付き URL（存在しない場合は None）。
+    """
     blob_name: str = f"{video_id}/vocals.wav"
     return video_id, get_download_link(
         BUCKET_NAME, blob_name, expiration_minutes=duration
@@ -52,7 +64,11 @@ def generate_signed_url(
 def insert_wav_urls(
     rows_to_insert: List[Tuple[str, str]],
 ) -> None:
-    """wavURL を BigQuery に挿入"""
+    """生成された wavURL を BigQuery に挿入する。
+
+    Args:
+        rows_to_insert (List[Tuple[str, str]]): (videoID, wavURL) のリスト。
+    """
     if not rows_to_insert:
         return
 
@@ -79,7 +95,12 @@ def insert_wav_urls(
 
 
 def refresh_wav_url(duration: int = 60) -> None:
-    """データベースを更新するcronジョブ"""
+    """BigQuery から COMPLETED の videoID を取得し、
+    GCS から wavURL を生成し、BigQuery に保存する処理を行う。
+
+    Args:
+        duration (int, optional): 生成する署名付き URL の有効期限（分）。デフォルトは 60 分。
+    """
     video_ids: List[str] = fetch_completed_video_ids()
 
     with (
