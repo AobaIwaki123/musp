@@ -3,9 +3,13 @@ services:
     build:
       context: view
       target: prod
-    container_name: dev-view
+    container_name: prod-view
+    volumes:
+      - ./view:/app
     working_dir: /app
     command: yarn start
+    env_file:
+      ./view/prod.env
 
   prod-api:
     build:
@@ -16,6 +20,8 @@ services:
       - ./api/src:/root/app
       - ./secret:/root/secret
     command: uvicorn openapi_server.main:app --host 0.0.0.0 --port 8000
+    env_file:
+      ./api/prod.env
 
   prod-celery:
     build:
@@ -30,8 +36,21 @@ services:
             - capabilities: [gpu]
               count: all
               driver: nvidia
+    env_file:
+      ./api/prod.env
     depends_on:
       - prod-redis
+
+  prod-cron:
+    build:
+      context: api
+      target: service
+    container_name: prod-cron
+    environment:
+      - CRON_INTERVAL_MINUTE=60
+    command: python cron_job/refresh_wav_url.py
+    env_file:
+      ./api/prod.env
 
   prod-redis:
     image: redis:7.4
@@ -39,7 +58,7 @@ services:
 
   prod-cloudflare:
     image: "cloudflare/cloudflared:2025.2.1"
-    container_name: "dev-cloudflare"
+    container_name: "prod-cloudflare"
     volumes: [ './cloudflare:/home/nonroot/.cloudflared' ]
     command: tunnel run
     restart: unless-stopped

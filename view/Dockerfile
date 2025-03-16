@@ -24,14 +24,16 @@ ENV YARN_HOME="/yarn"
 ENV PATH="$YARN_HOME:$PATH"
 RUN corepack enable
 
+COPY . .
+
 RUN yarn install
 
 EXPOSE 3000
 
 # Copy the rest of your app's source code from your host to your image filesystem.
-COPY . .
 
 # Build the app
-RUN yarn build
 
-CMD ["npx", "serve@latest", "out"]
+# RUN yarn build
+
+CMD ["yarn", "start"]
