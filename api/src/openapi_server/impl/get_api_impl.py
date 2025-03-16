@@ -1,6 +1,9 @@
 from typing import Union
 
 from openapi_server.apis.get_api_base import BaseGETApi
+from openapi_server.big_query.get_user_video import (
+    get_user_video,
+)
 from openapi_server.models.error_response400 import (
     ErrorResponse400,
 )
@@ -16,16 +19,9 @@ class GETApiImpl(BaseGETApi):
         GetVideoIDAndWavURLResponse, ErrorResponse400
     ]:
         # Mock実装
-        if user_id == "1":
-            return GetVideoIDAndWavURLResponse(
-                status_code=200,
-                status_message="OK",
-                data=[
-                    {"youtube_id": "3Uem84SdteM", "wav_url": "https://example.com/3Uem84SdteM.wav"}
-                ],
-            )
-        else:
+        try:
+            return get_user_video(user_id)
+        except Exception as e:
             return ErrorResponse400(
-                error="Bad Request",
+                error=f"Bad Request: {str(e)}"
             )
-
