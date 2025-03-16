@@ -10,3 +10,6 @@ export const wavFileAtom = atom<string | null>(null);
 
 // User Info
 export const userIDAtom = atomWithStorage('userID', '');
+
+// Login
+export const isShowLoginModalAtom = atom(false);

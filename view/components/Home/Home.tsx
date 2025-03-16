@@ -1,13 +1,17 @@
 "use client";
 
 import { ReloadButton } from "@/components/Buttons/ReloadButton/ReloadButton";
+import { isShowLoginModalAtom } from "@/jotai/atom";
+import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
 import type { Video } from "./ApplicationGrid/ApplicationGrid";
+import { LoginModal } from "./LoginModal/LoginModal";
 import { MuspForm } from "./MuspForm/MuspForm";
 
 export function Home() {
 	const [videoIDList, setVideoIDList] = useState<Video[]>([]);
+	const [isShowLoginModal] = useAtom(isShowLoginModalAtom);
 
 	useEffect(() => {
 		// const res = await api.getVideoAndWav(UserID);
@@ -63,6 +67,7 @@ export function Home() {
 
 	return (
 		<>
+			{isShowLoginModal && <LoginModal />}
 			<ReloadButton onClick={handleAddWav} />
 			<MuspForm onSubmit={handleAddVideo} />
 			<ApplicationGrid videos={videoIDList} />

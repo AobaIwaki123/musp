@@ -6,6 +6,7 @@ import { getAuth, signInWithPopup } from "@firebase/auth";
 import { GoogleAuthProvider } from "@firebase/auth";
 import { Button } from "@mantine/core";
 import { useEffect } from "react";
+import { GoogleButton } from "../GoogleButton/GoogleButton";
 
 const firebaseConfig = {
 	apiKey: process.env.NEXT_PUBLIC_APIKEY,
@@ -59,5 +60,5 @@ export const LoginButton = () => {
 		}
 	}, []);
 
-	return <Button onClick={testSignUp}>Googleでサインイン</Button>;
+	return <GoogleButton onClick={testSignUp}>Googleでサインイン</GoogleButton>;
 };
