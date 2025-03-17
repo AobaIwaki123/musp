@@ -1,15 +1,25 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
+import nextPWA from "next-pwa";
+
+const withPWA = nextPWA({
+	dest: "public",
+	register: true,
+	skipWaiting: true,
+});
 
 const withBundleAnalyzer = bundleAnalyzer({
 	enabled: process.env.ANALYZE === "true",
 });
 
-export default withBundleAnalyzer({
-	reactStrictMode: false,
+const nextConfig = {
+	reactStrictMode: true,
 	eslint: {
 		ignoreDuringBuilds: true,
 	},
 	experimental: {
 		optimizePackageImports: ["@mantine/core", "@mantine/hooks"],
 	},
-});
+};
+
+// `withPWA` と `withBundleAnalyzer` を組み合わせる
+export default withBundleAnalyzer(withPWA(nextConfig));
