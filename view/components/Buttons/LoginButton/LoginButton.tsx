@@ -53,11 +53,5 @@ async function testSignUp() {
 export const LoginButton = () => {
 	const app = initializeApp(firebaseConfig);
 
-	useEffect(() => {
-		if (localStorage.getItem("userID")) {
-			console.log(localStorage.getItem("userID"));
-		}
-	}, []);
-
 	return <GoogleButton onClick={signUp}>Googleでサインイン</GoogleButton>;
 };

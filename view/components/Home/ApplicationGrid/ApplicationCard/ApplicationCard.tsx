@@ -14,12 +14,11 @@ import classes from "./ApplicationCard.module.css";
 
 export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 	const [isPressed, setIsPressed] = useState(false);
-	const [wavFile, setWavFile] = useAtom(wavFileAtom);
+	const [_, setWavFile] = useAtom(wavFileAtom);
 
 	const handleLoadWav = (wav_url: string) => {
 		setWavFile(null); // 一旦nullにしておく
 		setWavFile(wav_url); // 適当なWAV URLを設定
-		console.log("WAV URL:", wavFile);
 	};
 
 	return (

@@ -44,7 +44,11 @@ export function CustomSlider({
 			<Progress
 				ref={!disabled ? ref : undefined}
 				value={currentValue}
-				size="2"
+				size="3"
+				style = {{
+					margin: 0,
+					padding: 0,
+				}}
 			/>
 		</Container>
 	);

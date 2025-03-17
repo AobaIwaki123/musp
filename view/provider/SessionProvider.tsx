@@ -24,7 +24,6 @@ export const SessionProvider = ({ children }: SessionProviderProps) => {
 			return;
 		}
 
-		console.log("Already Login, User ID: ", userID);
 	}, [userID, setIsShowLoginModal]);
 
 	return <>{children}</>;
