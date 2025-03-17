@@ -11,7 +11,6 @@ import { AddMusicIcon } from "@/components/Icons/AddMusicIcon/AddMusicIcon";
 import { PasteIcon } from "@/components/Icons/PasteIcon/PasteIcon";
 import { YouTubeIcon } from "@/components/Icons/YouTubeIcon/YouTubeIcon";
 import { useForm } from "react-hook-form";
-import { CurlButton } from "@/components/Buttons/CurlButton/CurlButton";
 
 import { PostVideoRequest } from "@/client/client";
 import type { PostVideoRequestType } from "@/client/client";

@@ -26,7 +26,6 @@ ENV = os.getenv("ENV", "development")
 
 origins = [
     os.getenv("FRONTEND_URL", "http://localhost:3000"),
-    "https://musp.shaoba.tech",
 ]
 
 app = FastAPI(
