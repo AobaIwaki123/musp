@@ -21,6 +21,10 @@ export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 		setWavFile(wav_url); // 適当なWAV URLを設定
 	};
 
+	const isWavURLExist = () => {
+		return wav_url !== "http://example.com";
+	};
+
 	return (
 		<Card
 			key={youtube_id}
@@ -49,7 +53,7 @@ export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 		>
 			<AspectRatio ratio={1920 / 1080}>
 				<Image src={`https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`} />
-				{!wav_url ? <LoaderIcon /> : <PlayButton />}
+				{isWavURLExist() ? <PlayButton /> : <LoaderIcon />}
 			</AspectRatio>
 		</Card>
 	);
