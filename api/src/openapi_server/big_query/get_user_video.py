@@ -11,6 +11,7 @@ BQ_DATASET = "musp_v3"  # BigQuery データセット名
 BQ_USER_VIDEO_TABLE = "userID-videoID"
 BQ_VIDEO_WAVURL_TABLE = "videoID-wavURL"
 
+
 def get_user_video(
     user_id: str,
 ) -> GetVideoIDAndWavURLResponse:
@@ -19,7 +20,7 @@ def get_user_video(
     query = f"""
         SELECT uv.videoID, vw.wavURL
         FROM `{BQ_PROJECT}.{BQ_DATASET}.{BQ_USER_VIDEO_TABLE}` AS uv
-        JOIN `{BQ_PROJECT}.{BQ_DATASET}.{BQ_VIDEO_WAVURL_TABLE}` AS vw
+        LEFT JOIN `{BQ_PROJECT}.{BQ_DATASET}.{BQ_VIDEO_WAVURL_TABLE}` AS vw
         ON uv.videoID = vw.videoID
         WHERE uv.userID = @user_id
     """
@@ -37,7 +38,10 @@ def get_user_video(
 
     data = [
         VideoIDAndWavURL(
-            youtube_id=row.videoID, wav_url=row.wavURL
+            youtube_id=row.videoID,
+            wav_url=row.wavURL
+            if row.wavURL is not None
+            else "http://example.com",  # None を明示的に設定
         )
         for row in results
     ]

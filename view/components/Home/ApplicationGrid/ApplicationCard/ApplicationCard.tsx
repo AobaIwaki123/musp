@@ -21,6 +21,10 @@ export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 		setWavFile(wav_url); // 適当なWAV URLを設定
 	};
 
+	const isWavURLExist = () => {
+		return wav_url !== "http://example.com";
+	};
+
 	return (
 		<Card
 			key={youtube_id}
@@ -31,17 +35,17 @@ export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 			style={{
 				transform: isPressed ? "scale(0.95)" : "scale(1)",
 				transition: "transform 0.1s ease-in-out",
-				pointerEvents: !wav_url ? "none" : "auto", // wav_urlがない場合クリック不可
-				opacity: !wav_url ? 0.6 : 1, // 視覚的に無効化感を出す
+				pointerEvents: !isWavURLExist() ? "none" : "auto", // wav_urlがない場合クリック不可
+				opacity: !isWavURLExist() ? 0.6 : 1, // 視覚的に無効化感を出す
 			}}
-			onMouseDown={() => wav_url && setIsPressed(true)}
+			onMouseDown={() => isWavURLExist() && setIsPressed(true)}
 			onMouseUp={() => setIsPressed(false)}
 			onMouseLeave={() => setIsPressed(false)}
-			onTouchStart={() => wav_url && setIsPressed(true)}
+			onTouchStart={() => isWavURLExist() && setIsPressed(true)}
 			onTouchEnd={() => setIsPressed(false)}
 			onTouchCancel={() => setIsPressed(false)}
 			onClick={() => {
-				if (wav_url) {
+				if (wav_url && isWavURLExist()) {
 					/* クリック処理をここに追加 */
 					handleLoadWav(wav_url);
 				}
@@ -49,7 +53,7 @@ export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 		>
 			<AspectRatio ratio={1920 / 1080}>
 				<Image src={`https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`} />
-				{!wav_url ? <LoaderIcon /> : <PlayButton />}
+				{isWavURLExist() ? <PlayButton /> : <LoaderIcon />}
 			</AspectRatio>
 		</Card>
 	);
