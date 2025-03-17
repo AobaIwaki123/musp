@@ -53,15 +53,12 @@ export function MuspForm({ onSubmit }: MuspFormProps) {
 		if (typeof window !== "undefined") {
 			if (userID) {
 				setValue("user_id", userID);
-				console.log("Stored user_id:", userID);
 			}
 		}
 	}, [setValue, userID]);
 
 	// フォーム送信時の処理
 	const handleFormSubmit = async (data: PostVideoRequestType) => {
-		console.log("送信データ:", data);
-
 		onSubmit(data.youtube_url); // `Home` に動画IDを渡す
 		setValue("youtube_url", ""); // 入力欄をクリア
 	};
