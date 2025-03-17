@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: any }) {
 					<ColorSchemeScript />
 					<link rel="shortcut icon" href="/MuspIcon/MuspIcon-2.webp" />
 					<link rel="manifest" href="/manifest.json" />
-					<link rel="apple-touch-icon" href="/icon512_rounded.png" />
+					<link rel="apple-touch-icon" href="/MuspIcon/MuspIcon-2.webp" />
 					<meta
 						name="viewport"
 						content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
