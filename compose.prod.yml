@@ -52,6 +52,7 @@ services:
     volumes:
       - ./api/src:/root/app
       - ./secret:/root/secret
+      - /etc/localtime:/etc/localtime:ro
     environment:
       - CRON_INTERVAL_MINUTE=60
     command: python cron_job/refresh_wav_url.py
