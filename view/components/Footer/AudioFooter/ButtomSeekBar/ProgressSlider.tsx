@@ -45,8 +45,7 @@ export function CustomSlider({
 				ref={!disabled ? ref : undefined}
 				value={currentValue}
 				size="3"
-				style = {{
-					margin: 0,
+				style={{
 					padding: 0,
 				}}
 			/>

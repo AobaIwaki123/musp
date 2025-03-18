@@ -3,7 +3,7 @@
 import { AspectRatio, Card, Image } from "@mantine/core";
 import { useState } from "react";
 
-import { wavFileAtom } from "@/jotai/atom";
+import { wavFileAtom, thumbnailAtom } from "@/jotai/atom";
 import { useAtom } from "jotai";
 
 import type { VideoIDAndWavURLType } from "@/client/client";
@@ -14,11 +14,17 @@ import classes from "./ApplicationCard.module.css";
 
 export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 	const [isPressed, setIsPressed] = useState(false);
-	const [_, setWavFile] = useAtom(wavFileAtom);
+	const [wavFile, setWavFile] = useAtom(wavFileAtom);
+	const [thumbnail, setThumbnail] = useAtom(thumbnailAtom);
+
+	const getThumbnail = (youtube_id: string) => {
+		return `https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`;
+	}
 
 	const handleLoadWav = (wav_url: string) => {
 		setWavFile(null); // 一旦nullにしておく
 		setWavFile(wav_url); // 適当なWAV URLを設定
+		setThumbnail(getThumbnail(youtube_id));
 	};
 
 	const isWavURLExist = () => {
@@ -52,7 +58,7 @@ export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 			}}
 		>
 			<AspectRatio ratio={1920 / 1080}>
-				<Image src={`https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`} />
+				<Image src={getThumbnail(youtube_id)} />
 				{isWavURLExist() ? <PlayButton /> : <LoaderIcon />}
 			</AspectRatio>
 		</Card>
