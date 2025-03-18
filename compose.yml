@@ -64,6 +64,17 @@ services:
     env_file:
       ./api/dev.env
 
+  tmp:
+    build:
+      context: api
+      target: service
+    container_name: tmp
+    volumes:
+      - ./api/src:/root/app
+      - ./secret:/root/secret
+    env_file:
+      ./api/dev.env
+
   redis:
     image: redis:7.4
     container_name: redis

@@ -22,8 +22,11 @@ CREDENTIAL_PATH = os.getenv(
 BUCKET_NAME = "musp-dev"
 BQ_PROJECT = "zennaihackason"
 BQ_DATASET = "musp_v3"
-BQ_STATUS_TABLE = "videoID-status"
-BQ_WAVURL_TABLE = "videoID-wavURL"
+
+# 新しいテーブル名
+BQ_VOCAL_WAV_TABLE = "videoID-vocalWavURL"
+BQ_INST_WAV_TABLE = "videoID-instWavURL"
+
 CRON_INTERVAL_MINUTE = int(
     os.getenv("CRON_INTERVAL_MINUTE", 60)
 )
@@ -49,12 +52,13 @@ def fetch_completed_video_ids() -> list[str]:
             credentials = service_account.Credentials.from_service_account_file(
                 CREDENTIAL_PATH
             )
+
         bq_client = bigquery.Client(
             credentials=credentials, project=BQ_PROJECT
         )
 
         query: str = f"""
-            SELECT videoID FROM `{BQ_PROJECT}.{BQ_DATASET}.{BQ_STATUS_TABLE}`
+            SELECT videoID FROM `{BQ_PROJECT}.{BQ_DATASET}.videoID-status`
             WHERE status = '{TaskStatus.COMPLETED.value}'
         """
         query_job = bq_client.query(query)
@@ -69,10 +73,12 @@ def fetch_completed_video_ids() -> list[str]:
         return []
 
 
-def process_video_id(video_id: str, duration: int) -> None:
+def process_video_files(
+    video_id: str, duration: int
+) -> None:
     """
-    指定された videoID に対して署名付き URL を生成し、
-    BigQuery に保存する。
+    指定された videoID に対して `vocals.wav` と `no_vocals.wav` の
+    署名付き URL を生成し、それぞれ BigQuery に保存する。
 
     Args:
         video_id (str): 署名付き URL を生成する対象の videoID
@@ -81,23 +87,22 @@ def process_video_id(video_id: str, duration: int) -> None:
     try:
         logging.info(f"Processing video ID: {video_id}")
 
-        blob_name: str = f"{video_id}/vocals.wav"
-        wav_url: Optional[str] = get_download_link(
+        # それぞれのファイルの URL を生成
+        vocals_blob_name = f"{video_id}/vocals.wav"
+        no_vocals_blob_name = f"{video_id}/no_vocals.wav"
+
+        vocals_wav_url = get_download_link(
             BUCKET_NAME,
-            blob_name,
+            vocals_blob_name,
+            expiration_minutes=duration,
+        )
+        no_vocals_wav_url = get_download_link(
+            BUCKET_NAME,
+            no_vocals_blob_name,
             expiration_minutes=duration,
         )
 
-        if not wav_url:
-            logging.warning(
-                f"Failed to generate URL for videoID {video_id}"
-            )
-            return
-
-        logging.info(
-            f"Generated URL for {video_id}: {wav_url}"
-        )
-
+        # 認証情報の設定
         credentials: Optional[
             service_account.Credentials
         ] = None
@@ -107,48 +112,87 @@ def process_video_id(video_id: str, duration: int) -> None:
             credentials = service_account.Credentials.from_service_account_file(
                 CREDENTIAL_PATH
             )
+
         bq_client = bigquery.Client(
             credentials=credentials, project=BQ_PROJECT
         )
-
-        table_id: str = (
-            f"{BQ_PROJECT}.{BQ_DATASET}.{BQ_WAVURL_TABLE}"
-        )
         now_utc = datetime.now(timezone.utc)
 
-        query: str = f"""
-            MERGE `{table_id}` AS target
-            USING (SELECT @video_id AS videoID, @wav_url AS wavURL, @created_at AS createdAt, @updated_at AS updatedAt) AS source
-            ON target.videoID = source.videoID
-            WHEN MATCHED THEN
-                UPDATE SET target.wavURL = source.wavURL, target.updatedAt = source.updatedAt
-            WHEN NOT MATCHED THEN
-                INSERT (videoID, wavURL, createdAt, updatedAt)
-                VALUES (source.videoID, source.wavURL, source.createdAt, source.updatedAt)
-        """
+        # `videoID-vocalWavURL` に vocals.wav の URL を保存
+        if vocals_wav_url:
+            table_id_vocal = f"{BQ_PROJECT}.{BQ_DATASET}.{BQ_VOCAL_WAV_TABLE}"
+            query_vocal = f"""
+                MERGE `{table_id_vocal}` AS target
+                USING (SELECT @video_id AS videoID, @wav_url AS wavURL, @created_at AS createdAt, @updated_at AS updatedAt) AS source
+                ON target.videoID = source.videoID
+                WHEN MATCHED THEN
+                    UPDATE SET target.wavURL = source.wavURL, target.updatedAt = source.updatedAt
+                WHEN NOT MATCHED THEN
+                    INSERT (videoID, wavURL, createdAt, updatedAt)
+                    VALUES (source.videoID, source.wavURL, source.createdAt, source.updatedAt)
+            """
+            job_config_vocal = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ScalarQueryParameter(
+                        "video_id", "STRING", video_id
+                    ),
+                    bigquery.ScalarQueryParameter(
+                        "wav_url", "STRING", vocals_wav_url
+                    ),
+                    bigquery.ScalarQueryParameter(
+                        "created_at", "TIMESTAMP", now_utc
+                    ),
+                    bigquery.ScalarQueryParameter(
+                        "updated_at", "TIMESTAMP", now_utc
+                    ),
+                ]
+            )
+            logging.info(
+                f"Updating BigQuery (vocals) for {video_id}"
+            )
+            job_vocal = bq_client.query(
+                query_vocal, job_config=job_config_vocal
+            )
+            job_vocal.result()
 
-        query_parameters = [
-            bigquery.ScalarQueryParameter(
-                "video_id", "STRING", video_id
-            ),
-            bigquery.ScalarQueryParameter(
-                "wav_url", "STRING", wav_url
-            ),
-            bigquery.ScalarQueryParameter(
-                "created_at", "TIMESTAMP", now_utc
-            ),
-            bigquery.ScalarQueryParameter(
-                "updated_at", "TIMESTAMP", now_utc
-            ),
-        ]
-
-        logging.info(f"Executing BigQuery for {video_id}")
-
-        job_config = bigquery.QueryJobConfig(
-            query_parameters=query_parameters
-        )
-        job = bq_client.query(query, job_config=job_config)
-        job.result()  # 確実にクエリが完了するようにする
+        # `videoID-instWavURL` に no_vocals.wav の URL を保存
+        if no_vocals_wav_url:
+            table_id_inst = f"{BQ_PROJECT}.{BQ_DATASET}.{BQ_INST_WAV_TABLE}"
+            query_inst = f"""
+                MERGE `{table_id_inst}` AS target
+                USING (SELECT @video_id AS videoID, @wav_url AS wavURL, @created_at AS createdAt, @updated_at AS updatedAt) AS source
+                ON target.videoID = source.videoID
+                WHEN MATCHED THEN
+                    UPDATE SET target.wavURL = source.wavURL, target.updatedAt = source.updatedAt
+                WHEN NOT MATCHED THEN
+                    INSERT (videoID, wavURL, createdAt, updatedAt)
+                    VALUES (source.videoID, source.wavURL, source.createdAt, source.updatedAt)
+            """
+            job_config_inst = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ScalarQueryParameter(
+                        "video_id", "STRING", video_id
+                    ),
+                    bigquery.ScalarQueryParameter(
+                        "wav_url",
+                        "STRING",
+                        no_vocals_wav_url,
+                    ),
+                    bigquery.ScalarQueryParameter(
+                        "created_at", "TIMESTAMP", now_utc
+                    ),
+                    bigquery.ScalarQueryParameter(
+                        "updated_at", "TIMESTAMP", now_utc
+                    ),
+                ]
+            )
+            logging.info(
+                f"Updating BigQuery (no_vocals) for {video_id}"
+            )
+            job_inst = bq_client.query(
+                query_inst, job_config=job_config_inst
+            )
+            job_inst.result()
 
         logging.info(
             f"Successfully updated BigQuery for {video_id}"
@@ -160,15 +204,15 @@ def process_video_id(video_id: str, duration: int) -> None:
         )
 
 
-def refresh_wav_url(duration: int = 60) -> None:
+def refresh_wav_urls(duration: int = 60) -> None:
     """
-    BigQuery から `COMPLETED` ステータスの videoID を取得し、
-    各 videoID に対して署名付き URL を生成して BigQuery に保存する。
+    `COMPLETED` ステータスの videoID を取得し、
+    `vocals.wav` / `no_vocals.wav` の署名付き URL を生成して BigQuery に保存する。
 
     Args:
         duration (int, optional): 生成する署名付き URL の有効期限（分）。デフォルトは 60 分。
     """
-    video_ids: list[str] = fetch_completed_video_ids()
+    video_ids = fetch_completed_video_ids()
     if not video_ids:
         logging.info("No video IDs to process.")
         return
@@ -177,7 +221,7 @@ def refresh_wav_url(duration: int = 60) -> None:
         concurrent.futures.ThreadPoolExecutor() as executor
     ):
         executor.map(
-            lambda vid: process_video_id(vid, duration),
+            lambda vid: process_video_files(vid, duration),
             video_ids,
         )
 
@@ -186,9 +230,9 @@ if __name__ == "__main__":
     while True:
         logging.info("Starting refresh_wav_url job...")
         try:
-            refresh_wav_url(
+            refresh_wav_urls(
                 duration=CRON_INTERVAL_MINUTE + 5
-            )  # 5分追加
+            )
         except Exception as e:
             logging.error(f"Error in cron job: {e}")
         logging.info(
