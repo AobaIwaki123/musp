@@ -1,5 +1,5 @@
 from celery_server.celery_app import app
-from cron_job import process_video_id
+from cron_job import process_video_files
 from openapi_server.models.custom.task_status import (
     TaskStatus,
 )
@@ -17,7 +17,7 @@ def publish_source(self, data: dict) -> dict:
         meta={"step": "Publishing source"},
     )
 
-    process_video_id(video_id, duration=60)
+    process_video_files(video_id, duration=60)
 
     self.update_state(
         state=TaskStatus.COMPLETED.value,
