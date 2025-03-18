@@ -1,7 +1,7 @@
 import concurrent.futures
+import logging
 import os
 import time
-import logging
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -19,9 +19,9 @@ logging.basicConfig(
 CREDENTIAL_PATH = os.getenv(
     "GOOGLE_APPLICATION_CREDENTIALS"
 )
-BUCKET_NAME = "musp-dev"  # バケット名を指定
-BQ_PROJECT = "zennaihackason"  # BigQuery プロジェクト ID
-BQ_DATASET = "musp_v3"  # BigQuery データセット名
+BUCKET_NAME = "musp-dev"
+BQ_PROJECT = "zennaihackason"
+BQ_DATASET = "musp_v3"
 BQ_STATUS_TABLE = "videoID-status"
 BQ_WAVURL_TABLE = "videoID-wavURL"
 CRON_INTERVAL_MINUTE = int(
@@ -30,10 +30,11 @@ CRON_INTERVAL_MINUTE = int(
 
 
 def fetch_completed_video_ids() -> list[str]:
-    """BigQuery から TaskStatus.COMPLETED の videoID を取得する。
+    """
+    BigQuery から `COMPLETED` ステータスの videoID を取得する。
 
     Returns:
-        list[str]: COMPLETED の videoID のリスト。
+        list[str]: `COMPLETED` ステータスの videoID のリスト
     """
     logging.info(
         "Fetching completed video IDs from BigQuery..."
@@ -58,6 +59,7 @@ def fetch_completed_video_ids() -> list[str]:
         """
         query_job = bq_client.query(query)
         video_ids = [row.videoID for row in query_job]
+
         logging.info(
             f"Fetched {len(video_ids)} completed video IDs."
         )
@@ -68,13 +70,17 @@ def fetch_completed_video_ids() -> list[str]:
 
 
 def process_video_id(video_id: str, duration: int) -> None:
-    """指定された videoID の署名付き URL を生成し、BigQuery に保存する。
+    """
+    指定された videoID に対して署名付き URL を生成し、
+    BigQuery に保存する。
 
     Args:
-        video_id (str): 署名付き URL を生成する対象の videoID。
-        duration (int): URL の有効期限（分）。
+        video_id (str): 署名付き URL を生成する対象の videoID
+        duration (int): URL の有効期限（分）
     """
     try:
+        logging.info(f"Processing video ID: {video_id}")
+
         blob_name: str = f"{video_id}/vocals.wav"
         wav_url: Optional[str] = get_download_link(
             BUCKET_NAME,
@@ -83,7 +89,14 @@ def process_video_id(video_id: str, duration: int) -> None:
         )
 
         if not wav_url:
+            logging.warning(
+                f"Failed to generate URL for videoID {video_id}"
+            )
             return
+
+        logging.info(
+            f"Generated URL for {video_id}: {wav_url}"
+        )
 
         credentials: Optional[
             service_account.Credentials
@@ -129,10 +142,18 @@ def process_video_id(video_id: str, duration: int) -> None:
             ),
         ]
 
+        logging.info(f"Executing BigQuery for {video_id}")
+
         job_config = bigquery.QueryJobConfig(
             query_parameters=query_parameters
         )
-        bq_client.query(query, job_config=job_config)
+        job = bq_client.query(query, job_config=job_config)
+        job.result()  # 確実にクエリが完了するようにする
+
+        logging.info(
+            f"Successfully updated BigQuery for {video_id}"
+        )
+
     except Exception as e:
         logging.error(
             f"Error processing video ID {video_id}: {e}"
@@ -140,14 +161,16 @@ def process_video_id(video_id: str, duration: int) -> None:
 
 
 def refresh_wav_url(duration: int = 60) -> None:
-    """BigQuery から COMPLETED の videoID を取得し、
-    各 videoID ごとに署名付き URL を生成して BigQuery に保存する処理を並行実行する。
+    """
+    BigQuery から `COMPLETED` ステータスの videoID を取得し、
+    各 videoID に対して署名付き URL を生成して BigQuery に保存する。
 
     Args:
         duration (int, optional): 生成する署名付き URL の有効期限（分）。デフォルトは 60 分。
     """
     video_ids: list[str] = fetch_completed_video_ids()
     if not video_ids:
+        logging.info("No video IDs to process.")
         return
 
     with (
@@ -163,7 +186,9 @@ if __name__ == "__main__":
     while True:
         logging.info("Starting refresh_wav_url job...")
         try:
-            refresh_wav_url(duration=CRON_INTERVAL_MINUTE+5) # 5分追加
+            refresh_wav_url(
+                duration=CRON_INTERVAL_MINUTE + 5
+            )  # 5分追加
         except Exception as e:
             logging.error(f"Error in cron job: {e}")
         logging.info(
