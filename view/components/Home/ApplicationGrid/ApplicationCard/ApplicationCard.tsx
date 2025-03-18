@@ -1,24 +1,75 @@
 "use client";
 
 import { AspectRatio, Card, Image } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { wavFileAtom } from "@/jotai/atom";
+import { thumbnailAtom, wavFileAtom, titleAtom } from "@/jotai/atom";
 import { useAtom } from "jotai";
 
 import type { VideoIDAndWavURLType } from "@/client/client";
+import { youtubeApi } from "@/client/youtube.api";
 import { LoaderIcon } from "./LoaderIcon";
 import { PlayButton } from "./PlayButton/PlayButton";
-
+import type {
+	VideoDetailsResponseType,
+	ErrorResponseType,
+} from "@/client/youtube.client";
 import classes from "./ApplicationCard.module.css";
+
+const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
 
 export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 	const [isPressed, setIsPressed] = useState(false);
-	const [_, setWavFile] = useAtom(wavFileAtom);
+	const [wavFile, setWavFile] = useAtom(wavFileAtom);
+	const [thumbnail, setThumbnail] = useAtom(thumbnailAtom);
+	const [localTitle, setLocalTitle] = useState("");
+	const [title, setTitle] = useAtom(titleAtom);
+
+	useEffect(() => {
+		if (localTitle === "") {
+			getYoutubeMetadata(youtube_id);
+		}
+	}, [youtube_id, localTitle]);
+
+
+	const getThumbnail = (youtube_id: string) => {
+		return `https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`;
+	};
+
+	const getYoutubeMetadata = (youtube_id: string) => {
+		if(!YOUTUBE_API_KEY) {
+			throw new Error("YOUTUBE_API_KEY is not set");
+		}
+		youtubeApi
+			.getVideos({
+				queries: {
+					key: YOUTUBE_API_KEY,
+					part: "snippet",
+					id: youtube_id,
+				},
+			})
+			.then((res: VideoDetailsResponseType) => {
+				if (!res.items) {
+					throw new Error("No items found");
+				}
+				if (!res.items[0].snippet) {
+					throw new Error("No snippet found");
+				}
+				if (!res.items[0].snippet.title) {
+					throw new Error("No title found");
+				}
+				setLocalTitle(res.items[0].snippet.title);
+			})
+			.catch((err: ErrorResponseType) => {
+				console.error(err);
+			});
+	};
 
 	const handleLoadWav = (wav_url: string) => {
 		setWavFile(null); // 一旦nullにしておく
 		setWavFile(wav_url); // 適当なWAV URLを設定
+		setThumbnail(getThumbnail(youtube_id));
+		setTitle(localTitle);
 	};
 
 	const isWavURLExist = () => {
@@ -52,7 +103,7 @@ export function ApplicationCard({ youtube_id, wav_url }: VideoIDAndWavURLType) {
 			}}
 		>
 			<AspectRatio ratio={1920 / 1080}>
-				<Image src={`https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`} />
+				<Image src={getThumbnail(youtube_id)} />
 				{isWavURLExist() ? <PlayButton /> : <LoaderIcon />}
 			</AspectRatio>
 		</Card>

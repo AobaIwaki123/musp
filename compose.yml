@@ -9,6 +9,7 @@ services:
       - ./view:/app
       - ./view/node_modules:/app/node_modules
       - ./openapi.yaml:/app/openapi.yaml
+      - ./openapi/youtube/openapi.yml:/app/openapi/youtube/openapi.yml
     ports:
       - 3000:3000
     command: yarn dev
@@ -61,17 +62,6 @@ services:
     environment:
       - CRON_INTERVAL_MINUTE=60
     command: python cron_job/refresh_wav_url.py
-    env_file:
-      ./api/dev.env
-
-  tmp:
-    build:
-      context: api
-      target: service
-    container_name: tmp
-    volumes:
-      - ./api/src:/root/app
-      - ./secret:/root/secret
     env_file:
       ./api/dev.env
 

@@ -1,6 +1,4 @@
-import { pluginToken } from '@zodios/plugins';
 import { createApiClient } from '@/client/client';
-
 
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 // 
