@@ -9,6 +9,7 @@ services:
       - ./view:/app
       - ./view/node_modules:/app/node_modules
       - ./openapi.yaml:/app/openapi.yaml
+      - ./openapi/youtube/openapi.yml:/app/openapi/youtube/openapi.yml
     ports:
       - 3000:3000
     command: yarn dev

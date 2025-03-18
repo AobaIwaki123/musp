@@ -1,7 +1,7 @@
 "use client";
 
-import { thumbnailAtom, wavFileAtom } from "@/jotai/atom";
-import { Avatar, Container, Group } from "@mantine/core";
+import { thumbnailAtom, wavFileAtom, titleAtom } from "@/jotai/atom";
+import { Avatar, Container, Text } from "@mantine/core";
 import { useAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { CustomSlider } from "./ButtomSeekBar/ProgressSlider";
@@ -14,6 +14,7 @@ export function AudioFooter() {
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [wavFile] = useAtom(wavFileAtom);
 	const [thumbnail] = useAtom(thumbnailAtom);
+	const [title] = useAtom(titleAtom);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
 
@@ -71,6 +72,7 @@ export function AudioFooter() {
 					<source src={wavFile} type="audio/wav" />
 				</audio>
 				{thumbnail && <Avatar src={thumbnail} size={40} radius="md" />}
+				<Text size="xs" lineClamp={2} className={classes.text}>{title}</Text>
 				<PlayButton isPlaying={isPlaying} onClick={togglePlay} />
 			</Container>
 		</div>

@@ -1,0 +1,114 @@
+openapi: 3.0.0
+info:
+  title: YouTube Data API
+  version: "1.0.0"
+  description: Retrieve video details from YouTube using the YouTube Data API v3
+
+servers:
+  - url: https://www.googleapis.com/youtube/v3
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /videos:
+    get:
+      summary: Get video details
+      description: Retrieve video details such as title and description using a video ID.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ApiKey"
+        - $ref: "#/components/parameters/Part"
+        - $ref: "#/components/parameters/VideoID"
+      responses:
+        "200":
+          description: Successful response with video details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoDetailsResponse"
+        "400":
+          description: Bad request. Invalid or missing parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden. API key is invalid or quota exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found. The video does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: query
+      name: key
+
+  parameters:
+    ApiKey:
+      name: key
+      in: query
+      required: true
+      description: Your YouTube API key.
+      schema:
+        type: string
+
+    Part:
+      name: part
+      in: query
+      required: true
+      description: The part of the video resource to retrieve. Use "snippet" to get title and description.
+      schema:
+        type: string
+        enum: [snippet]
+
+    VideoID:
+      name: id
+      in: query
+      required: true
+      description: The YouTube video ID.
+      schema:
+        type: string
+
+  schemas:
+    VideoDetailsResponse:
+      type: object
+      properties:
+        kind:
+          type: string
+          example: "youtube#videoListResponse"
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: "dQw4w9WgXcQ"
+              snippet:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: "Never Gonna Give You Up"
+                  description:
+                    type: string
+                    example: "Official music video for Never Gonna Give You Up by Rick Astley."
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message.
+          example: "Invalid request or missing parameters."
