@@ -9,7 +9,7 @@ from openapi_server.models.video_id_and_wav_url import (
 BQ_PROJECT = "zennaihackason"  # BigQuery プロジェクト ID
 BQ_DATASET = "musp_v3"  # BigQuery データセット名
 BQ_USER_VIDEO_TABLE = "userID-videoID"
-BQ_VIDEO_WAVURL_TABLE = "videoID-wavURL"
+BQ_VIDEO_WAVURL_TABLE = "videoID-vocalWavURL"
 
 
 def get_user_video(
