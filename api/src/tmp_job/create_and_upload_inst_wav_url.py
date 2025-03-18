@@ -21,27 +21,28 @@ def get_youtube_url_from_videoid(video_id: str) -> str:
 
 
 def create_and_upload_inst_wav_url():
-    credentials: Optional[service_account.Credentials] = (
-        None
-    )
-    if CREDENTIAL_PATH and os.path.exists(CREDENTIAL_PATH):
-        credentials = service_account.Credentials.from_service_account_file(
-            CREDENTIAL_PATH
-        )
-
-    bq_client = bigquery.Client(
-        credentials=credentials, project=BQ_PROJECT
-    )
-
-    query: str = f"""
-        SELECT videoID FROM `{BQ_PROJECT}.{BQ_DATASET}.{BQ_STATUS_TABLE}`
-    """
-    query_job = bq_client.query(query)
+    query_job = [
+        "v-WcMQbXbKY",
+        "E28gVYFJxxI",
+        "WJarqWZG-qI",
+        "9P3kxfons2E",
+        "Vgwuc0C9UoQ",
+        "qK9k2J-ZkGU",
+        "vcp7XKBylkM",
+        "WrA8OgKj8JY",
+        "H77btmwX12Y",
+        "Z59HsgPVbWY",
+        "I1qSilZNvFs",
+        "B2teLF9l4aI",
+        "K5HPhoqyO4U",
+        "JhEEV5MvwCA",
+        "oCb89c0MDVk",
+    ]
 
     datas = [
         {
             "youtube_url": get_youtube_url_from_videoid(
-                row.videoID
+                row
             )
         }
         for row in query_job
