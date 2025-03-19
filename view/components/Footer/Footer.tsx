@@ -1,17 +1,17 @@
 "use client";
 
-import { wavFileAtom } from "@/jotai/atom";
+import { wavURLAtom } from "@/jotai/atom";
 import { useAtom } from "jotai";
 import { AudioFooter } from "./AudioFooter/AudioFooter";
 import { DefaultFooter } from "./DefaultFooter/DefaultFooter";
 
 export function Footer() {
-	const [wavFile, _] = useAtom(wavFileAtom);
+	const [wavURL, _] = useAtom(wavURLAtom);
 
 	return (
 		<>
 			<DefaultFooter />
-			{wavFile && <AudioFooter key={wavFile}/>}
+			{wavURL && <AudioFooter key={wavURL}/>}
 		</>
 	);
 }

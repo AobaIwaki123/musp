@@ -14,7 +14,7 @@ export const titleAtom = atom<string>('');
 export const thumbnailAtom = atom<string | null>(null);
 
 // Wavファイル　のURLを管理するAtom
-export const wavFileAtom = atom<string | null>(null);
+export const wavURLAtom = atom<string | null>(null);
 
 // User Info
 export const userIDAtom = atomWithStorage('userID', '');

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import {
 	thumbnailAtom,
 	titleAtom,
-	wavFileAtom,
+	wavURLAtom,
 	isVocalAtom,
 } from "@/jotai/atom";
 import { useAtom } from "jotai";
@@ -24,20 +24,20 @@ import { PlayButton } from "./PlayButton/PlayButton";
 const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
 
 export function ApplicationCard({ youtube_id, vocal_wav_url, inst_wav_url }: VideoIDAndWavURLType) {
-	const [wavFile, setWavFile] = useAtom(wavFileAtom);
+	const [wavURL, setWavURL] = useAtom(wavURLAtom);
 	const [thumbnail, setThumbnail] = useAtom(thumbnailAtom);
 	const [title, setTitle] = useAtom(titleAtom);
 	const [isVocal, setIsVocal] = useAtom(isVocalAtom);
 
-	const [wavURL, setWavURL] = useState("http://example.com");
+	const [localWavURL, setLocalWavURL] = useState("http://example.com");
 	const [isPressed, setIsPressed] = useState(false);
 	const [localTitle, setLocalTitle] = useState("");
 
 	useEffect(() => {
 		if (isVocal && vocal_wav_url) {
-			setWavURL(vocal_wav_url);
+			setLocalWavURL(vocal_wav_url);
 		} else if (!isVocal && inst_wav_url) {
-			setWavURL(inst_wav_url);
+			setLocalWavURL(inst_wav_url);
 		}
 	}, [vocal_wav_url, inst_wav_url, isVocal]);
 
@@ -81,14 +81,14 @@ export function ApplicationCard({ youtube_id, vocal_wav_url, inst_wav_url }: Vid
 	};
 
 	const handleLoadWav = () => {
-		setWavFile(null); // 一旦nullにしておく
-		setWavFile(wavURL); // 適当なWAV URLを設定
+		setWavURL(null); // 一旦nullにしておく
+		setWavURL(localWavURL); // 適当なWAV URLを設定
 		setThumbnail(getThumbnail(youtube_id));
 		setTitle(localTitle);
 	};
 
 	const isWavURLExist = () => {
-		return wavURL !== "http://example.com";
+		return localWavURL !== "http://example.com";
 	};
 
 	return (
