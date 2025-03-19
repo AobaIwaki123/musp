@@ -1,12 +1,12 @@
 import { ActionIcon } from "@mantine/core";
 import { IconBrandYoutube } from "@tabler/icons-react";
-import { ColorThemeToggleButtonWrapper } from "../../Icons/ColorThemeToggleButtonWrapper/ColorThemeToggleButtonWrapper";
+import { ModeIconWrapper } from "@/components/Icons/ModeIconWrapper/ModeIconWrapper";
 
 export function YouTubeIcon() {
 	return (
 		<a href="https://www.youtube.com/">
 			<ActionIcon size="lg" color="gray" variant="subtle">
-				<ColorThemeToggleButtonWrapper
+				<ModeIconWrapper
 					icon={IconBrandYoutube}
 					darkColor="red"
 					lightColor="red"

@@ -8,18 +8,18 @@ interface IconProps extends ComponentProps<any> {
 	darkColor?: string;
 }
 
-export function ColorThemeToggleButtonWrapper({
-	icon: Icon,
-	lightColor = "gray",
-	darkColor = "gray",
-	...props
-}: IconProps) {
-	const { colorScheme } = useMantineColorScheme();
-	const [iconColor, setIconColor] = useState(lightColor);
+export function ModeIconWrapper({
+		icon: Icon,
+		lightColor = "gray",
+		darkColor = "gray",
+		...props
+	}: IconProps) {
+		const { colorScheme } = useMantineColorScheme();
+		const [iconColor, setIconColor] = useState(lightColor);
 
-	useEffect(() => {
-		setIconColor(colorScheme === "dark" ? darkColor : lightColor);
-	}, [colorScheme, lightColor, darkColor]);
+		useEffect(() => {
+			setIconColor(colorScheme === "dark" ? darkColor : lightColor);
+		}, [colorScheme, lightColor, darkColor]);
 
-	return <Icon color={iconColor} {...props} />;
-}
+		return <Icon color={iconColor} {...props} />;
+	}

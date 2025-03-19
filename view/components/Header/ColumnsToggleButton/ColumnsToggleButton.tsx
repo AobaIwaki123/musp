@@ -4,7 +4,7 @@ import { isHalfWidthAtom } from "@/jotai/atom";
 import { ActionIcon } from "@mantine/core";
 import { IconColumns1, IconColumns2 } from "@tabler/icons-react";
 import { useAtom } from "jotai";
-import { ColorThemeToggleButtonWrapper } from "../../Icons/ColorThemeToggleButtonWrapper/ColorThemeToggleButtonWrapper";
+import { ModeIconWrapper } from "@/components/Icons/ModeIconWrapper/ModeIconWrapper";
 
 export function ColumnsToggleButton() {
 	const [isHalfWidth, setIsHalfWidth] = useAtom(isHalfWidthAtom);
@@ -22,9 +22,9 @@ export function ColumnsToggleButton() {
 			aria-label="Toggle columns"
 		>
 			{isHalfWidth ? (
-				<ColorThemeToggleButtonWrapper icon={IconColumns1} />
+				<ModeIconWrapper icon={IconColumns1} />
 			) : (
-				<ColorThemeToggleButtonWrapper icon={IconColumns2} />
+				<ModeIconWrapper icon={IconColumns2} />
 			)}
 		</ActionIcon>
 	);
