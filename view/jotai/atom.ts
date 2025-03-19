@@ -5,6 +5,9 @@ import { atomWithStorage } from 'jotai/utils';
 // base の値を 6/12 でトグルするフラグ
 export const isHalfWidthAtom = atomWithStorage('isHalfWidth', true);
 
+// Vocal / Inst. の選択状態を管理するAtom
+export const isVocalAtom = atomWithStorage('isVocal', true);
+
 // タイトルを管理するAtom
 export const titleAtom = atom<string>('');
 
