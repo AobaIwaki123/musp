@@ -39,9 +39,10 @@ def get_user_video(
     data = [
         VideoIDAndWavURL(
             youtube_id=row.videoID,
-            wav_url=row.wavURL
+            vocal_wav_url=row.wavURL
             if row.wavURL is not None
             else "http://example.com",  # None を明示的に設定
+            inst_wav_url="http://example.com",
         )
         for row in results
     ]

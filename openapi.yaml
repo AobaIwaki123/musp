@@ -162,10 +162,15 @@ components:
           description: YouTube video ID
           pattern: ^[a-zA-Z0-9_-]{11}$
           maximum: 11
-        wav_url:
+        vocal_wav_url:
           type: string
           format: uri
           description: Separated audio file URL
+          maximum: 200
+        inst_wav_url:
+          type: string
+          format: uri
+          description: Separated instrumental file URL
           maximum: 200
       required:
         - youtube_id

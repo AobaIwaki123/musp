@@ -45,7 +45,11 @@ export function Home() {
 				if (res.status_code === 201) {
 					setVideoIDAndWavURLList((prevList) => [
 						...prevList,
-						{ youtube_id: res.youtube_id, wav_url: "http://example.com" },
+						{
+							youtube_id: res.youtube_id,
+							voacal_wav_url: "http://example.com",
+							inst_wav_url: "http://example.com",
+						},
 					]);
 				}
 			})

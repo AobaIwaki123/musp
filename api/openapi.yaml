@@ -171,11 +171,17 @@ components:
           pattern: "^[a-zA-Z0-9_-]{11}$"
           title: youtube_id
           type: string
-        wav_url:
+        vocal_wav_url:
           description: Separated audio file URL
           format: uri
           maximum: 200
-          title: wav_url
+          title: vocal_wav_url
+          type: string
+        inst_wav_url:
+          description: Separated instrumental file URL
+          format: uri
+          maximum: 200
+          title: inst_wav_url
           type: string
       required:
       - youtube_id
@@ -188,9 +194,11 @@ components:
         status_message: Retrieved the list of YouTube IDs and Wav URLs for the user
         data:
         - youtube_id: 57Q4Hp46oXc
-          wav_url: https://example.com/wav.wav
+          vocal_wav_url: http://localhost:8000/static/57Q4Hp46oXc/vocal.wav
+          inst_wav_url: http://localhost:8000/static/57Q4Hp46oXc/inst.wav
         - youtube_id: 57Q4Hp46oXc
-          wav_url: null
+          vocal_wav_url: http://localhost:8000/static/57Q4Hp46oXc/vocal.wav
+          inst_wav_url: http://localhost:8000/static/57Q4Hp46oXc/inst.wav
       properties:
         status_code:
           description: Status code
