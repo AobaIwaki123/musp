@@ -1,11 +1,13 @@
 import { Select } from "@mantine/core";
+import classes from "./AudioSelect.module.css";
 
-function AudioSelect() {
+export function AudioSelect() {
 	return (
 		<Select
-			label="Your favorite library"
-			placeholder="Pick value"
-			data={["React", "Angular", "Vue", "Svelte"]}
+			data={["Vocal", "Inst."]}
+			defaultValue="Vocal"
+			allowDeselect={false}
+			className={classes.select}
 		/>
 	);
 }
