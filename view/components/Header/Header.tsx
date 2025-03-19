@@ -23,7 +23,7 @@ export function Header() {
 			<Container size="md" className={classes.inner}>
 				<Avatar src={userIcon} alt="it's me" />
 				<AudioSelect />
-				<Group>
+				<Group wrap="nowrap" >
 					<ColumnsToggleButton />
 					<ColorThemeToggleButton />
 				</Group>
