@@ -1,6 +1,6 @@
 import { ActionIcon } from "@mantine/core";
 import { IconClipboardCheck } from "@tabler/icons-react";
-import { ModeIconWrapper } from "../ModeIconWrapper/ModeIconWrapper";
+import { ColorThemeToggleButtonWrapper } from "../ColorThemeToggleButtonWrapper/ColorThemeToggleButtonWrapper";
 
 interface PasteIconProps {
 	handlePaste: () => void;
@@ -9,7 +9,7 @@ interface PasteIconProps {
 export function PasteIcon({ handlePaste }: PasteIconProps) {
 	return (
 		<ActionIcon size="lg" color="gray" variant="subtle" onClick={handlePaste}>
-			<ModeIconWrapper
+			<ColorThemeToggleButtonWrapper
 				icon={IconClipboardCheck}
 				darkColor="skyblue"
 				lightColor="skyblue"

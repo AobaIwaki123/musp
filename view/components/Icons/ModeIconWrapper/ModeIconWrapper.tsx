@@ -1,6 +1,6 @@
 import { useMantineColorScheme } from "@mantine/core";
 import { useEffect, useState } from "react";
-import type { ElementType, ComponentProps } from "react";
+import type { ComponentProps, ElementType } from "react";
 
 interface IconProps extends ComponentProps<any> {
 	icon: ElementType;
@@ -8,7 +8,7 @@ interface IconProps extends ComponentProps<any> {
 	darkColor?: string;
 }
 
-export function ModeIconWrapper({
+export function ColorThemeToggleButtonWrapper({
 	icon: Icon,
 	lightColor = "gray",
 	darkColor = "gray",

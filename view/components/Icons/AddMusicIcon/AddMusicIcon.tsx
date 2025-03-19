@@ -1,6 +1,6 @@
 import { ActionIcon } from "@mantine/core";
 import { IconMusicPlus } from "@tabler/icons-react";
-import { ModeIconWrapper } from "../../Icons/ModeIconWrapper/ModeIconWrapper";
+import { ColorThemeToggleButtonWrapper } from "../../Icons/ColorThemeToggleButtonWrapper/ColorThemeToggleButtonWrapper";
 
 interface AddMusicIconProps {
 	watchYoutubeUrl: string;
@@ -15,7 +15,7 @@ export function AddMusicIcon({ watchYoutubeUrl }: AddMusicIconProps) {
 			variant="subtle"
 			disabled={!watchYoutubeUrl} // 未入力の場合はボタンを無効化
 		>
-			<ModeIconWrapper
+			<ColorThemeToggleButtonWrapper
 				icon={IconMusicPlus}
 				darkColor={watchYoutubeUrl ? "pink" : "gray"}
 				lightColor={watchYoutubeUrl ? "pink" : "gray"}
