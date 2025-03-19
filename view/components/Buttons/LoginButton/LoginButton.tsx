@@ -4,7 +4,6 @@ import { signInOrUp } from "@/lib/login/signInAndUp";
 import { initializeApp } from "@firebase/app";
 import { getAuth, signInWithPopup } from "@firebase/auth";
 import { GoogleAuthProvider } from "@firebase/auth";
-import { useEffect } from "react";
 import { GoogleButton } from "../GoogleButton/GoogleButton";
 
 const firebaseConfig = {

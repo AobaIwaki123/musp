@@ -19,6 +19,7 @@ export const signInOrUp = async (firebaseUser: FirebaseUser) => {
 
     const user_id = res.user_id;
     storage.set('userID', user_id);
+    storage.set('userIcon', firebaseUser.photoURL);
 
     toRoot();
   } catch (error) {
