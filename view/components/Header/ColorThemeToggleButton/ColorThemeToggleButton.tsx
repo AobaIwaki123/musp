@@ -8,9 +8,9 @@ import {
 } from "@mantine/core";
 import { IconMoon, IconSun } from "@tabler/icons-react";
 import cx from "clsx";
-import classes from "./ModeIcon.module.css";
+import classes from "./ColorThemeToggleButton.module.css";
 
-export function ModeIcon() {
+export function ColorThemeToggleButton() {
 	const { setColorScheme } = useMantineColorScheme();
 	const computedColorScheme = useComputedColorScheme();
 

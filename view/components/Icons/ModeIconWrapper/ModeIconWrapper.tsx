@@ -1,6 +1,6 @@
 import { useMantineColorScheme } from "@mantine/core";
 import { useEffect, useState } from "react";
-import type { ElementType, ComponentProps } from "react";
+import type { ComponentProps, ElementType } from "react";
 
 interface IconProps extends ComponentProps<any> {
 	icon: ElementType;
@@ -9,17 +9,17 @@ interface IconProps extends ComponentProps<any> {
 }
 
 export function ModeIconWrapper({
-	icon: Icon,
-	lightColor = "gray",
-	darkColor = "gray",
-	...props
-}: IconProps) {
-	const { colorScheme } = useMantineColorScheme();
-	const [iconColor, setIconColor] = useState(lightColor);
+		icon: Icon,
+		lightColor = "gray",
+		darkColor = "gray",
+		...props
+	}: IconProps) {
+		const { colorScheme } = useMantineColorScheme();
+		const [iconColor, setIconColor] = useState(lightColor);
 
-	useEffect(() => {
-		setIconColor(colorScheme === "dark" ? darkColor : lightColor);
-	}, [colorScheme, lightColor, darkColor]);
+		useEffect(() => {
+			setIconColor(colorScheme === "dark" ? darkColor : lightColor);
+		}, [colorScheme, lightColor, darkColor]);
 
-	return <Icon color={iconColor} {...props} />;
-}
+		return <Icon color={iconColor} {...props} />;
+	}

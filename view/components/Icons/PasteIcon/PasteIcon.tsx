@@ -1,6 +1,6 @@
 import { ActionIcon } from "@mantine/core";
 import { IconClipboardCheck } from "@tabler/icons-react";
-import { ModeIconWrapper } from "../ModeIconWrapper/ModeIconWrapper";
+import { ModeIconWrapper } from "@/components/Icons/ModeIconWrapper/ModeIconWrapper";
 
 interface PasteIconProps {
 	handlePaste: () => void;

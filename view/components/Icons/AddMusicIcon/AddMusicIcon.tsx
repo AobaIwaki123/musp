@@ -1,6 +1,6 @@
 import { ActionIcon } from "@mantine/core";
 import { IconMusicPlus } from "@tabler/icons-react";
-import { ModeIconWrapper } from "../../Icons/ModeIconWrapper/ModeIconWrapper";
+import { ModeIconWrapper } from "@/components/Icons/ModeIconWrapper/ModeIconWrapper";
 
 interface AddMusicIconProps {
 	watchYoutubeUrl: string;

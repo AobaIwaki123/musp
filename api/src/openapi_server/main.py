@@ -22,8 +22,6 @@ from openapi_server.apis.post_api import (
     router as POSTApiRouter,
 )
 
-ENV = os.getenv("ENV", "development")
-
 origins = [
     os.getenv("FRONTEND_URL", "http://localhost:3000"),
 ]
@@ -32,11 +30,6 @@ app = FastAPI(
     title="MuSP API",
     description="MuSP is a web application that downloads audio from YouTube links and separates the audio and vocals using Demucs. This API specification provides endpoints for job creation, status checking, and retrieving separated audio files. ",
     version="1.0.0",
-    docs_url=None if ENV == "production" else "/docs",
-    redoc_url=None if ENV == "production" else "/redoc",
-    openapi_url=None
-    if ENV == "production"
-    else "/openapi.json",
 )
 
 app.add_middleware(

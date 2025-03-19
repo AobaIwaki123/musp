@@ -1,6 +1,6 @@
 "use client";
 
-import { thumbnailAtom, wavFileAtom, titleAtom } from "@/jotai/atom";
+import { thumbnailAtom, wavURLAtom, titleAtom } from "@/jotai/atom";
 import { Avatar, Container, Text } from "@mantine/core";
 import { useAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +12,7 @@ import classes from "./AudioFooter.module.css";
 export function AudioFooter() {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
-	const [wavFile] = useAtom(wavFileAtom);
+	const [wavURL] = useAtom(wavURLAtom);
 	const [thumbnail] = useAtom(thumbnailAtom);
 	const [title] = useAtom(titleAtom);
 	const [currentTime, setCurrentTime] = useState(0);
@@ -57,7 +57,7 @@ export function AudioFooter() {
 		}
 	};
 
-	if (!wavFile) return null;
+	if (!wavURL) return null;
 
 	return (
 		<div className={classes.footer}>
@@ -69,7 +69,7 @@ export function AudioFooter() {
 			<Container fluid className={classes.inner}>
 				<audio ref={audioRef}>
 					<track kind="captions" />
-					<source src={wavFile} type="audio/wav" />
+					<source src={wavURL} type="audio/wav" />
 				</audio>
 				{thumbnail && <Avatar src={thumbnail} size={40} radius="md" />}
 				<Text size="xs" lineClamp={2} className={classes.text}>{title}</Text>

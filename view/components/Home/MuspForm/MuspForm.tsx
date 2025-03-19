@@ -22,7 +22,7 @@ interface MuspFormProps {
 
 export function MuspForm({ onSubmit }: MuspFormProps) {
 	const [isFocused, setIsFocused] = useState(false);
-	const [userID, _] = useAtom(userIDAtom);
+	const [userID, setUserID] = useAtom(userIDAtom);
 
 	const {
 		register,

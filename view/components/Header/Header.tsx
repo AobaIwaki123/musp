@@ -1,17 +1,31 @@
-import { Container, Group } from "@mantine/core";
-import { ModeIcon } from "../Icons/ModeIcon/ModeIcon";
-import { WidthToggleIcon } from "../Icons/WidthToggleIcon/WidthToggleIcon";
+"use client";
+import { useEffect, useState } from "react";
+
+import { storage } from "@/helper/localStorageHelper";
+import { Avatar, Container, Group } from "@mantine/core";
+import { AudioSelect } from "./AudioSelect/AudioSelect";
+import { ColorThemeToggleButton } from "./ColorThemeToggleButton/ColorThemeToggleButton";
+import { ColumnsToggleButton } from "./ColumnsToggleButton/ColumnsToggleButton";
 import classes from "./Header.module.css";
-import { MuspLogo } from "./MuspLogo/MuspLogo";
 
 export function Header() {
+	const [userIcon, setUserIcon] = useState<string>("/MuspIcon/MuspIcon-2.webp");
+
+	useEffect(() => {
+		const userIcon = storage.get("userIcon", "/MuspIcon/MuspIcon-2.webp");
+		if (userIcon) {
+			setUserIcon(userIcon);
+		}
+	}, []);
+
 	return (
 		<header className={classes.header}>
 			<Container size="md" className={classes.inner}>
-				<MuspLogo />
-				<Group>
-					<WidthToggleIcon />
-					<ModeIcon />
+				<Avatar src={userIcon} alt="it's me" />
+				<AudioSelect />
+				<Group wrap="nowrap" >
+					<ColumnsToggleButton />
+					<ColorThemeToggleButton />
 				</Group>
 			</Container>
 		</header>

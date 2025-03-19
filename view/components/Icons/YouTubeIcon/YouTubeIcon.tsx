@@ -1,6 +1,6 @@
 import { ActionIcon } from "@mantine/core";
 import { IconBrandYoutube } from "@tabler/icons-react";
-import { ModeIconWrapper } from "../../Icons/ModeIconWrapper/ModeIconWrapper";
+import { ModeIconWrapper } from "@/components/Icons/ModeIconWrapper/ModeIconWrapper";
 
 export function YouTubeIcon() {
 	return (
