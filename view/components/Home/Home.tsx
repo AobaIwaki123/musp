@@ -144,6 +144,7 @@ export function Home() {
 				return [];
 			});
 	};
+
 	useEffect(() => {
 		const converted: ApplicationCardProps[] = Object.entries(videoDict).map(
 			([youtube_id, { vocal_wav_url, inst_wav_url }]) => {
@@ -155,6 +156,7 @@ export function Home() {
 		);
 		setVideoIDAndWavURLList(converted);
 	}, [videoDict]);
+	
 	return (
 		<>
 			{isShowLoginModal && <LoginModal />}

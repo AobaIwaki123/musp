@@ -52,9 +52,11 @@ class POSTApiImpl(BasePOSTApi):
     ) -> Union[PostVideoResponse, ErrorResponse400]:
         """YouTubeリンクを元に音源のダウンロードと音源/ボーカル分離のジョブを作成します。"""
         try:
+            print("post_video_request: ", post_video_request)
             process_source.apply_async(
                 args=[post_video_request.to_dict()]
             )
+            print("process_source.apply_async")
             video_id = get_youtube_video_id(
                 post_video_request.youtube_url
             )
