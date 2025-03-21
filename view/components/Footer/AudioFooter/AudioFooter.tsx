@@ -1,27 +1,27 @@
 "use client";
 
-import {
-	thumbnailAtom,
-	titleAtom,
-	videoIDAtom,
-	wavURLAtom,
-} from "@/jotai/atom";
-import { Avatar, Container, Text } from "@mantine/core";
-import { useAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
+import { useAtom } from "jotai";
+import { Container, Text, Avatar } from "@mantine/core";
 import { CustomSlider } from "./ButtomSeekBar/ProgressSlider";
 import { PlayButton } from "./PlayButton";
+
+import {
+	wavURLAtom,
+	titleAtom,
+	thumbnailAtom,
+} from "@/jotai/audioPlayer/selectors";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 
 import classes from "./AudioFooter.module.css";
 
 export function AudioFooter() {
 	const [wavURL] = useAtom(wavURLAtom);
-	const [thumbnail] = useAtom(thumbnailAtom);
 	const [title] = useAtom(titleAtom);
-	const [_, setVideoID] = useAtom(videoIDAtom);
+	const [thumbnail] = useAtom(thumbnailAtom);
+	const { next } = useAudioPlayer();
 
 	const audioRef = useRef<HTMLAudioElement | null>(null);
-
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
@@ -37,6 +37,13 @@ export function AudioFooter() {
 		}
 	};
 
+	const handleSeek = (value: number) => {
+		if (audioRef.current) {
+			audioRef.current.currentTime = value;
+			setCurrentTime(value);
+		}
+	};
+
 	useEffect(() => {
 		if (audioRef.current) {
 			const audio = audioRef.current;
@@ -45,19 +52,17 @@ export function AudioFooter() {
 
 			const updateTime = () => {
 				setCurrentTime(audio.currentTime);
-				setDuration(audio.duration);
+				setDuration(audio.duration || 0);
 			};
 
 			const handleEnded = () => {
 				setIsPlaying(false);
-				setCurrentTime(0); // 必要に応じてリセット
-				// ここで再生終了時の処理を記述（例：次の音声に切り替えるなど）
-				console.log("再生が終了しました");
+				next(); // 次の楽曲へ！
 			};
 
 			audio.addEventListener("timeupdate", updateTime);
 			audio.addEventListener("loadedmetadata", updateTime);
-			audio.addEventListener("ended", handleEnded); // ★追加
+			audio.addEventListener("ended", handleEnded);
 
 			return () => {
 				audio.removeEventListener("timeupdate", updateTime);
@@ -65,14 +70,7 @@ export function AudioFooter() {
 				audio.removeEventListener("ended", handleEnded);
 			};
 		}
-	}, []);
-
-	const handleSeek = (value: number) => {
-		if (audioRef.current) {
-			audioRef.current.currentTime = value;
-			setCurrentTime(value);
-		}
-	};
+	}, [next]);
 
 	if (!wavURL) return null;
 
