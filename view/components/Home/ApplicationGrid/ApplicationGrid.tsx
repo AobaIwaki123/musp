@@ -1,17 +1,17 @@
 "use client";
 
-import type { VideoIDAndWavURLType } from "@/client/client";
 import { isHalfWidthAtom } from "@/jotai/atom";
 import { Container, Grid } from "@mantine/core";
 import { useAtom } from "jotai";
 import { ApplicationCard } from "./ApplicationCard/ApplicationCard";
+import type { ApplicationCardProps } from "./ApplicationCard/ApplicationCard";
 
 interface ApplicationGridProps {
-	videos: VideoIDAndWavURLType[];
+	videos: ApplicationCardProps[]; // indexやall_ids含む前提
 }
 
 export function ApplicationGrid({ videos }: ApplicationGridProps) {
-	const [isHalfWidth, _] = useAtom(isHalfWidthAtom);
+	const [isHalfWidth] = useAtom(isHalfWidthAtom);
 
 	return (
 		<Container my="md">

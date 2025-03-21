@@ -23,8 +23,8 @@ export type ErrorResponse400Type = z.infer<typeof ErrorResponse400>;
 
 export const VideoIDAndWavURL = z.object({
   youtube_id: z.string().regex(/^[a-zA-Z0-9_-]{11}$/),
-  vocal_wav_url: z.string().url().optional(),
-  inst_wav_url: z.string().url().optional(),
+  vocal_wav_url: z.string().url(),
+  inst_wav_url: z.string().url(),
 });
 export type VideoIDAndWavURLType = z.infer<typeof VideoIDAndWavURL>;
 

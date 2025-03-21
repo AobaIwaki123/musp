@@ -1,6 +1,6 @@
 "use client";
 
-import { wavURLAtom } from "@/jotai/atom";
+import { wavURLAtom } from "@/jotai/audioPlayer/selectors";
 import { Button } from "@mantine/core";
 import { IconRefresh } from "@tabler/icons-react";
 import { useAtom } from "jotai";

@@ -184,6 +184,8 @@ components:
           title: inst_wav_url
           type: string
       required:
+      - inst_wav_url
+      - vocal_wav_url
       - youtube_id
       title: VideoIDAndWavURL
       type: object
@@ -194,11 +196,11 @@ components:
         status_message: Retrieved the list of YouTube IDs and Wav URLs for the user
         data:
         - youtube_id: 57Q4Hp46oXc
-          vocal_wav_url: http://localhost:8000/static/57Q4Hp46oXc/vocal.wav
-          inst_wav_url: http://localhost:8000/static/57Q4Hp46oXc/inst.wav
+          vocal_wav_url: http://localhost:8000/57Q4Hp46oXc/vocal.wav
+          inst_wav_url: http://localhost:8000/57Q4Hp46oXc/instrumental.wav
         - youtube_id: 57Q4Hp46oXc
-          vocal_wav_url: http://localhost:8000/static/57Q4Hp46oXc/vocal.wav
-          inst_wav_url: http://localhost:8000/static/57Q4Hp46oXc/inst.wav
+          vocal_wav_url: http://localhost:8000/57Q4Hp46oXc/vocal.wav
+          inst_wav_url: http://localhost:8000/57Q4Hp46oXc/instrumental.wav
       properties:
         status_code:
           description: Status code
