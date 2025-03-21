@@ -45,8 +45,7 @@ export function Home() {
 	// 初回読み込み
 	useEffect(() => {
 		handleReload();
-		console.log("wavURL", wavURL);
-	}, [wavURL]);
+	}, []);
 
 	useEffect(() => {
 		setCurrentIndex(-1);
