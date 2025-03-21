@@ -7,14 +7,14 @@ import { api } from "@/client/api";
 import type { PostVideoRequestType } from "@/client/client";
 import { youtubeApi } from "@/client/youtube.api";
 import type {
-	VideoDetailsResponseType,
 	ErrorResponseType,
+	VideoDetailsResponseType,
 } from "@/client/youtube.client";
 
 import { ReloadButton } from "@/components/Buttons/ReloadButton/ReloadButton";
+import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
 import { LoginModal } from "./LoginModal/LoginModal";
 import { MuspForm } from "./MuspForm/MuspForm";
-import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
 
 import { convertToVideoDict } from "@/dto/toVideoDict";
 import { convertToVideoDictEntry } from "@/dto/toVideoDictEntry";
@@ -41,8 +41,6 @@ export function Home() {
 	const [wavURL] = useAtom(wavURLAtom);
 
 	const [videoDict, setVideoDict] = useState<Record<string, any>>({});
-
-
 
 	// 初回読み込み
 	useEffect(() => {
@@ -89,7 +87,6 @@ export function Home() {
 		setSongMap(songMap);
 		setCardProps(cards);
 	}, [videoDict, setAudioQueue, setSongMap]);
-
 
 	const handleReload = () => {
 		const userID = storage.get("userID", "");

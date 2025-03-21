@@ -2,7 +2,7 @@
 
 import { Avatar, Container, Text } from "@mantine/core";
 import { useAtom } from "jotai";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { CustomSlider } from "./ButtomSeekBar/ProgressSlider";
 import { PlayButton } from "./PlayButton";
 
@@ -47,7 +47,7 @@ export function AudioFooter() {
 	};
 
 	useEffect(() => {
-		if (audioRef.current && currentIndex !== -1) {
+		if (audioRef.current) {
 			const audio = audioRef.current;
 			audio.play();
 			setIsPlaying(true);
@@ -72,7 +72,7 @@ export function AudioFooter() {
 				audio.removeEventListener("ended", handleEnded);
 			};
 		}
-	}, [next, currentIndex]);
+	}, [next]);
 
 	return (
 		<div className={classes.footer}>

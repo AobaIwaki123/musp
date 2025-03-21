@@ -1,5 +1,6 @@
 // jotai/audioPlayer/atoms.ts
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import type { SongData, TrackType } from './types';
 
 // 再生対象の楽曲IDリスト（queue）
@@ -12,7 +13,7 @@ export const currentIndexAtom = atom<number>(0);
 export const songMapAtom = atom<Record<string, SongData>>({});
 
 // 現在選択中のトラック（例: vocal, inst）
-export const trackTypeAtom = atom<TrackType>('vocal');
+export const trackTypeAtom = atomWithStorage<TrackType>('trackType', 'vocal');
 
 // 現在のvideoIDは、queueとindexから導出される形式でも可
 export const videoIDAtom = atom(
