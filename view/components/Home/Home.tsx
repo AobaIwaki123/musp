@@ -26,6 +26,7 @@ import type { ApplicationCardProps } from "./ApplicationGrid/ApplicationCard/App
 import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
 import { LoginModal } from "./LoginModal/LoginModal";
 import { MuspForm } from "./MuspForm/MuspForm";
+import { audioQueueAtom, currentIndexAtom } from "@/jotai/audio";
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
