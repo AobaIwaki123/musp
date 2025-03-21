@@ -26,6 +26,7 @@ import {
 	currentIndexAtom,
 	songMapAtom,
 } from "@/jotai/audioPlayer/atoms";
+import { wavURLAtom } from "@/jotai/audioPlayer/selectors";
 import type { SongData } from "@/jotai/audioPlayer/types";
 import type { ApplicationCardProps } from "./ApplicationGrid/ApplicationCard/ApplicationCard";
 
@@ -37,6 +38,7 @@ export function Home() {
 	const [_, setAudioQueue] = useAtom(audioQueueAtom);
 	const [__, setSongMap] = useAtom(songMapAtom);
 	const [___, setCurrentIndex] = useAtom(currentIndexAtom);
+	const [wavURL] = useAtom(wavURLAtom);
 
 	const [videoDict, setVideoDict] = useState<Record<string, any>>({});
 
@@ -45,7 +47,8 @@ export function Home() {
 	// 初回読み込み
 	useEffect(() => {
 		handleReload();
-	}, []);
+		console.log("wavURL", wavURL);
+	}, [wavURL]);
 
 	// videoDictが更新されたらJotai stateを更新
 	const [cardProps, setCardProps] = useState<ApplicationCardProps[]>([]);
@@ -80,7 +83,6 @@ export function Home() {
 
 		setAudioQueue(ids);
 		setSongMap(songMap);
-		setCurrentIndex(0); // 最初の曲から再生したい場合（任意）
 		setCardProps(cards);
 	}, [videoDict, setAudioQueue, setSongMap, setCurrentIndex]);
 

@@ -72,8 +72,6 @@ export function AudioFooter() {
 		}
 	}, [next]);
 
-	if (!wavURL) return null;
-
 	return (
 		<div className={classes.footer}>
 			<CustomSlider

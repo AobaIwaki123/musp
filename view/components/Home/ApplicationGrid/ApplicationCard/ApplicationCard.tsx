@@ -22,14 +22,15 @@ export function ApplicationCard({
 	all_ids,
 }: ApplicationCardProps) {
 	const [isPressed, setIsPressed] = useState(false);
-	const { setNewQueueAndPlay } = useAudioPlayer();
+	const { setNewQueue, playAt } = useAudioPlayer();
 
 	const getThumbnail = (youtube_id: string) => {
 		return `https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`;
 	};
 
 	const handleLoadWav = () => {
-		setNewQueueAndPlay(all_ids, index);
+		// setNewQueue(all_ids);
+		playAt(index);
 	};
 
 	return (
