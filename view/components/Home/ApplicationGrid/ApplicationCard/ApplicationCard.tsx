@@ -2,9 +2,7 @@
 
 import { AspectRatio, Card, Image } from "@mantine/core";
 import { useState } from "react";
-
-import { videoIDAtom } from "@/jotai/atom";
-import { useAtom } from "jotai";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 
 import classes from "./ApplicationCard.module.css";
 import { LoaderIcon } from "./LoaderIcon";
@@ -13,22 +11,25 @@ import { PlayButton } from "./PlayButton/PlayButton";
 export type ApplicationCardProps = {
 	youtube_id: string;
 	is_ready: boolean;
+	index: number;
+	all_ids: string[]; // 再生可能なID一覧（Homeから渡す）
 };
 
 export function ApplicationCard({
 	youtube_id,
 	is_ready,
+	index,
+	all_ids,
 }: ApplicationCardProps) {
-	const [_, setVideoID] = useAtom(videoIDAtom);
-
 	const [isPressed, setIsPressed] = useState(false);
+	const { setNewQueueAndPlay } = useAudioPlayer();
 
 	const getThumbnail = (youtube_id: string) => {
 		return `https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`;
 	};
 
 	const handleLoadWav = () => {
-		setVideoID(youtube_id);
+		setNewQueueAndPlay(all_ids, index);
 	};
 
 	return (
@@ -41,8 +42,8 @@ export function ApplicationCard({
 			style={{
 				transform: isPressed ? "scale(0.95)" : "scale(1)",
 				transition: "transform 0.1s ease-in-out",
-				pointerEvents: !is_ready ? "none" : "auto", // wav_urlがない場合クリック不可
-				opacity: !is_ready ? 0.6 : 1, // 視覚的に無効化感を出す
+				pointerEvents: !is_ready ? "none" : "auto",
+				opacity: !is_ready ? 0.6 : 1,
 			}}
 			onMouseDown={() => is_ready && setIsPressed(true)}
 			onMouseUp={() => setIsPressed(false)}
@@ -52,7 +53,6 @@ export function ApplicationCard({
 			onTouchCancel={() => setIsPressed(false)}
 			onClick={() => {
 				if (is_ready) {
-					/* クリック処理をここに追加 */
 					handleLoadWav();
 				}
 			}}

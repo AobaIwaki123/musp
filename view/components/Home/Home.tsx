@@ -1,133 +1,94 @@
 "use client";
 
+import { useAtom } from "jotai";
+import { useEffect, useState } from "react";
+
 import { api } from "@/client/api";
 import type { PostVideoRequestType } from "@/client/client";
 import { youtubeApi } from "@/client/youtube.api";
 import type {
-	ErrorResponseType,
 	VideoDetailsResponseType,
+	ErrorResponseType,
 } from "@/client/youtube.client";
+
 import { ReloadButton } from "@/components/Buttons/ReloadButton/ReloadButton";
-import type { VideoDict } from "@/dto/toVideoDict";
+import { LoginModal } from "./LoginModal/LoginModal";
+import { MuspForm } from "./MuspForm/MuspForm";
+import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
+
 import { convertToVideoDict } from "@/dto/toVideoDict";
 import { convertToVideoDictEntry } from "@/dto/toVideoDictEntry";
 import { storage } from "@/helper/localStorageHelper";
+
+import { isShowLoginModalAtom } from "@/jotai/atom";
 import {
-	isShowLoginModalAtom,
-	isVocalAtom,
-	thumbnailAtom,
-	titleAtom,
-	videoIDAtom,
-	wavURLAtom,
-} from "@/jotai/atom";
-import { useAtom } from "jotai";
-import { useEffect, useState } from "react";
+	audioQueueAtom,
+	currentIndexAtom,
+	songMapAtom,
+} from "@/jotai/audioPlayer/atoms";
+import type { SongData } from "@/jotai/audioPlayer/types";
 import type { ApplicationCardProps } from "./ApplicationGrid/ApplicationCard/ApplicationCard";
-import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
-import { LoginModal } from "./LoginModal/LoginModal";
-import { MuspForm } from "./MuspForm/MuspForm";
-import { audioQueueAtom, currentIndexAtom } from "@/jotai/audio";
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
 
 export function Home() {
 	const [isShowLoginModal] = useAtom(isShowLoginModalAtom);
-	const [videoID, setVideoID] = useAtom(videoIDAtom);
-	const [isVocal, setIsVocal] = useAtom(isVocalAtom);
-	const [wavURL, setWavURL] = useAtom(wavURLAtom);
-	const [thumbnail, setThumbnail] = useAtom(thumbnailAtom);
-	const [title, setTitle] = useAtom(titleAtom);
+	const [_, setAudioQueue] = useAtom(audioQueueAtom);
+	const [__, setSongMap] = useAtom(songMapAtom);
+	const [___, setCurrentIndex] = useAtom(currentIndexAtom);
 
-	const [videoIDAndWavURLList, setVideoIDAndWavURLList] = useState<
-		ApplicationCardProps[]
-	>([]);
-	const [videoDict, setVideoDict] = useState<VideoDict>({});
+	const [videoDict, setVideoDict] = useState<Record<string, any>>({});
 
+
+
+	// 初回読み込み
 	useEffect(() => {
 		handleReload();
 	}, []);
 
+	// videoDictが更新されたらJotai stateを更新
+	const [cardProps, setCardProps] = useState<ApplicationCardProps[]>([]);
+
 	useEffect(() => {
-		if (videoID) {
-			handlePlayVideo(videoID);
-		}
-	}, [videoID]);
+		const ids = Object.keys(videoDict);
+		const songMap: Record<string, SongData> = {};
+		const cards: ApplicationCardProps[] = [];
 
-	const handlePlayVideo = (key: string) => {
-		getTitle(key);
-		getThumbnail(key);
-		const vocalWavURL = videoDict[key]?.vocal_wav_url;
-		const instWavURL = videoDict[key]?.inst_wav_url;
-		setWavURL(isVocal ? vocalWavURL : instWavURL);
-	};
+		ids.forEach((id, index) => {
+			const video = videoDict[id];
+			const is_ready =
+				video.vocal_wav_url !== "http://example.com" &&
+				video.inst_wav_url !== "http://example.com";
 
-	const getThumbnail = (youtube_id: string) => {
-		const url = `https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`;
-		setThumbnail(url);
-	};
-
-	const getTitle = (youtube_id: string) => {
-		if (!YOUTUBE_API_KEY) {
-			throw new Error("YOUTUBE_API_KEY is not set");
-		}
-		youtubeApi
-			.getVideos({
-				queries: {
-					key: YOUTUBE_API_KEY,
-					part: "snippet",
-					id: youtube_id,
+			songMap[id] = {
+				title: "", // title取得処理が別なのであとで埋められるならOK
+				thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+				wav: {
+					vocal: video.vocal_wav_url,
+					inst: video.inst_wav_url,
 				},
-			})
-			.then((res: VideoDetailsResponseType) => {
-				if (!res.items) {
-					throw new Error("No items found");
-				}
-				if (!res.items[0].snippet) {
-					throw new Error("No snippet found");
-				}
-				if (!res.items[0].snippet.title) {
-					throw new Error("No title found");
-				}
-				setTitle(res.items[0].snippet.title);
-			})
-			.catch((err: ErrorResponseType) => {
-				console.error(err);
+			};
+
+			cards.push({
+				youtube_id: id,
+				is_ready,
+				index,
+				all_ids: ids,
 			});
-	};
+		});
 
-	const handleAddVideo = (url: string) => {
-		const userID = storage.get("userID", "");
-		if (!userID) {
-			return;
-		}
+		setAudioQueue(ids);
+		setSongMap(songMap);
+		setCurrentIndex(0); // 最初の曲から再生したい場合（任意）
+		setCardProps(cards);
+	}, [videoDict, setAudioQueue, setSongMap, setCurrentIndex]);
 
-		const data: PostVideoRequestType = {
-			user_id: userID,
-			youtube_url: url,
-		};
-
-		api
-			.postVideo(data, {
-				headers: { "X-API-KEY": apiKey },
-			})
-			.then((res) => {
-				if (res.status_code === 201) {
-					setVideoDict((prevDict) => {
-						return { ...prevDict, ...convertToVideoDictEntry(res) };
-					});
-				}
-			})
-			.catch((err) => {
-				console.error(err);
-			});
-	};
 
 	const handleReload = () => {
 		const userID = storage.get("userID", "");
-		if (!userID) {
-			return;
-		}
+		if (!userID) return;
+
 		api
 			.getUser_id({
 				params: { user_id: userID },
@@ -138,28 +99,37 @@ export function Home() {
 			})
 			.catch((err) => {
 				console.error(err);
-				return [];
 			});
 	};
 
-	useEffect(() => {
-		const converted: ApplicationCardProps[] = Object.entries(videoDict).map(
-			([youtube_id, { vocal_wav_url, inst_wav_url }]) => {
-				const is_ready =
-					vocal_wav_url !== "http://example.com" &&
-					inst_wav_url !== "http://example.com";
-				return { youtube_id, is_ready };
-			},
-		);
-		setVideoIDAndWavURLList(converted);
-	}, [videoDict]);
+	const handleAddVideo = (url: string) => {
+		const userID = storage.get("userID", "");
+		if (!userID) return;
+
+		const data: PostVideoRequestType = {
+			user_id: userID,
+			youtube_url: url,
+		};
+
+		api
+			.postVideo(data, { headers: { "X-API-KEY": apiKey } })
+			.then((res) => {
+				if (res.status_code === 201) {
+					setVideoDict((prev) => ({
+						...prev,
+						...convertToVideoDictEntry(res),
+					}));
+				}
+			})
+			.catch((err) => console.error(err));
+	};
 
 	return (
 		<>
 			{isShowLoginModal && <LoginModal />}
 			{!isShowLoginModal && <ReloadButton onClick={handleReload} />}
 			<MuspForm onSubmit={handleAddVideo} />
-			<ApplicationGrid videos={videoIDAndWavURLList} />
+			<ApplicationGrid videos={cardProps} />
 		</>
 	);
 }
