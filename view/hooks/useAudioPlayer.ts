@@ -1,24 +1,18 @@
-;
-
 // hooks/useAudioPlayer.ts
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { audioQueueAtom, currentIndexAtom, trackTypeAtom, videoIDAtom } from '@/jotai/audioPlayer/atoms';
+import {
+  audioQueueAtom,
+  currentIndexAtom,
+  trackTypeAtom,
+  videoIDAtom,
+} from '@/jotai/audioPlayer/atoms';
 import type { TrackType } from '@/jotai/audioPlayer/types';
-
-
-;
-
-
-
-
-
 
 export function useAudioPlayer() {
   const [queue, setQueue] = useAtom(audioQueueAtom);
   const [currentIndex, setCurrentIndex] = useAtom(currentIndexAtom);
   const [trackType, setTrackType] = useAtom(trackTypeAtom);
-  const [, setVideoID] = useAtom(videoIDAtom);
 
   const setNewQueue = useCallback(
     (ids: string[]) => {
@@ -60,8 +54,8 @@ export function useAudioPlayer() {
     queue,
     currentIndex,
     trackType,
-    setNewQueue,       // ← 新たに分離された関数
-    playAt,            // ← 再生のみ
+    setNewQueue, // ← 新たに分離された関数
+    playAt, // ← 再生のみ
     next,
     prev,
     switchTrack,

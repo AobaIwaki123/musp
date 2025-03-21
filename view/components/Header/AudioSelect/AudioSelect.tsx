@@ -2,12 +2,15 @@
 
 import { Select } from "@mantine/core";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAtom } from "jotai";
+import { trackTypeAtom } from "@/jotai/audioPlayer/atoms";
 
 import classes from "./AudioSelect.module.css";
 
 export function AudioSelect() {
 	const { switchTrack } = useAudioPlayer();
+	const [trackType] = useAtom(trackTypeAtom);
 
 	const labelToType = {
 		Vocal: "vocal",
@@ -15,6 +18,11 @@ export function AudioSelect() {
 	} as const;
 
 	const [selected, setSelected] = useState<keyof typeof labelToType>("Vocal");
+
+	useEffect(() => {
+		setSelected(trackType === "vocal" ? "Vocal" : "Inst.");
+	}, [trackType]);
+
 
 	return (
 		<Select

@@ -7,7 +7,6 @@ import { CustomSlider } from "./ButtomSeekBar/ProgressSlider";
 import { PlayButton } from "./PlayButton";
 
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import { currentIndexAtom } from "@/jotai/audioPlayer/atoms";
 import {
 	thumbnailAtom,
 	titleAtom,
@@ -21,7 +20,6 @@ export function AudioFooter() {
 	const [title] = useAtom(titleAtom);
 	const [thumbnail] = useAtom(thumbnailAtom);
 	const { next } = useAudioPlayer();
-	const [currentIndex] = useAtom(currentIndexAtom);
 
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
