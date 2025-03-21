@@ -1,10 +1,7 @@
 "use client";
 
 import { api } from "@/client/api";
-import type {
-	PostVideoRequestType,
-	VideoIDAndWavURLType,
-} from "@/client/client";
+import type { PostVideoRequestType } from "@/client/client";
 import { youtubeApi } from "@/client/youtube.api";
 import type {
 	ErrorResponseType,
@@ -25,11 +22,10 @@ import {
 } from "@/jotai/atom";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { set } from "zod";
+import type { ApplicationCardProps } from "./ApplicationGrid/ApplicationCard/ApplicationCard";
 import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
 import { LoginModal } from "./LoginModal/LoginModal";
 import { MuspForm } from "./MuspForm/MuspForm";
-import type { ApplicationCardProps } from "./ApplicationGrid/ApplicationCard/ApplicationCard";
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
@@ -156,7 +152,7 @@ export function Home() {
 		);
 		setVideoIDAndWavURLList(converted);
 	}, [videoDict]);
-	
+
 	return (
 		<>
 			{isShowLoginModal && <LoginModal />}

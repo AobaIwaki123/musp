@@ -1,6 +1,11 @@
 "use client";
 
-import { thumbnailAtom, wavURLAtom, titleAtom } from "@/jotai/atom";
+import {
+	thumbnailAtom,
+	titleAtom,
+	videoIDAtom,
+	wavURLAtom,
+} from "@/jotai/atom";
 import { Avatar, Container, Text } from "@mantine/core";
 import { useAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
@@ -10,11 +15,14 @@ import { PlayButton } from "./PlayButton";
 import classes from "./AudioFooter.module.css";
 
 export function AudioFooter() {
-	const audioRef = useRef<HTMLAudioElement | null>(null);
-	const [isPlaying, setIsPlaying] = useState(false);
 	const [wavURL] = useAtom(wavURLAtom);
 	const [thumbnail] = useAtom(thumbnailAtom);
 	const [title] = useAtom(titleAtom);
+	const [_, setVideoID] = useAtom(videoIDAtom);
+
+	const audioRef = useRef<HTMLAudioElement | null>(null);
+
+	const [isPlaying, setIsPlaying] = useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
 
@@ -40,12 +48,21 @@ export function AudioFooter() {
 				setDuration(audio.duration);
 			};
 
+			const handleEnded = () => {
+				setIsPlaying(false);
+				setCurrentTime(0); // 必要に応じてリセット
+				// ここで再生終了時の処理を記述（例：次の音声に切り替えるなど）
+				console.log("再生が終了しました");
+			};
+
 			audio.addEventListener("timeupdate", updateTime);
 			audio.addEventListener("loadedmetadata", updateTime);
+			audio.addEventListener("ended", handleEnded); // ★追加
 
 			return () => {
 				audio.removeEventListener("timeupdate", updateTime);
 				audio.removeEventListener("loadedmetadata", updateTime);
+				audio.removeEventListener("ended", handleEnded);
 			};
 		}
 	}, []);
@@ -72,7 +89,9 @@ export function AudioFooter() {
 					<source src={wavURL} type="audio/wav" />
 				</audio>
 				{thumbnail && <Avatar src={thumbnail} size={40} radius="md" />}
-				<Text size="xs" lineClamp={2} className={classes.text}>{title}</Text>
+				<Text size="xs" lineClamp={2} className={classes.text}>
+					{title}
+				</Text>
 				<PlayButton isPlaying={isPlaying} onClick={togglePlay} />
 			</Container>
 		</div>
