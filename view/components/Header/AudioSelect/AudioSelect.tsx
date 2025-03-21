@@ -3,7 +3,7 @@
 import { isVocalAtom } from "@/jotai/atom";
 import { Select } from "@mantine/core";
 import { useAtom } from "jotai";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import classes from "./AudioSelect.module.css";
 
@@ -12,6 +12,10 @@ export function AudioSelect() {
 	const [selectedValue, setSelectedValue] = useState(
 		isVocal ? "Vocal" : "Inst.",
 	);
+
+	useEffect(() => {
+		setSelectedValue(isVocal ? "Vocal" : "Inst.");
+	}	, [isVocal]);
 
 	return (
 		<Select
