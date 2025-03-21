@@ -5,7 +5,6 @@ import {
   audioQueueAtom,
   currentIndexAtom,
   trackTypeAtom,
-  videoIDAtom,
 } from '@/jotai/audioPlayer/atoms';
 import type { TrackType } from '@/jotai/audioPlayer/types';
 
