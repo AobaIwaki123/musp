@@ -1,5 +1,5 @@
 // hooks/useAudioSync.ts
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAtom } from 'jotai';
 import { audioQueueAtom, currentIndexAtom, songMapAtom } from '@/jotai/audioPlayer/atoms';
 import type { SongData } from '@/jotai/audioPlayer/types';
@@ -10,8 +10,11 @@ export function useAudioSync(videoDict: Record<string, any>) {
   const [, setSongMap] = useAtom(songMapAtom);
   const [, setCurrentIndex] = useAtom(currentIndexAtom);
   const [cardProps, setCardProps] = useState<ApplicationCardProps[]>([]);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
+    if (Object.keys(videoDict).length === 0) return;
+
     const ids = Object.keys(videoDict);
     const songMap: Record<string, SongData> = {};
     const cards: ApplicationCardProps[] = [];
@@ -41,7 +44,11 @@ export function useAudioSync(videoDict: Record<string, any>) {
     setAudioQueue(ids);
     setSongMap(songMap);
     setCardProps(cards);
-    setCurrentIndex(-1);
+
+    if (!hasInitialized.current) {
+      setCurrentIndex(-1);
+      hasInitialized.current = true;
+    }
   }, [videoDict, setAudioQueue, setSongMap, setCurrentIndex]);
 
   return cardProps;
