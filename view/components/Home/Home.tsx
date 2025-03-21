@@ -6,8 +6,16 @@ import type {
 	VideoIDAndWavURLType,
 } from "@/client/client";
 import { ReloadButton } from "@/components/Buttons/ReloadButton/ReloadButton";
+import type { VideoDict } from "@/dto/toVideoDict";
+import { convertToVideoDict } from "@/dto/toVideoDict";
+import { convertToVideoDictEntry } from "@/dto/toVideoDictEntry";
 import { storage } from "@/helper/localStorageHelper";
-import { isShowLoginModalAtom } from "@/jotai/atom";
+import {
+	isShowLoginModalAtom,
+	isVocalAtom,
+	videoIDAtom,
+	wavURLAtom,
+} from "@/jotai/atom";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { ApplicationGrid } from "./ApplicationGrid/ApplicationGrid";
@@ -17,14 +25,31 @@ import { MuspForm } from "./MuspForm/MuspForm";
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
 export function Home() {
+	const [isShowLoginModal] = useAtom(isShowLoginModalAtom);
+	const [videoID, setVideoID] = useAtom(videoIDAtom);
+	const [isVocal, setIsVocal] = useAtom(isVocalAtom);
+	const [wavURL, setWavURL] = useAtom(wavURLAtom);
+
 	const [videoIDAndWavURLList, setVideoIDAndWavURLList] = useState<
 		VideoIDAndWavURLType[]
 	>([]);
-	const [isShowLoginModal] = useAtom(isShowLoginModalAtom);
+	const [videoDict, setVideoDict] = useState<VideoDict>({});
 
 	useEffect(() => {
 		handleReload();
 	}, []);
+
+	useEffect(() => {
+		if (videoID) {
+			handlePlayVideo(videoID);
+		}
+	}, [videoID]);
+
+	const handlePlayVideo = (key: string) => {
+		const vocalWavURL = videoDict[key]?.vocal_wav_url;
+		const instWavURL = videoDict[key]?.inst_wav_url;
+		setWavURL(isVocal ? vocalWavURL : instWavURL);
+	};
 
 	const handleAddVideo = (url: string) => {
 		const userID = storage.get("userID", "");
@@ -43,14 +68,9 @@ export function Home() {
 			})
 			.then((res) => {
 				if (res.status_code === 201) {
-					setVideoIDAndWavURLList((prevList) => [
-						...prevList,
-						{
-							youtube_id: res.youtube_id,
-							voacal_wav_url: "http://example.com",
-							inst_wav_url: "http://example.com",
-						},
-					]);
+					setVideoDict((prevDict) => {
+						return { ...prevDict, ...convertToVideoDictEntry(res) };
+					});
 				}
 			})
 			.catch((err) => {
@@ -69,7 +89,7 @@ export function Home() {
 				headers: { "X-API-KEY": apiKey },
 			})
 			.then((res) => {
-				setVideoIDAndWavURLList(res.data);
+				setVideoDict(convertToVideoDict(res.data));
 			})
 			.catch((err) => {
 				console.error(err);

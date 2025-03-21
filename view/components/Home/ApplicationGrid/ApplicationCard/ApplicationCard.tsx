@@ -8,6 +8,7 @@ import {
 	titleAtom,
 	wavURLAtom,
 	isVocalAtom,
+	videoIDAtom,
 } from "@/jotai/atom";
 import { useAtom } from "jotai";
 
@@ -28,6 +29,7 @@ export function ApplicationCard({ youtube_id, vocal_wav_url, inst_wav_url }: Vid
 	const [thumbnail, setThumbnail] = useAtom(thumbnailAtom);
 	const [title, setTitle] = useAtom(titleAtom);
 	const [isVocal, setIsVocal] = useAtom(isVocalAtom);
+	const [videoID, setVideoID] = useAtom(videoIDAtom);
 
 	const [localWavURL, setLocalWavURL] = useState("http://example.com");
 	const [isPressed, setIsPressed] = useState(false);

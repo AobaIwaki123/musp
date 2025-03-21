@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 
 from pydantic import BaseModel, Field, field_validator
 from typing_extensions import Annotated
@@ -35,16 +35,11 @@ class VideoIDAndWavURL(BaseModel):
     youtube_id: Annotated[str, Field(strict=True)] = Field(
         description="YouTube video ID"
     )
-    vocal_wav_url: Optional[
-        Annotated[str, Field(strict=True)]
-    ] = Field(
-        default=None, description="Separated audio file URL"
+    vocal_wav_url: Annotated[str, Field(strict=True)] = (
+        Field(description="Separated audio file URL")
     )
-    inst_wav_url: Optional[
-        Annotated[str, Field(strict=True)]
-    ] = Field(
-        default=None,
-        description="Separated instrumental file URL",
+    inst_wav_url: Annotated[str, Field(strict=True)] = (
+        Field(description="Separated instrumental file URL")
     )
     __properties: ClassVar[List[str]] = [
         "youtube_id",

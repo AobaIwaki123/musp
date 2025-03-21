@@ -174,6 +174,8 @@ components:
           maximum: 200
       required:
         - youtube_id
+        - vocal_wav_url
+        - inst_wav_url
       additionalProperties: false
     GetVideoIDAndWavURLResponse:
       type: object
@@ -182,9 +184,11 @@ components:
         status_message: "Retrieved the list of YouTube IDs and Wav URLs for the user"
         data:
           - youtube_id: "57Q4Hp46oXc"
-            wav_url: "https://example.com/wav.wav"
+            vocal_wav_url: "http://localhost:8000/57Q4Hp46oXc/vocal.wav"
+            inst_wav_url: "http://localhost:8000/57Q4Hp46oXc/instrumental.wav"
           - youtube_id: "57Q4Hp46oXc"
-            wav_url: null
+            vocal_wav_url: "http://localhost:8000/57Q4Hp46oXc/vocal.wav"
+            inst_wav_url: "http://localhost:8000/57Q4Hp46oXc/instrumental.wav"
       properties:
         status_code:
           type: integer
