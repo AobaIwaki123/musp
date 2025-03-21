@@ -5,9 +5,10 @@ import { isHalfWidthAtom } from "@/jotai/atom";
 import { Container, Grid } from "@mantine/core";
 import { useAtom } from "jotai";
 import { ApplicationCard } from "./ApplicationCard/ApplicationCard";
+import type { ApplicationCardProps } from "../ApplicationGrid/ApplicationCard/ApplicationCard";
 
 interface ApplicationGridProps {
-	videos: VideoIDAndWavURLType[];
+	videos: ApplicationCardProps[];
 }
 
 export function ApplicationGrid({ videos }: ApplicationGridProps) {
