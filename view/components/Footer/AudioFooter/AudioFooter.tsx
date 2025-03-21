@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Avatar, Container, Text } from "@mantine/core";
 import { useAtom } from "jotai";
-import { Container, Text, Avatar } from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
 import { CustomSlider } from "./ButtomSeekBar/ProgressSlider";
 import { PlayButton } from "./PlayButton";
 
-import {
-	wavURLAtom,
-	titleAtom,
-	thumbnailAtom,
-} from "@/jotai/audioPlayer/selectors";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { currentIndexAtom } from "@/jotai/audioPlayer/atoms";
+import {
+	thumbnailAtom,
+	titleAtom,
+	wavURLAtom,
+} from "@/jotai/audioPlayer/selectors";
 
 import classes from "./AudioFooter.module.css";
 
@@ -20,6 +21,7 @@ export function AudioFooter() {
 	const [title] = useAtom(titleAtom);
 	const [thumbnail] = useAtom(thumbnailAtom);
 	const { next } = useAudioPlayer();
+	const [currentIndex] = useAtom(currentIndexAtom);
 
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
@@ -45,7 +47,7 @@ export function AudioFooter() {
 	};
 
 	useEffect(() => {
-		if (audioRef.current) {
+		if (audioRef.current && currentIndex !== -1) {
 			const audio = audioRef.current;
 			audio.play();
 			setIsPlaying(true);
@@ -70,7 +72,7 @@ export function AudioFooter() {
 				audio.removeEventListener("ended", handleEnded);
 			};
 		}
-	}, [next]);
+	}, [next, currentIndex]);
 
 	return (
 		<div className={classes.footer}>

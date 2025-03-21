@@ -50,6 +50,10 @@ export function Home() {
 		console.log("wavURL", wavURL);
 	}, [wavURL]);
 
+	useEffect(() => {
+		setCurrentIndex(-1);
+	}, [setCurrentIndex]);
+
 	// videoDictが更新されたらJotai stateを更新
 	const [cardProps, setCardProps] = useState<ApplicationCardProps[]>([]);
 
@@ -84,7 +88,7 @@ export function Home() {
 		setAudioQueue(ids);
 		setSongMap(songMap);
 		setCardProps(cards);
-	}, [videoDict, setAudioQueue, setSongMap, setCurrentIndex]);
+	}, [videoDict, setAudioQueue, setSongMap]);
 
 
 	const handleReload = () => {
