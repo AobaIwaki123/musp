@@ -1,6 +1,6 @@
 "use client";
 
-import { wavURLAtom } from "@/jotai/atom";
+import { wavURLAtom } from "@/jotai/audioPlayer/selectors";
 import { useAtom } from "jotai";
 import { AudioFooter } from "./AudioFooter/AudioFooter";
 import { DefaultFooter } from "./DefaultFooter/DefaultFooter";
