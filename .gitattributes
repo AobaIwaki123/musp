@@ -1,0 +1,9 @@
+# Mustache を除外
+**/*.mustache linguist-detectable=false
+
+# HTML や CSS を別扱い（または除外）
+**/*.html linguist-language=false
+**/*.css linguist-language=false
+
+# HBSを除外
+**/*.hbs linguist-detectable=false
