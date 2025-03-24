@@ -19,7 +19,6 @@ export function Home() {
 
 	useEffect(() => {
 		reload();
-		console.log("reload");
 	}, [reload]);
 
 	return (
