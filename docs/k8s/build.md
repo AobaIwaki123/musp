@@ -5,6 +5,6 @@
 ```
 
 ```sh
-% sudo docker tag cron-test:latest harbor.shaoba.tech/library/cron-test:latest
+% sudo docker tag cron-test:latest harbor.shaoba.tech/k8s-test/cron-test:latest
 % sudo docker push --disable-content-trust harbor.shaoba.tech/k8s-test/cron-test:latest
 ```
