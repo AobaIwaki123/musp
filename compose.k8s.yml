@@ -4,5 +4,7 @@ services:
       context: api
       dockerfile: cron.Dockerfile
     container_name: k8s-cron
-    environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+    env_file:
+      ./api/prod.env
+    volumes:
+      - ./secret:/root/secret
