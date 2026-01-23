@@ -126,3 +126,21 @@ def update_signed_url(video_id: str, url_type: str, url: str):
         ),
     )
     upsert_job.result()
+
+def is_video_status_exists(video_id: str) -> bool:
+    """
+    Checks if a video ID exists in the videoID-status table.
+    """
+    client = bigquery.Client()
+    table_ref = f"`{settings.PROJECT_ID}.{settings.DATASET_ID}.videoID-status`"
+
+    query = f"SELECT COUNT(*) as count FROM {table_ref} WHERE videoID = @video_id"
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("video_id", "STRING", video_id)
+        ]
+    )
+    result = client.query(query, job_config=job_config).result()
+    row = next(result)
+    exists = row.count > 0
+    return exists

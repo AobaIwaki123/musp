@@ -10,7 +10,7 @@ from openapi_server.models.post_video_request import PostVideoRequest
 from openapi_server.models.post_video_response import PostVideoResponse
 from openapi_server.models.refresh_urls_response import RefreshUrlsResponse
 
-from openapi_server.bigquery import insert_user_video_table, insert_video_status, update_signed_url
+from openapi_server.bigquery import insert_user_video_table, insert_video_status, update_signed_url, is_video_status_exists
 from openapi_server.launcher import trigger_worker
 from openapi_server.gcs import generate_signed_url
 
@@ -40,11 +40,17 @@ class POSTApiImpl(BasePOSTApi):
                  raise ValueError("Could not extract video ID")
             video_id = match.group(1)
 
-            # 1. Insert/Update status in BQ
-            insert_video_status(video_id, status="pending")
-            
-            # 2. Link User to Video in BQ
+            # Link User to Video in BQ
             response = insert_user_video_table(post_video_request.user_id, video_id)
+
+            # 1. Check if video exists
+            if is_video_status_exists(video_id):
+                logger.info(f"Video {video_id} already exists. Skipping worker trigger.")
+                return response
+
+            # 2. Insert/Update status in BQ (only if new)
+            logger.info(f"Inserting video status for {video_id}")
+            insert_video_status(video_id, status="pending")
             
             # 3. Trigger Worker
             trigger_worker()
