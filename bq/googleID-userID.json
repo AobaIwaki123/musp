@@ -1,0 +1,26 @@
+[
+  {
+    "name": "googleID",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Google アカウント ID (Firebase uid)"
+  },
+  {
+    "name": "userID",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "アプリ内ユーザー ID (UUID v4)"
+  },
+  {
+    "name": "createdAt",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "作成日時"
+  },
+  {
+    "name": "updatedAt",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "更新日時"
+  }
+]

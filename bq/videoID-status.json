@@ -1,0 +1,62 @@
+[
+  {
+    "name": "videoID",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "YouTube 動画 ID"
+  },
+  {
+    "name": "status",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "処理ステータス (PENDING, QUEUED, PROCESSING, COMPLETED, FAILED)"
+  },
+  {
+    "name": "youtubeURL",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "YouTube URL"
+  },
+  {
+    "name": "vmInstanceName",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Spot VM インスタンス名"
+  },
+  {
+    "name": "errorMessage",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "エラーメッセージ"
+  },
+  {
+    "name": "createdAt",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "タスク作成日時"
+  },
+  {
+    "name": "queuedAt",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "VM起動キュー投入日時"
+  },
+  {
+    "name": "startedAt",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "処理開始日時"
+  },
+  {
+    "name": "completedAt",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "処理完了日時"
+  },
+  {
+    "name": "updatedAt",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "最終更新日時"
+  }
+]

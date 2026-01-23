@@ -1,0 +1,26 @@
+[
+  {
+    "name": "userID",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "ユーザー ID"
+  },
+  {
+    "name": "videoID",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "YouTube 動画 ID"
+  },
+  {
+    "name": "createdAt",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "登録日時"
+  },
+  {
+    "name": "updatedAt",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "更新日時"
+  }
+]
