@@ -1,3 +1,18 @@
+FROM node:22-alpine AS dev
+
+ENV NODE_ENV=development
+
+WORKDIR /app
+
+RUN npm install -g npm@11.2.0
+
+# Enable pnpm
+ENV YARN_HOME="/yarn"
+ENV PATH="$YARN_HOME:$PATH"
+RUN corepack enable
+
+CMD ["yarn", "dev"]
+
 FROM node:22-alpine AS base
 
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.

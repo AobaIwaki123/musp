@@ -50,9 +50,9 @@ lint-py:
 	@sudo docker run --rm -v ./:/code pipelinecomponents/ruff ruff format
 
 gen-py:
-	@sudo find api/src/openapi_server/models -maxdepth 1 -type f -delete
-	@sudo find api/src/openapi_server/apis -maxdepth 1 -type f -delete
-	@sudo docker run --rm -v ./:/local openapitools/openapi-generator-cli generate -i /local/openapi.yaml -g python-fastapi -o /local/api -t /local/api/templates
+	@sudo find api-v2/src/openapi_server/models -maxdepth 1 -type f -delete
+	@sudo find api-v2/src/openapi_server/apis -maxdepth 1 -type f -delete
+	@sudo docker run --rm -v ./:/local openapitools/openapi-generator-cli generate -i /local/openapi.yaml -g python-fastapi -o /local/api-v2 -t /local/api-v2/templates
 	@sudo chown $(USER) -R .
 
 gen-ts:
