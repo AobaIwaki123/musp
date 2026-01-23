@@ -1,7 +1,8 @@
 import datetime
 from google.cloud import bigquery
+from google.cloud import bigquery
 from .config import settings
-from .models import PostVideoResponse
+from .models.post_video_response import PostVideoResponse
 
 def insert_user_video_table(user_id: str, video_id: str) -> PostVideoResponse:
     client = bigquery.Client()
