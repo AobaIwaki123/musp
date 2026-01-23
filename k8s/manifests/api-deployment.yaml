@@ -20,3 +20,21 @@ spec:
           image: gcr.io/my-docker-471807/musp-api:latest
           ports:
             - containerPort: 8000
+          env:
+            - name: GOOGLE_CLOUD_PROJECT
+              valueFrom:
+                configMapKeyRef:
+                  name: musp-config
+                  key: PROJECT_ID
+            - name: DATASET_ID
+              value: "musp_v3"
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/root/secret/key.json"
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /root/secret
+              readOnly: true
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: musp-secret

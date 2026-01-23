@@ -16,7 +16,6 @@ CMD ["yarn", "dev"]
 FROM node:22-alpine AS prod
 
 ENV NODE_ENV=production
-
 WORKDIR /app
 
 # Enable pnpm
@@ -24,16 +23,10 @@ ENV YARN_HOME="/yarn"
 ENV PATH="$YARN_HOME:$PATH"
 RUN corepack enable
 
-COPY . .
-
-RUN yarn install
+COPY --from=dev /app/public ./public
+COPY --from=dev /app/.next/standalone ./
+COPY --from=dev /app/.next/static ./.next/static
 
 EXPOSE 3000
 
-# Copy the rest of your app's source code from your host to your image filesystem.
-
-# Build the app
-
-# RUN yarn build
-
-CMD ["yarn", "start"]
+CMD ["node", "server.js"]
