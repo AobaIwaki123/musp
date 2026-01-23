@@ -148,12 +148,10 @@ gcloud builds submit --project ${PROJECT_B_ID} \
 - `BigQueryClient`: BigQuery操作のラッパー
 - `TaskStatus`: ステータスEnum (PENDING, QUEUED, PROCESSING, COMPLETED, FAILED)
 - `update_status()`: ステータス更新 (startedAt, completedAt, errorMessage対応)
-- `save_gcs_paths()`: GCSパス保存（`gs://bucket/path`形式）
 
 **utils/gcs.py**:
 - `GCSClient`: GCS操作のラッパー
 - `upload_file()`: ファイルアップロード
-- `generate_signed_url()`: 署名付きURL生成（API Server用、Workerでは未使用）
 
 **utils/metadata.py**:
 - GCEメタデータ取得 (ローカル開発時は環境変数にフォールバック)
@@ -163,7 +161,6 @@ gcloud builds submit --project ${PROJECT_B_ID} \
 - `fetch_source.py`: yt-dlpでYouTubeダウンロード
 - `separate_source.py`: Demucsで音声分離
 - `upload_source.py`: GCSへアップロード
-- `publish_source.py`: GCSパス保存（署名付きURLはAPI Serverで動的生成）
 - `update_status.py`: BigQueryステータス更新
 - `cleanup.py`: 一時ファイル削除 + VM自己削除
 

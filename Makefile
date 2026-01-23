@@ -66,3 +66,9 @@ gen:
 prune-br:
 	@git remote prune origin
 	@git branch | xargs git branch -d
+
+PROJECT_B_ID := musp-485206
+
+push-worker:
+	@gcloud builds submit --project ${PROJECT_B_ID}\
+		--tag gcr.io/${PROJECT_B_ID}/musp-worker:latest worker/
