@@ -1,115 +1,109 @@
-import functions_framework
+import datetime
 import logging
 import os
-import datetime
-from google.cloud import compute_v1
-from google.cloud import bigquery
+from typing import Any, Dict, Optional, Tuple
 
-# Logger setup
+import functions_framework
+from google.cloud import bigquery
+from google.cloud import compute_v1
+
+# ロギング設定
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Environment Variables
+# 環境変数と定数定義
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT")
 ZONE = os.environ.get("ZONE", "asia-northeast1-c")
 DATASET_ID = os.environ.get("DATASET_ID", "musp_v3")
 TABLE_NAME = "videoID-status"
 WORKER_IMAGE = os.environ.get("WORKER_IMAGE", f"gcr.io/{PROJECT_ID}/musp-worker:latest")
-# Default to Compute Engine default service account if not specified, 
-# but usually we want a specific one for least privilege.
-WORKER_SA_EMAIL = os.environ.get("WORKER_SA_EMAIL") 
+WORKER_SA_EMAIL = os.environ.get("WORKER_SA_EMAIL")  # 指定がない場合はCompute EngineのデフォルトSAが使用されます
 
 @functions_framework.http
-def launch_worker_vm(request):
+def launch_worker_vm(request) -> Tuple[Dict[str, Any], int]:
     """
-    HTTP Cloud Function to launch a Spot VM worker.
-    
-    Payload:
+    Spot VMワーカーを起動するHTTP Cloud Function。
+
+    ペイロード:
         {"trigger": "api" | "cron"}
-    
-    Logic:
-        1. Check if a worker VM is already running. If so, exit.
-        2. If trigger == 'api': Launch VM.
-        3. If trigger == 'cron':
-            - Check BigQuery for incomplete tasks.
-            - Check BigQuery for last execution time (started_at).
-            - If (tasks > 0) AND (last_run is None OR Now - last_run > 1 hour): Launch VM.
+
+    ロジック:
+        1. 既にワーカーVMが実行中か確認する。実行中の場合は終了。
+        2. trigger == 'api' の場合: 即座にVMを起動。
+        3. trigger == 'cron' の場合:
+            - BigQueryで未完了のタスクがあるか確認。
+            - タスクがある場合のみVMを起動。
     """
-    # 0. Parse Request
+    # 0. リクエストの解析
     request_json = request.get_json(silent=True)
     if not request_json:
         return {"status": "error", "message": "Invalid JSON payload"}, 400
     
-    trigger = request_json.get("trigger", "api") # Default to 'api' if not specified? Or fail? Let's default to safe 'api' or maybe 'cron'? 
-                                                # Actually, 'api' implies user action, so maybe strict parsing is better.
-                                                # Let's assume 'api' for now as manual invoke.
-    
-    logger.info(f"Received request with trigger: {trigger}")
+    trigger = request_json.get("trigger", "api") 
+    logger.info(f"リクエストを受信しました。トリガー: {trigger}")
 
-    # 1. Check for running instances (to avoid duplicates)
+    # 1. 実行中のインスタンスを確認（重複起動を防止）
     if is_worker_running(PROJECT_ID, ZONE):
-        logger.info("Worker VM is already running. Skipping launch.")
+        logger.info("ワーカーVMは既に実行中です。起動をスキップします。")
         return {"status": "skipped", "reason": "Worker already running"}, 200
 
-    # 2. Evaluate Trigger Conditions
+    # 2. 起動条件の評価
     should_launch = False
     
     if trigger == "api":
-        logger.info("Trigger is 'api'. Launching immediately.")
+        logger.info("トリガーは 'api' です。即座に起動します。")
         should_launch = True
     elif trigger == "cron":
-        logger.info("Trigger is 'cron'. Checking conditions...")
+        logger.info("トリガーは 'cron' です。条件を確認します...")
         bq_client = bigquery.Client(project=PROJECT_ID)
         
-        # Check incomplete tasks count
+        # 未完了タスク数の確認
         incomplete_count = get_incomplete_tasks_count(bq_client, PROJECT_ID, DATASET_ID, TABLE_NAME)
-        logger.info(f"Incomplete tasks count: {incomplete_count}")
+        logger.info(f"未完了タスク数: {incomplete_count}")
         
         if incomplete_count > 0:
-            logger.info("Found incomplete tasks. Launching.")
+            logger.info("未完了タスクが見つかりました。起動します。")
             should_launch = True
         else:
-            logger.info("No incomplete tasks. Skipping.")
+            logger.info("未完了タスクはありません。スキップします。")
             
     else:
          return {"status": "error", "message": f"Unknown trigger: {trigger}"}, 400
 
-    # 3. Launch VM if conditions met
+    # 3. 条件を満たした場合にVMを起動
     if should_launch:
         try:
             instance_name = launch_vm(PROJECT_ID, ZONE, WORKER_IMAGE, WORKER_SA_EMAIL)
-            logger.info(f"Launched instance: {instance_name}")
+            logger.info(f"インスタンスを起動しました: {instance_name}")
             return {"status": "launched", "instance": instance_name}, 200
         except Exception as e:
-            logger.error(f"Failed to launch VM: {e}")
+            logger.error(f"VMの起動に失敗しました: {e}")
             return {"status": "error", "message": str(e)}, 500
     
     return {"status": "skipped", "reason": "Conditions not met"}, 200
 
 
-def is_worker_running(project_id, zone):
-    """Checks if any instance name starting with 'musp-worker-' is currently running."""
-    # Note: Use list(filter=...) is a simple way, but filtering server-side is better if possible.
-    # The client library `list` returns an iterable. 
-    # We'll filter client-side for simplicity unless list is huge (unlikely for spot workers).
-    # But wait, we can assume we only have one or few.
-    
+def is_worker_running(project_id: str, zone: str) -> bool:
+    """'musp-worker-' で始まるインスタンスが現在実行中かどうかを確認します。"""
     instance_client = compute_v1.InstancesClient()
-    # Paging technically, but usually only a few instances.
     request = compute_v1.ListInstancesRequest(project=project_id, zone=zone)
-    # We could use filter="name:musp-worker-*" but the API filter syntax is a bit specific.
-    # Let's list all and filter in python for now to be safe, or use simple filter.
-    # Filter syntax: 'name eq "pattern"' doesn't support wildcards fully in simple way sometimes.
-    # However, `name = musp-worker*` works in gcloud, API uses `name eq ...`.
-    # Let's just iterate, it's safer for small number of VMs.
     
+    # ノート: APIフィルタリングを使用せず、Python側でフィルタリングしています。
+    # Spotワーカーの数は少ないと想定されるため、全リスト取得でもコストは低いです。
     instances = instance_client.list(request=request)
+    
     for instance in instances:
-        if instance.name.startswith("musp-worker-") and instance.status in ("PROVISIONING", "STAGING", "RUNNING", "REPAIRING"):
+        is_musp_worker = instance.name.startswith("musp-worker-")
+        is_active_status = instance.status in (
+            "PROVISIONING", "STAGING", "RUNNING", "REPAIRING"
+        )
+        if is_musp_worker and is_active_status:
              return True
+             
     return False
 
-def get_incomplete_tasks_count(client, project_id, dataset_id, table_name):
+def get_incomplete_tasks_count(client: bigquery.Client, project_id: str, dataset_id: str, table_name: str) -> int:
+    """BigQueryから未完了タスク（status != 'COMPLETED'）の数を取得します。"""
     query = f"""
         SELECT COUNT(*) as count
         FROM `{project_id}.{dataset_id}.{table_name}`
@@ -121,27 +115,24 @@ def get_incomplete_tasks_count(client, project_id, dataset_id, table_name):
         return row.count
     return 0
 
-
-
-def launch_vm(project_id, zone, image, sa_email):
+def launch_vm(project_id: str, zone: str, image: str, sa_email: Optional[str]) -> str:
+    """Spot VMを起動します。"""
     instance_client = compute_v1.InstancesClient()
     
-    # Generate unique name
+    # ユニークなインスタンス名の生成
     timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     instance_name = f"musp-worker-{timestamp}"
     
-    # Define Machine Type
+    # マシンタイプとアクセラレータ(T4)の設定
     machine_type = f"zones/{zone}/machineTypes/n1-standard-4"
-    
-    # Define Accelerator (T4)
     accelerator_type = f"zones/{zone}/acceleratorTypes/nvidia-tesla-t4"
     
-    # Instance Config
+    # インスタンス設定
     config = {
         "name": instance_name,
         "machine_type": machine_type,
         "scheduling": {
-            "provisioning_model": "SPOT", # Or PREEMPTIBLE if older lib
+            "provisioning_model": "SPOT", 
             "on_host_maintenance": "TERMINATE",
             "automatic_restart": False
         },
@@ -166,7 +157,6 @@ def launch_vm(project_id, zone, image, sa_email):
                  {
                     "key": "gce-container-declaration",
                     "value": f"spec:\n  containers:\n    - image: {image}\n      stdin: false\n      tty: false\n      restartPolicy: Always\n" 
-                    # Note: We might want env vars here if needed, but worker pulls from BQ.
                  },
                  {
                      "key": "google-logging-enabled",
@@ -174,19 +164,19 @@ def launch_vm(project_id, zone, image, sa_email):
                  }
             ]
         },
-        # Service Account
         "service_accounts": [{
             "email": sa_email if sa_email else "default",
             "scopes": ["https://www.googleapis.com/auth/cloud-platform"]
         }]
     }
 
-    # Insert Instance
+    # インスタンスの作成リクエスト
     operation = instance_client.insert(
         project=project_id,
         zone=zone,
         instance_resource=config
     )
     
-    operation.result() # Wait for operation to complete (blocking)
+    operation.result() # 完了まで待機
     return instance_name
+
