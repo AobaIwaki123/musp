@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: musp-api
+  name: musp-view
   namespace: musp
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: musp-api
+      app: musp-view
   template:
     metadata:
       labels:
-        app: musp-api
+        app: musp-view
     spec:
       imagePullSecrets:
         - name: gcr-pull-secret
       containers:
-        - name: musp-api
-          image: gcr.io/my-docker-471807/musp-api:latest
+        - name: musp-view
+          image: gcr.io/my-docker-471807/musp-view:latest
           ports:
-            - containerPort: 8000
+            - containerPort: 3000

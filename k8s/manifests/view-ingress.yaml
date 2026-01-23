@@ -13,6 +13,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: musp
+            name: musp-view
             port:
               number: 80
