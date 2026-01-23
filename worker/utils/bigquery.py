@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 class TaskStatus(str, Enum):
     """Task status values."""
 
-    PENDING = "pending"
-    QUEUED = "queued"
-    PROCESSING = "processing"
-    COMPLETED = "completed"
-    FAILED = "failed"
+    PENDING = "PENDING"
+    QUEUED = "QUEUED"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
 
 
 class BigQueryClient:

@@ -58,7 +58,7 @@ def insert_user_video_table(user_id: str, video_id: str) -> PostVideoResponse:
         youtube_id=video_id,
     )
 
-def insert_video_status(video_id: str, status: str = "pending"):
+def insert_video_status(video_id: str, status: str = "PENDING"):
     client = bigquery.Client()
     table_ref = f"`{settings.PROJECT_ID}.{settings.DATASET_ID}.videoID-status`"
     timestamp = datetime.datetime.utcnow()

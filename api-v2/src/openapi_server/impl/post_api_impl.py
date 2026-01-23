@@ -50,7 +50,7 @@ class POSTApiImpl(BasePOSTApi):
 
             # 2. Insert/Update status in BQ (only if new)
             logger.info(f"Inserting video status for {video_id}")
-            insert_video_status(video_id, status="pending")
+            insert_video_status(video_id, status="PENDING")
             
             # 3. Trigger Worker
             trigger_worker()
