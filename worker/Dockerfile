@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     ffmpeg \
     curl \
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Create symlink for python
 RUN ln -sf /usr/bin/python3 /usr/bin/python
