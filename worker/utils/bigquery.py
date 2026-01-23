@@ -110,3 +110,24 @@ class BigQueryClient:
         job.result()
 
         logger.info(f"Updated status for {video_id} to {status.value}")
+
+    def fetch_incomplete_videos(self) -> list[str]:
+        """
+        Fetch all unique video IDs that are not COMPLETED.
+
+        Returns:
+            List of video IDs.
+        """
+        table_ref = self._get_table_ref("videoID-status")
+        query = f"""
+        SELECT DISTINCT videoID
+        FROM {table_ref}
+        WHERE status != 'COMPLETED'
+        """
+
+        job = self.client.query(query)
+        results = job.result()
+
+        video_ids = [row.videoID for row in results]
+        logger.info(f"Found {len(video_ids)} unique incomplete videos")
+        return video_ids
