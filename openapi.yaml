@@ -187,11 +187,13 @@ components:
           format: uri
           description: Separated audio file URL
           maximum: 200
+          nullable: true
         inst_wav_url:
           type: string
           format: uri
           description: Separated instrumental file URL
           maximum: 200
+          nullable: true
       required:
         - youtube_id
         - vocal_wav_url

@@ -144,3 +144,37 @@ def is_video_status_exists(video_id: str) -> bool:
     row = next(result)
     exists = row.count > 0
     return exists
+
+def get_videos_by_user_id(user_id: str) -> list[dict]:
+    client = bigquery.Client()
+    
+    query = f"""
+    SELECT
+        t1.videoID as youtube_id,
+        t2.wavURL as vocal_wav_url,
+        t3.wavURL as inst_wav_url
+    FROM `{settings.PROJECT_ID}.{settings.DATASET_ID}.userID-videoID` as t1
+    LEFT JOIN `{settings.PROJECT_ID}.{settings.DATASET_ID}.videoID-vocalWavURL` as t2
+    ON t1.videoID = t2.videoID
+    LEFT JOIN `{settings.PROJECT_ID}.{settings.DATASET_ID}.videoID-instWavURL` as t3
+    ON t1.videoID = t3.videoID
+    WHERE t1.userID = @user_id
+    """
+    
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("user_id", "STRING", user_id)
+        ]
+    )
+    
+    result = client.query(query, job_config=job_config).result()
+    
+    videos = []
+    for row in result:
+        videos.append({
+            "youtube_id": row.youtube_id,
+            "vocal_wav_url": row.vocal_wav_url,
+            "inst_wav_url": row.inst_wav_url
+        })
+        
+    return videos

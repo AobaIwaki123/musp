@@ -20,7 +20,7 @@ import json
 
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 try:
     from typing import Self
@@ -32,8 +32,8 @@ class VideoIDAndWavURL(BaseModel):
     VideoIDAndWavURL
     """ # noqa: E501
     youtube_id: Annotated[str, Field(strict=True)] = Field(description="YouTube video ID")
-    vocal_wav_url: Annotated[str, Field(strict=True)] = Field(description="Separated audio file URL")
-    inst_wav_url: Annotated[str, Field(strict=True)] = Field(description="Separated instrumental file URL")
+    vocal_wav_url: Optional[Annotated[str, Field(strict=True)]] = Field(description="Separated audio file URL")
+    inst_wav_url: Optional[Annotated[str, Field(strict=True)]] = Field(description="Separated instrumental file URL")
     __properties: ClassVar[List[str]] = ["youtube_id", "vocal_wav_url", "inst_wav_url"]
 
     @field_validator('youtube_id')
@@ -80,6 +80,16 @@ class VideoIDAndWavURL(BaseModel):
             },
             exclude_none=True,
         )
+        # set to None if vocal_wav_url (nullable) is None
+        # and model_fields_set contains the field
+        if self.vocal_wav_url is None and "vocal_wav_url" in self.model_fields_set:
+            _dict['vocal_wav_url'] = None
+
+        # set to None if inst_wav_url (nullable) is None
+        # and model_fields_set contains the field
+        if self.inst_wav_url is None and "inst_wav_url" in self.model_fields_set:
+            _dict['inst_wav_url'] = None
+
         return _dict
 
     @classmethod

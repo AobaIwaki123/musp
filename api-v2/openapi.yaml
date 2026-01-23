@@ -196,12 +196,14 @@ components:
           description: Separated audio file URL
           format: uri
           maximum: 200
+          nullable: true
           title: vocal_wav_url
           type: string
         inst_wav_url:
           description: Separated instrumental file URL
           format: uri
           maximum: 200
+          nullable: true
           title: inst_wav_url
           type: string
       required:
