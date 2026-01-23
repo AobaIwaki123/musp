@@ -171,6 +171,16 @@ spec:
           value: {bucket_name}
         - name: MAX_WORKERS
           value: "2"
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: nvidia-install-dir-host
+          mountPath: /var/lib/nvidia
+          readOnly: false
+  volumes:
+    - name: nvidia-install-dir-host
+      hostPath:
+        path: /var/lib/nvidia
 """
 
     # インスタンス設定
@@ -200,13 +210,21 @@ spec:
         }],
         "metadata": {
             "items": [
-                 {
+            {
                     "key": "gce-container-declaration",
                     "value": container_manifest
                  },
                  {
                      "key": "google-logging-enabled",
                      "value": "true"
+                 },
+                 {
+                     "key": "startup-script",
+                     "value": """#! /bin/bash
+cos-extensions install gpu
+mount --bind /var/lib/nvidia /var/lib/nvidia
+mount -o remount,exec /var/lib/nvidia
+"""
                  }
             ]
         },
