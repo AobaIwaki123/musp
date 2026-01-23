@@ -7,6 +7,7 @@ from openapi_server.models.post_user_request import PostUserRequest
 from openapi_server.models.post_user_response import PostUserResponse
 from openapi_server.models.post_video_request import PostVideoRequest
 from openapi_server.models.post_video_response import PostVideoResponse
+from openapi_server.models.refresh_urls_response import RefreshUrlsResponse
 from openapi_server.security_api import get_token_ApiKeyAuth
 
 class BasePOSTApi:
@@ -30,5 +31,13 @@ class BasePOSTApi:
         post_user_request: PostUserRequest,
     ) -> Union[PostUserResponse, ErrorResponse400]:
         """Registers user information."""
+        ...
+
+
+
+    async def refresh_urls_post(
+        self,
+    ) -> Union[RefreshUrlsResponse, ErrorResponse400]:
+        """Refreshes signed URLs for all videos."""
         ...
 

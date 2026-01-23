@@ -102,6 +102,27 @@ paths:
       summary: Register user information
       tags:
       - POST
+  /refresh-urls:
+    post:
+      description: Refreshes signed URLs for all videos.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshUrlsResponse"
+          description: Signed URLs refreshed successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse400"
+          description: Invalid request
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh signed URLs
+      tags:
+      - POST
 components:
   parameters:
     UserID:
@@ -231,6 +252,26 @@ components:
       required:
       - google_id
       title: PostUserRequest
+      type: object
+    RefreshUrlsResponse:
+      additionalProperties: false
+      example:
+        status_code: 200
+        status_message: Refreshed 100 videos
+      properties:
+        status_code:
+          description: Status code
+          type: integer
+        status_message:
+          description: Status message
+          type: string
+        updated_count:
+          description: Number of videos updated
+          type: integer
+      required:
+      - status_code
+      - status_message
+      title: RefreshUrlsResponse
       type: object
     PostUserResponse:
       additionalProperties: false

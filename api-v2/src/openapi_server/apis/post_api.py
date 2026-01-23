@@ -29,6 +29,7 @@ from openapi_server.models.post_user_request import PostUserRequest
 from openapi_server.models.post_user_response import PostUserResponse
 from openapi_server.models.post_video_request import PostVideoRequest
 from openapi_server.models.post_video_response import PostVideoResponse
+from openapi_server.models.refresh_urls_response import RefreshUrlsResponse
 from openapi_server.security_api import get_token_ApiKeyAuth
 
 router = APIRouter()
@@ -97,6 +98,39 @@ async def users_post(
         return result
     
     if isinstance(result, PostUserResponse):
+        return JSONResponse(content=result.dict(), status_code=200)
+    if isinstance(result, ErrorResponse400):
+        return JSONResponse(content=result.dict(), status_code=400)
+    
+    raise HTTPException(status_code=500, detail="Unexpected response type")
+
+
+
+@router.post(
+    "/refresh-urls",
+    responses={
+        200: {"model": RefreshUrlsResponse, "description": "Signed URLs refreshed successfully"},
+        400: {"model": ErrorResponse400, "description": "Invalid request"},
+    },
+    tags=["POST"],
+    summary="Refresh signed URLs",
+    response_model_by_alias=True,
+)
+async def refresh_urls_post(
+    token_ApiKeyAuth: TokenModel = Security(
+        get_token_ApiKeyAuth
+    ),
+) -> Union[RefreshUrlsResponse, ErrorResponse400]:
+    """Refreshes signed URLs for all videos."""
+    if not BasePOSTApi.subclasses:
+        raise HTTPException(status_code=500, detail="Not implemented")
+    
+    result = await BasePOSTApi.subclasses[0]().refresh_urls_post()
+    
+    if isinstance(result, Response):
+        return result
+    
+    if isinstance(result, RefreshUrlsResponse):
         return JSONResponse(content=result.dict(), status_code=200)
     if isinstance(result, ErrorResponse400):
         return JSONResponse(content=result.dict(), status_code=400)

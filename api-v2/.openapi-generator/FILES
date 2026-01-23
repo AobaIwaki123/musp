@@ -1,6 +1,5 @@
 .flake8
 .gitignore
-.openapi-generator-ignore
 Dockerfile
 README.md
 docker-compose.yaml
@@ -23,8 +22,7 @@ src/openapi_server/models/post_user_request.py
 src/openapi_server/models/post_user_response.py
 src/openapi_server/models/post_video_request.py
 src/openapi_server/models/post_video_response.py
+src/openapi_server/models/refresh_urls_response.py
 src/openapi_server/models/video_id_and_wav_url.py
 src/openapi_server/security_api.py
 tests/conftest.py
-tests/test_get_api.py
-tests/test_post_api.py
