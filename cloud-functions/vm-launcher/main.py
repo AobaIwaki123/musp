@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 PROJECT_ID = os.environ.get("PROJECT_ID") or os.environ.get("GOOGLE_CLOUD_PROJECT")
 ZONE = os.environ.get("ZONE", "asia-northeast1-c")
 DATASET_ID = os.environ.get("DATASET_ID", "musp_v3")
+BUCKET_NAME = os.environ.get("BUCKET_NAME", "musp-audio-source")  # Default bucket name
 TABLE_NAME = "videoID-status"
 WORKER_IMAGE = os.environ.get("WORKER_IMAGE", f"gcr.io/{PROJECT_ID}/musp-worker:latest")
 WORKER_SA_EMAIL = os.environ.get("WORKER_SA_EMAIL")  # 指定がない場合はCompute EngineのデフォルトSAが使用されます
@@ -47,7 +48,7 @@ def launch_worker_vm(request) -> Tuple[Dict[str, Any], int]:
         logger.error(f"必須環境変数が設定されていません: PROJECT_ID={PROJECT_ID}, ZONE={ZONE}")
         return {"status": "error", "message": "Missing required environment variables"}, 500
 
-    logger.info(f"PROJECT_ID: {PROJECT_ID}, ZONE: {ZONE}, DATASET_ID: {DATASET_ID}")
+    logger.info(f"PROJECT_ID: {PROJECT_ID}, ZONE: {ZONE}, DATASET_ID: {DATASET_ID}, BUCKET_NAME: {BUCKET_NAME}")
 
     # 2. 実行中のインスタンスを確認（重複起動を防止）
     try:
@@ -87,7 +88,14 @@ def launch_worker_vm(request) -> Tuple[Dict[str, Any], int]:
     # 3. 条件を満たした場合にVMを起動
     if should_launch:
         try:
-            instance_name = launch_vm(PROJECT_ID, ZONE, WORKER_IMAGE, WORKER_SA_EMAIL)
+            instance_name = launch_vm(
+                project_id=PROJECT_ID, 
+                zone=ZONE, 
+                image=WORKER_IMAGE, 
+                sa_email=WORKER_SA_EMAIL,
+                dataset_id=DATASET_ID,
+                bucket_name=BUCKET_NAME
+            )
             logger.info(f"インスタンスを起動しました: {instance_name}")
             return {"status": "launched", "instance": instance_name}, 200
         except Exception as e:
@@ -133,7 +141,7 @@ def get_incomplete_tasks_count(client: bigquery.Client, project_id: str, dataset
         return row.count
     return 0
 
-def launch_vm(project_id: str, zone: str, image: str, sa_email: Optional[str]) -> str:
+def launch_vm(project_id: str, zone: str, image: str, sa_email: Optional[str], dataset_id: str, bucket_name: str) -> str:
     """Spot VMを起動します。"""
     instance_client = compute_v1.InstancesClient()
     
@@ -145,6 +153,26 @@ def launch_vm(project_id: str, zone: str, image: str, sa_email: Optional[str]) -
     machine_type = f"zones/{zone}/machineTypes/n1-standard-4"
     accelerator_type = f"zones/{zone}/acceleratorTypes/nvidia-tesla-t4"
     
+    # コンテナ宣言 (Cloud-initのようなもの)
+    # 必要な環境変数をここで渡します。
+    container_manifest = f"""
+spec:
+  containers:
+    - image: {image}
+      stdin: false
+      tty: false
+      restartPolicy: Always
+      env:
+        - name: GOOGLE_CLOUD_PROJECT
+          value: {project_id}
+        - name: DATASET_ID
+          value: {dataset_id}
+        - name: BUCKET_NAME
+          value: {bucket_name}
+        - name: MAX_WORKERS
+          value: "2"
+"""
+
     # インスタンス設定
     config = {
         "name": instance_name,
@@ -174,7 +202,7 @@ def launch_vm(project_id: str, zone: str, image: str, sa_email: Optional[str]) -
             "items": [
                  {
                     "key": "gce-container-declaration",
-                    "value": f"spec:\n  containers:\n    - image: {image}\n      stdin: false\n      tty: false\n      restartPolicy: Always\n" 
+                    "value": container_manifest
                  },
                  {
                      "key": "google-logging-enabled",

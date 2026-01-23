@@ -12,6 +12,7 @@ WORKER_SA="musp-worker-sa@${PROJECT_ID}.iam.gserviceaccount.com"
 
 ZONE="asia-northeast1-c"
 DATASET_ID="musp_v3"
+BUCKET_NAME="musp-bucket"
 
 echo "Deploying vm-launcher to Project: $PROJECT_ID, Region: $REGION..."
 
@@ -24,7 +25,7 @@ gcloud functions deploy vm-launcher \
     --project $PROJECT_ID \
     --service-account $FUNCTION_SA \
     --source cloud-functions/vm-launcher \
-    --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT_ID,ZONE=$ZONE,DATASET_ID=$DATASET_ID,WORKER_SA_EMAIL=$WORKER_SA \
+    --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT_ID,ZONE=$ZONE,DATASET_ID=$DATASET_ID,WORKER_SA_EMAIL=$WORKER_SA,BUCKET_NAME=$BUCKET_NAME \
     --memory 512MiB \
     --allow-unauthenticated
 

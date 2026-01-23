@@ -10,6 +10,7 @@ export WORKER_IMAGE="mock-image"
 export WORKER_SA_EMAIL="mock-sa@example.com"
 export FUNCTION_TARGET="launch_worker_vm"
 export SOURCE="cloud-functions/vm-launcher/main.py"
+export BUCKET_NAME="musp-bucket"
 
 echo "Starting functions-framework for ${FUNCTION_TARGET}..."
 echo "Project: $PROJECT_ID"
