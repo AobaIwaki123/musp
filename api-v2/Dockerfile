@@ -1,40 +1,12 @@
-# ベースイメージをCUDA対応のものに変更し、Python 3.11を明示的にインストール
-FROM nvidia/cuda:12.2.2-runtime-ubuntu22.04 AS base
+FROM python:3.13-slim
 
-# 必要なパッケージをインストール
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    python3.11 \
-    python3.11-venv \
-    python3.11-dev \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-# Pythonのデフォルトを3.11に設定
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# 環境変数の設定
-ENV PATH="/venv/bin:$PATH"
+COPY src/ ./src/
 
-FROM base AS builder
+ENV PYTHONPATH=/app/src
 
-WORKDIR /usr/src/app
-
-RUN python3 -m venv /venv
-ENV PATH="/venv/bin:$PATH"
-
-RUN pip install --upgrade pip
-
-COPY ./heavy-requirements.txt .
-RUN pip install -r heavy-requirements.txt
-
-COPY ./custom-requirements.txt .
-RUN pip install -r custom-requirements.txt
-
-COPY . .
-RUN pip install --no-cache-dir .
-
-FROM base AS service
-WORKDIR /root/app
-COPY --from=builder /venv /venv
-ENV PATH=/venv/bin:$PATH
+CMD ["uvicorn", "src.openapi_server.main:app", "--host", "0.0.0.0", "--port", "8080"]
