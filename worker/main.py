@@ -38,6 +38,25 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+# Log GPU status on startup
+try:
+    import torch
+    cuda_available = torch.cuda.is_available()
+    device_count = torch.cuda.device_count()
+    device_name = torch.cuda.get_device_name(0) if cuda_available else "None"
+    cuda_version = torch.version.cuda if cuda_available else "None"
+    
+    logger.info("=== GPU STATUS ===")
+    logger.info(f"CUDA Available: {cuda_available}")
+    logger.info(f"Device Count: {device_count}")
+    logger.info(f"Current Device: {device_name}")
+    logger.info(f"CUDA Version (Torch): {cuda_version}")
+    logger.info("==================")
+except ImportError:
+    logger.warning("Could not import torch to check GPU status")
+except Exception as e:
+    logger.error(f"Error checking GPU status: {e}")
+
 
 def process_video(video_id: str) -> bool:
     """
