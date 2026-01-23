@@ -25,6 +25,7 @@ gcloud functions deploy vm-launcher \
     --service-account $FUNCTION_SA \
     --source cloud-functions/vm-launcher \
     --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT_ID,ZONE=$ZONE,DATASET_ID=$DATASET_ID,WORKER_SA_EMAIL=$WORKER_SA \
+    --memory 512MiB \
     --allow-unauthenticated
 
 echo "Deployment submitted."

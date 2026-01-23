@@ -100,19 +100,23 @@ def launch_worker_vm(request) -> Tuple[Dict[str, Any], int]:
 def is_worker_running(project_id: str, zone: str) -> bool:
     """'musp-worker-' で始まるインスタンスが現在実行中かどうかを確認します。"""
     instance_client = compute_v1.InstancesClient()
-    request = compute_v1.ListInstancesRequest(project=project_id, zone=zone)
     
-    # ノート: APIフィルタリングを使用せず、Python側でフィルタリングしています。
-    # Spotワーカーの数は少ないと想定されるため、全リスト取得でもコストは低いです。
-    instances = instance_client.list(request=request)
+    # サーバーサイドフィルタリングを使用して、メモリ使用量を削減します。
+    # name = "musp-worker-*" (プレフィックス一致) AND status がアクティブな状態
+    instance_filter = (
+        '(name = "musp-worker-*") AND '
+        '(status = "PROVISIONING" OR status = "STAGING" OR status = "RUNNING" OR status = "REPAIRING")'
+    )
     
-    for instance in instances:
-        is_musp_worker = instance.name.startswith("musp-worker-")
-        is_active_status = instance.status in (
-            "PROVISIONING", "STAGING", "RUNNING", "REPAIRING"
-        )
-        if is_musp_worker and is_active_status:
-             return True
+    request = compute_v1.ListInstancesRequest(
+        project=project_id, 
+        zone=zone,
+        filter=instance_filter
+    )
+    
+    # フィルタリングされた結果が1つでもあればTrueを返す
+    for _ in instance_client.list(request=request):
+        return True
              
     return False
 
