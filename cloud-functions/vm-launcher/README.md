@@ -40,3 +40,39 @@
 ```
 
 このスクリプトは必要な環境変数を設定し、正しいサービスアカウントを紐付けて関数をデプロイします。
+
+## デバッグ
+
+### 1. ローカル実行 (推奨)
+
+`functions-framework` を使用して、ローカル環境で関数をテストできます。
+プロジェクトルートにある `scripts/test_cf_local.sh` を使用すると便利です。
+
+```bash
+# 事前に functions-framework をインストール
+pip install functions-framework
+
+# ローカルサーバー起動 (localhost:8080)
+./scripts/test_cf_local.sh
+```
+
+サーバー起動後、別のターミナルから `curl` でリクエストを送信して動作確認できます:
+
+```bash
+# API トリガーのテスト
+curl -X POST http://localhost:8080 -H "Content-Type: application/json" -d '{"trigger": "api"}'
+
+# CRON トリガーのテスト
+curl -X POST http://localhost:8080 -H "Content-Type: application/json" -d '{"trigger": "cron"}'
+```
+
+### 2. ログ確認
+
+デプロイ済みの関数のログは、以下のコマンドで確認できます:
+
+```bash
+gcloud functions logs read vm-launcher --region asia-northeast1 --limit 50
+```
+
+または Google Cloud Console の "Cloud Functions" > "ログ" タブからも確認可能です。
+エラー発生時（例: `ValueError`）は、スタックトレースと共にログが出力されます。

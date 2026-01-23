@@ -82,3 +82,23 @@ docker run --rm -it \
 *   **Demucs**: Facebook Research による高品質な音源分離ライブラリ。
 *   **yt-dlp**: YouTube 音源ダウンロード。
 *   **Google Cloud Client Libraries**: BigQuery, Storage, Compute Engine 制御。
+
+## Cloud Function Deployment (VM Launcher)
+
+プロジェクトルートにある `scripts/deploy_cf.sh` を使用してデプロイできます。
+事前に `PROJECT_ID` などの変数がスクリプト内で適切に設定されているか、または環境変数として渡されているか確認してください。
+
+```bash
+# プロジェクトルートで実行
+./scripts/deploy_cf.sh
+```
+
+サーバー起動後、`curl` でリクエストを送信して動作確認できます:
+
+```bash
+# API トリガーのテスト
+curl -X POST https://asia-northeast1-musp-485206.cloudfunctions.net/vm-launcher -H "Content-Type: application/json" -d '{"trigger": "api"}'
+
+# CRON トリガーのテスト
+curl -X POST https://asia-northeast1-musp-485206.cloudfunctions.net/vm-launcher -H "Content-Type: application/json" -d '{"trigger": "cron"}'
+```

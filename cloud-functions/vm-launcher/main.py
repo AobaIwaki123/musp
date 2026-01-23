@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # 環境変数と定数定義
-PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT")
+PROJECT_ID = os.environ.get("PROJECT_ID") or os.environ.get("GOOGLE_CLOUD_PROJECT")
 ZONE = os.environ.get("ZONE", "asia-northeast1-c")
 DATASET_ID = os.environ.get("DATASET_ID", "musp_v3")
 TABLE_NAME = "videoID-status"
