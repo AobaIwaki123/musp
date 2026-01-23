@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: musp
+  name: musp-api
   namespace: musp
 spec:
   replicas: 3
