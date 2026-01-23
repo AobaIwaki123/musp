@@ -1,0 +1,15 @@
+# GCP SDK
+google-cloud-bigquery>=3.0.0
+google-cloud-storage>=2.0.0
+google-cloud-compute>=1.0.0
+
+# Audio processing
+demucs>=4.0.0
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# YouTube download
+yt-dlp>=2023.0.0
+
+# HTTP client
+requests>=2.28.0

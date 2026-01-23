@@ -89,9 +89,9 @@ ADD COLUMN IF NOT EXISTS error_message STRING;
 
 ---
 
-## Phase 2: Worker Image作成
+## Phase 2: Worker Image作成 ✅ 完了
 
-### 2.1 ディレクトリ構造
+### 2.1 ディレクトリ構造 ✅
 ```
 worker/
 ├── Dockerfile
@@ -102,62 +102,37 @@ worker/
 │   ├── fetch_source.py
 │   ├── separate_source.py
 │   ├── upload_source.py
-│   └── update_status.py
+│   ├── update_status.py
+│   ├── publish_source.py
+│   └── cleanup.py
 └── utils/
     ├── __init__.py
     ├── bigquery.py
-    └── gcs.py
+    ├── gcs.py
+    ├── metadata.py
+    └── youtube.py
 ```
 
-### 2.2 Worker Dockerfile
-```dockerfile
-FROM nvidia/cuda:12.1-cudnn8-runtime-ubuntu22.04
+### 2.2 Worker Dockerfile ✅
+実装済み: `worker/Dockerfile`
+- NVIDIA CUDA 12.1 + cuDNN8 ベースイメージ
+- Python 3, ffmpeg, yt-dlp インストール
+- Demucs + PyTorch GPU対応
 
-# 依存関係インストール
-RUN apt-get update && apt-get install -y \
-    python3 python3-pip ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+### 2.3 Worker main.py 処理フロー ✅
+実装済み: `worker/main.py`
 
-WORKDIR /app
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+処理ステップ:
+1. GCEメタデータまたは環境変数から `video_id`, `youtube_url` を取得
+2. BigQueryでステータスを `PROCESSING` に更新
+3. yt-dlp でYouTubeから音声をダウンロード
+4. Demucs で音声をボーカル/インストに分離
+5. GCS に分離ファイルをアップロード
+6. GCSパス（`gs://bucket/path`）をBigQueryに保存
+7. ステータスを `COMPLETED` に更新
+8. 一時ファイルを削除し、VMを自己削除
 
-COPY . .
-
-# メタデータからvideo_idを取得して処理
-ENTRYPOINT ["python3", "main.py"]
-```
-
-### 2.3 Worker main.py 処理フロー
-```python
-def main():
-    # 1. GCEメタデータからvideo_idを取得
-    video_id = get_metadata("video_id")
-
-    # 2. BigQueryでステータスをPROCESSINGに更新
-    update_status(video_id, "PROCESSING")
-
-    try:
-        # 3. YouTubeからダウンロード
-        audio_path = fetch_source(video_id)
-
-        # 4. Demucsで分離
-        vocal_path, inst_path = separate_source(audio_path)
-
-        # 5. GCSにアップロード
-        vocal_url = upload_to_gcs(vocal_path, f"{video_id}/vocal.wav")
-        inst_url = upload_to_gcs(inst_path, f"{video_id}/inst.wav")
-
-        # 6. BigQueryにURL保存 & ステータス更新
-        save_urls(video_id, vocal_url, inst_url)
-        update_status(video_id, "COMPLETED")
-
-    except Exception as e:
-        update_status(video_id, "FAILED", error=str(e))
-
-    # 7. 自身のVMを削除
-    delete_self()
-```
+> **Note:** 署名付きURLは、API Server側でユーザーリクエスト時に動的生成されます。これにより、Workerの権限を最小化し、URL有効期限の柔軟性が向上します。
 
 ### 2.4 GCRへのプッシュ（プロジェクトB）
 ```bash
@@ -166,6 +141,31 @@ def main():
 gcloud builds submit --project ${PROJECT_B_ID} \
     --tag gcr.io/${PROJECT_B_ID}/musp-worker:latest worker/
 ```
+
+### 2.5 実装詳細
+
+**utils/bigquery.py**:
+- `BigQueryClient`: BigQuery操作のラッパー
+- `TaskStatus`: ステータスEnum (PENDING, QUEUED, PROCESSING, COMPLETED, FAILED)
+- `update_status()`: ステータス更新 (startedAt, completedAt, errorMessage対応)
+- `save_gcs_paths()`: GCSパス保存（`gs://bucket/path`形式）
+
+**utils/gcs.py**:
+- `GCSClient`: GCS操作のラッパー
+- `upload_file()`: ファイルアップロード
+- `generate_signed_url()`: 署名付きURL生成（API Server用、Workerでは未使用）
+
+**utils/metadata.py**:
+- GCEメタデータ取得 (ローカル開発時は環境変数にフォールバック)
+- `get_project_id()`, `get_zone()`, `get_instance_name()`
+
+**tasks/**:
+- `fetch_source.py`: yt-dlpでYouTubeダウンロード
+- `separate_source.py`: Demucsで音声分離
+- `upload_source.py`: GCSへアップロード
+- `publish_source.py`: GCSパス保存（署名付きURLはAPI Serverで動的生成）
+- `update_status.py`: BigQueryステータス更新
+- `cleanup.py`: 一時ファイル削除 + VM自己削除
 
 ---
 
