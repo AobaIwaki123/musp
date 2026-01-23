@@ -66,25 +66,8 @@ def launch_worker_vm(request):
         logger.info(f"Incomplete tasks count: {incomplete_count}")
         
         if incomplete_count > 0:
-            # Check last execution time
-            last_started_at = get_last_execution_time(bq_client, PROJECT_ID, DATASET_ID, TABLE_NAME)
-            logger.info(f"Last execution time: {last_started_at}")
-            
-            if last_started_at is None:
-                logger.info("No previous execution found. Launching.")
-                should_launch = True
-            else:
-                # Calculate time difference
-                # Ensure UTC for comparison
-                now = datetime.datetime.now(datetime.timezone.utc)
-                diff = now - last_started_at
-                logger.info(f"Time since last execution: {diff}")
-                
-                if diff > datetime.timedelta(hours=1):
-                    logger.info("More than 1 hour since last execution. Launching.")
-                    should_launch = True
-                else:
-                    logger.info("Less than 1 hour since last execution. Skipping.")
+            logger.info("Found incomplete tasks. Launching.")
+            should_launch = True
         else:
             logger.info("No incomplete tasks. Skipping.")
             
@@ -138,17 +121,7 @@ def get_incomplete_tasks_count(client, project_id, dataset_id, table_name):
         return row.count
     return 0
 
-def get_last_execution_time(client, project_id, dataset_id, table_name):
-    # Retrieve the MAX(started_at) from the table
-    query = f"""
-        SELECT MAX(startedAt) as last_start
-        FROM `{project_id}.{dataset_id}.{table_name}`
-    """
-    job = client.query(query)
-    result = job.result()
-    for row in result:
-        return row.last_start # Returns datetime or None
-    return None
+
 
 def launch_vm(project_id, zone, image, sa_email):
     instance_client = compute_v1.InstancesClient()
