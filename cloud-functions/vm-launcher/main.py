@@ -145,16 +145,13 @@ def launch_vm(project_id: str, zone: str, image: str, sa_email: Optional[str], d
     """Spot VMを起動します。"""
     instance_client = compute_v1.InstancesClient()
     
-    # ユニークなインスタンス名の生成
     timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     instance_name = f"musp-worker-{timestamp}"
     
-    # マシンタイプとアクセラレータ(T4)の設定
     machine_type = f"zones/{zone}/machineTypes/n1-standard-4"
     accelerator_type = f"zones/{zone}/acceleratorTypes/nvidia-tesla-t4"
     
-    # コンテナ宣言 (Cloud-initのようなもの)
-    # 必要な環境変数をここで渡します。
+    # コンテナマニフェスト - GPU 用の環境変数とデバイスマウントを追加
     container_manifest = f"""
 spec:
   containers:
@@ -171,19 +168,69 @@ spec:
           value: {bucket_name}
         - name: MAX_WORKERS
           value: "2"
+        - name: LD_LIBRARY_PATH
+          value: /var/lib/nvidia/lib64
+        - name: PATH
+          value: /var/lib/nvidia/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       securityContext:
         privileged: true
       volumeMounts:
         - name: nvidia-install-dir-host
           mountPath: /var/lib/nvidia
-          readOnly: false
+        - name: nvidia-dev0
+          mountPath: /dev/nvidia0
+        - name: nvidia-dev-ctl
+          mountPath: /dev/nvidiactl
+        - name: nvidia-dev-uvm
+          mountPath: /dev/nvidia-uvm
+        - name: nvidia-dev-uvm-tools
+          mountPath: /dev/nvidia-uvm-tools
   volumes:
     - name: nvidia-install-dir-host
       hostPath:
         path: /var/lib/nvidia
+    - name: nvidia-dev0
+      hostPath:
+        path: /dev/nvidia0
+    - name: nvidia-dev-ctl
+      hostPath:
+        path: /dev/nvidiactl
+    - name: nvidia-dev-uvm
+      hostPath:
+        path: /dev/nvidia-uvm
+    - name: nvidia-dev-uvm-tools
+      hostPath:
+        path: /dev/nvidia-uvm-tools
 """
 
-    # インスタンス設定
+    # startup-script: GPU ドライバインストール完了を待ってからコンテナを起動
+    startup_script = """#!/bin/bash
+set -e
+
+echo "Installing GPU drivers..."
+cos-extensions install gpu
+
+# ドライバのインストール完了を待機
+echo "Waiting for nvidia-smi..."
+for i in $(seq 1 60); do
+    if /var/lib/nvidia/bin/nvidia-smi > /dev/null 2>&1; then
+        echo "GPU driver ready!"
+        /var/lib/nvidia/bin/nvidia-smi
+        break
+    fi
+    echo "Waiting... ($i/60)"
+    sleep 5
+done
+
+# デバイスファイルの存在確認
+if [ ! -e /dev/nvidia0 ]; then
+    echo "ERROR: /dev/nvidia0 not found"
+    exit 1
+fi
+
+echo "GPU setup complete"
+"""
+
     config = {
         "name": instance_name,
         "machine_type": machine_type,
@@ -200,7 +247,7 @@ spec:
             "boot": True,
             "auto_delete": True,
             "initialize_params": {
-                "source_image": "projects/cos-cloud/global/images/family/cos-stable", # Container-Optimized OS
+                "source_image": "projects/cos-cloud/global/images/family/cos-stable",
                 "disk_size_gb": 50
             }
         }],
@@ -210,22 +257,22 @@ spec:
         }],
         "metadata": {
             "items": [
-            {
+                {
                     "key": "gce-container-declaration",
                     "value": container_manifest
-                 },
-                 {
-                     "key": "google-logging-enabled",
-                     "value": "true"
-                 },
-                 {
-                     "key": "startup-script",
-                     "value": """#! /bin/bash
-cos-extensions install gpu
-mount --bind /var/lib/nvidia /var/lib/nvidia
-mount -o remount,exec /var/lib/nvidia
-"""
-                 }
+                },
+                {
+                    "key": "google-logging-enabled",
+                    "value": "true"
+                },
+                {
+                    "key": "startup-script",
+                    "value": startup_script
+                },
+                {
+                    "key": "install-nvidia-driver",
+                    "value": "true"
+                }
             ]
         },
         "service_accounts": [{
@@ -234,13 +281,12 @@ mount -o remount,exec /var/lib/nvidia
         }]
     }
 
-    # インスタンスの作成リクエスト
     operation = instance_client.insert(
         project=project_id,
         zone=zone,
         instance_resource=config
     )
     
-    operation.result() # 完了まで待機
+    operation.result()
     return instance_name
 
