@@ -40,29 +40,31 @@ view (Next.js) → api (FastAPI) → celery (GPU Worker) → BigQuery/GCS
 
 ---
 
-## Phase 1: インフラ基盤の準備
+## Phase 1: インフラ基盤の準備 ✅ 完了
 
 ### 1.1 GCPプロジェクト設定
 
 #### プロジェクトA（K8sイメージ管理・既存）
-- [ ] Container Registry API 有効化確認
-- [ ] サービスアカウントの作成/確認
+- [x] Container Registry API 有効化確認
+- [x] サービスアカウントの作成/確認
   - `musp-k8s-pull-sa`: ローカルK8sからのイメージpull用（GCR読み取り権限）
 
 #### プロジェクトB（MuSPメイン）
-- [ ] 必要なAPIの有効化
+- [x] 必要なAPIの有効化
   - Compute Engine API
   - Cloud Functions API
   - Container Registry API
   - Cloud Build API
   - BigQuery API (既存)
   - Cloud Storage API (既存)
-- [ ] サービスアカウントの作成
+- [x] サービスアカウントの作成
   - `musp-api-sa`: API Server用（BigQuery読み書き）
   - `musp-worker-sa`: Spot VM用（BigQuery読み書き、GCS読み書き、同一PJ内GCRはデフォルトでOK）
   - `musp-cf-sa`: Cloud Functions用（Compute Engine管理）
 
-### 1.2 BigQueryスキーマ拡張
+### 1.2 BigQueryスキーマ拡張 ✅
+スキーマ定義: `SCHEMA.md`, `bq/*.json`
+
 現在のテーブル:
 - `googleID-userID`: ユーザーマッピング
 - `userID-videoID`: ユーザー・動画紐付け
@@ -81,9 +83,9 @@ ADD COLUMN IF NOT EXISTS error_message STRING;
 ```
 
 ### 1.3 ネットワーク設定
-- [ ] VPCネットワーク作成（またはdefault使用）
-- [ ] Firewall rules設定（内部通信のみ許可）
-- [ ] Cloud NATの設定（Spot VMの外部アクセス用）
+- [x] VPCネットワーク作成（またはdefault使用）
+- [x] Firewall rules設定（内部通信のみ許可）
+- [x] Cloud NATの設定（Spot VMの外部アクセス用）
 
 ---
 
