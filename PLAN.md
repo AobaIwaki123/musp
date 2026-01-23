@@ -270,20 +270,14 @@ k8s/
 ├── base/
 │   ├── kustomization.yaml
 │   ├── namespace.yaml
-│   ├── api-deployment.yaml
-│   ├── api-service.yaml
-│   ├── cronjob.yaml
-│   ├── configmap.yaml
-│   └── secret.yaml (gitignore)
-└── overlays/
-    └── local/
-        ├── kustomization.yaml
-        └── patches/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── ingress.yaml
 ```
 
 ### 4.2 API Server Deployment
 ```yaml
-# k8s/base/api-deployment.yaml
+# k8s/base/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -346,7 +340,7 @@ spec:
 
 ### 4.3 API Service
 ```yaml
-# k8s/base/api-service.yaml
+# k8s/base/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -359,76 +353,6 @@ spec:
   ports:
   - port: 80
     targetPort: 8000
-```
-
-### 4.4 CronJob (Task Launcher)
-```yaml
-# k8s/base/cronjob.yaml
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: musp-task-launcher
-  namespace: musp
-spec:
-  schedule: "*/5 * * * *"  # 5分ごと
-  concurrencyPolicy: Forbid
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          serviceAccountName: musp-api-sa
-          imagePullSecrets:
-          - name: gcr-secret  # プロジェクトAのGCRからpullするための認証
-          containers:
-          - name: task-launcher
-            image: gcr.io/PROJECT_A_ID/musp-task-launcher:latest  # プロジェクトA
-            env:
-            - name: GOOGLE_CLOUD_PROJECT
-              valueFrom:
-                configMapKeyRef:
-                  name: musp-config
-                  key: project_id
-            - name: DATASET_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: musp-config
-                  key: dataset_id
-            - name: CLOUD_FUNCTION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: musp-config
-                  key: cloud_function_url
-          restartPolicy: OnFailure
-```
-
-### 4.5 ConfigMap
-```yaml
-# k8s/base/configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: musp-config
-  namespace: musp
-data:
-  # プロジェクトA: K8sイメージ管理
-  project_a_id: "your-k8s-image-project-id"
-  # プロジェクトB: MuSPメイン（BigQuery, GCS, Spot VM, Worker Image）
-  project_b_id: "your-musp-main-project-id"
-  dataset_id: "musp_dataset"
-  cloud_function_url: "https://REGION-PROJECT_B_ID.cloudfunctions.net/vm-launcher"
-  gcs_bucket: "musp-audio-bucket"
-```
-
-### 4.6 imagePullSecret作成手順
-```bash
-# プロジェクトAのGCRからpullするためのSecret
-# musp-k8s-pull-sa のキーを使用
-kubectl create secret docker-registry gcr-secret \
-  --docker-server=gcr.io \
-  --docker-username=_json_key \
-  --docker-password="$(cat ./secret/project-a-sa-key.json)" \
-  --docker-email=any@email.com \
-  -n musp
 ```
 
 ---
@@ -470,88 +394,6 @@ api/src/
 
 追加:
 - google-cloud-functions (API呼び出し用、オプション)
-
----
-
-## Phase 6: Task Launcher実装
-
-### 6.1 処理フロー
-```python
-# task-launcher/main.py
-def main():
-    # 1. BigQueryからPENDINGタスクを取得
-    pending_tasks = query_pending_tasks()
-
-    for task in pending_tasks:
-        # 2. 既にVMが起動していないか確認
-        if not is_vm_running(task.video_id):
-            # 3. Cloud Functionsを呼び出してVM起動
-            launch_vm(task.video_id, task.youtube_url)
-
-            # 4. ステータスをQUEUEDに更新
-            update_status(task.video_id, "QUEUED")
-```
-
-### 6.2 Dockerfile
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-CMD ["python", "main.py"]
-```
-
----
-
-## Phase 7: ローカルK8s環境構築
-
-### 7.1 必要なツール
-- Docker Desktop with Kubernetes または
-- Minikube / kind / k3s
-
-### 7.2 セットアップスクリプト
-```bash
-#!/bin/bash
-# scripts/setup-local-k8s.sh
-
-# Namespaceの作成
-kubectl apply -f k8s/base/namespace.yaml
-
-# Secretの作成（プロジェクトBのGCPサービスアカウントキー：BigQuery/GCS/CF用）
-kubectl create secret generic gcp-sa-key \
-    --from-file=key.json=./secret/project-b-sa-key.json \
-    -n musp
-
-# imagePullSecret作成（プロジェクトAのGCRからpull用）
-kubectl create secret docker-registry gcr-secret \
-    --docker-server=gcr.io \
-    --docker-username=_json_key \
-    --docker-password="$(cat ./secret/project-a-sa-key.json)" \
-    --docker-email=any@email.com \
-    -n musp
-
-# Kustomizeでデプロイ
-kubectl apply -k k8s/overlays/local/
-```
-
-### 7.3 ローカル用パッチ
-```yaml
-# k8s/overlays/local/patches/service-patch.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: musp-api
-  namespace: musp
-spec:
-  type: NodePort
-  ports:
-  - port: 80
-    targetPort: 8000
-    nodePort: 30080
-```
 
 ---
 
