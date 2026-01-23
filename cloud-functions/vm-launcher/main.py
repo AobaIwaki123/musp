@@ -42,10 +42,24 @@ def launch_worker_vm(request) -> Tuple[Dict[str, Any], int]:
     trigger = request_json.get("trigger", "api") 
     logger.info(f"リクエストを受信しました。トリガー: {trigger}")
 
-    # 1. 実行中のインスタンスを確認（重複起動を防止）
-    if is_worker_running(PROJECT_ID, ZONE):
-        logger.info("ワーカーVMは既に実行中です。起動をスキップします。")
-        return {"status": "skipped", "reason": "Worker already running"}, 200
+    # 1. 環境変数の検証
+    if not PROJECT_ID or not ZONE:
+        logger.error(f"必須環境変数が設定されていません: PROJECT_ID={PROJECT_ID}, ZONE={ZONE}")
+        return {"status": "error", "message": "Missing required environment variables"}, 500
+
+    logger.info(f"PROJECT_ID: {PROJECT_ID}, ZONE: {ZONE}, DATASET_ID: {DATASET_ID}")
+
+    # 2. 実行中のインスタンスを確認（重複起動を防止）
+    try:
+        if is_worker_running(PROJECT_ID, ZONE):
+            logger.info("ワーカーVMは既に実行中です。起動をスキップします。")
+            return {"status": "skipped", "reason": "Worker already running"}, 200
+    except ValueError as e:
+        logger.error(f"In is_worker_running: {e}")
+        return {"status": "error", "message": f"Invalid request parameters: {e}"}, 500
+    except Exception as e:
+        logger.error(f"Unexpected error in is_worker_running: {e}", exc_info=True)
+        return {"status": "error", "message": f"Internal server error: {e}"}, 500
 
     # 2. 起動条件の評価
     should_launch = False
