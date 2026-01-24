@@ -193,9 +193,23 @@ path = "/var/lib/nvidia/bin/nvidia-container-cli"
 ldconfig = "@/var/lib/nvidia/bin/ldconfig.real"
 NVIDIA_CONFIG
 
-# 5. Docker認証
+# 5. Docker認証 (COSはルートファイルシステムが読み取り専用なので、HOMEを変更)
 echo "Authenticating with GCR..."
-docker-credential-gcr configure-docker --registries=gcr.io,asia.gcr.io
+export HOME=/var/lib/docker
+mkdir -p $HOME/.docker 2>/dev/null || true
+docker-credential-gcr configure-docker --registries=gcr.io,asia.gcr.io || echo "docker-credential-gcr failed, trying alternative method..."
+
+# Alternative: Use gcloud auth directly
+cat > $HOME/.docker/config.json << 'DOCKER_CONFIG'
+{{
+  "credHelpers": {{
+    "gcr.io": "gcloud",
+    "asia.gcr.io": "gcloud",
+    "us.gcr.io": "gcloud",
+    "eu.gcr.io": "gcloud"
+  }}
+}}
+DOCKER_CONFIG
 
 # 6. コンテナイメージをPull
 echo "Pulling container image: {image}"
