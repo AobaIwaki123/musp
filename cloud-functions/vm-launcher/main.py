@@ -151,66 +151,18 @@ def launch_vm(project_id: str, zone: str, image: str, sa_email: Optional[str], d
     machine_type = f"zones/{zone}/machineTypes/n1-standard-4"
     accelerator_type = f"zones/{zone}/acceleratorTypes/nvidia-tesla-t4"
     
-    # コンテナマニフェスト - GPU 用の環境変数とデバイスマウントを追加
-    container_manifest = f"""
-spec:
-  containers:
-    - image: {image}
-      stdin: false
-      tty: false
-      restartPolicy: Always
-      env:
-        - name: GOOGLE_CLOUD_PROJECT
-          value: {project_id}
-        - name: DATASET_ID
-          value: {dataset_id}
-        - name: BUCKET_NAME
-          value: {bucket_name}
-        - name: MAX_WORKERS
-          value: "2"
-        - name: LD_LIBRARY_PATH
-          value: /var/lib/nvidia/lib64
-        - name: PATH
-          value: /var/lib/nvidia/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      securityContext:
-        privileged: true
-      volumeMounts:
-        - name: nvidia-install-dir-host
-          mountPath: /var/lib/nvidia
-        - name: nvidia-dev0
-          mountPath: /dev/nvidia0
-        - name: nvidia-dev-ctl
-          mountPath: /dev/nvidiactl
-        - name: nvidia-dev-uvm
-          mountPath: /dev/nvidia-uvm
-        - name: nvidia-dev-uvm-tools
-          mountPath: /dev/nvidia-uvm-tools
-  volumes:
-    - name: nvidia-install-dir-host
-      hostPath:
-        path: /var/lib/nvidia
-    - name: nvidia-dev0
-      hostPath:
-        path: /dev/nvidia0
-    - name: nvidia-dev-ctl
-      hostPath:
-        path: /dev/nvidiactl
-    - name: nvidia-dev-uvm
-      hostPath:
-        path: /dev/nvidia-uvm
-    - name: nvidia-dev-uvm-tools
-      hostPath:
-        path: /dev/nvidia-uvm-tools
-"""
+    # startup-script: GPUドライバをインストールしてからコンテナを起動
+    # gce-container-declarationは使わず、startup-scriptで直接docker runを実行
+    startup_script = f"""#!/bin/bash
+set -ex
 
-    # startup-script: GPU ドライバインストール完了を待ってからコンテナを起動
-    startup_script = """#!/bin/bash
-set -e
+echo "=== Starting GPU Worker Setup ==="
 
+# 1. GPUドライバのインストール
 echo "Installing GPU drivers..."
 cos-extensions install gpu
 
-# ドライバのインストール完了を待機
+# 2. ドライバのインストール完了を待機
 echo "Waiting for nvidia-smi..."
 for i in $(seq 1 60); do
     if /var/lib/nvidia/bin/nvidia-smi > /dev/null 2>&1; then
@@ -222,13 +174,54 @@ for i in $(seq 1 60); do
     sleep 5
 done
 
-# デバイスファイルの存在確認
+# 3. デバイスファイルの存在確認
 if [ ! -e /dev/nvidia0 ]; then
-    echo "ERROR: /dev/nvidia0 not found"
+    echo "ERROR: /dev/nvidia0 not found after driver installation"
     exit 1
 fi
 
-echo "GPU setup complete"
+echo "GPU devices found:"
+ls -la /dev/nvidia*
+
+# 4. NVIDIA Container Toolkit の設定 (COS用)
+echo "Configuring NVIDIA container runtime..."
+mkdir -p /etc/nvidia-container-runtime
+cat > /etc/nvidia-container-runtime/config.toml << 'NVIDIA_CONFIG'
+[nvidia-container-cli]
+root = "/var/lib/nvidia"
+path = "/var/lib/nvidia/bin/nvidia-container-cli"
+ldconfig = "@/var/lib/nvidia/bin/ldconfig.real"
+NVIDIA_CONFIG
+
+# 5. Docker認証
+echo "Authenticating with GCR..."
+docker-credential-gcr configure-docker --registries=gcr.io,asia.gcr.io
+
+# 6. コンテナイメージをPull
+echo "Pulling container image: {image}"
+docker pull {image}
+
+# 7. コンテナを起動 (GPUアクセス付き)
+echo "Starting worker container with GPU access..."
+docker run --rm \\
+    --name musp-worker \\
+    --privileged \\
+    --volume /var/lib/nvidia:/var/lib/nvidia:ro \\
+    --device /dev/nvidia0:/dev/nvidia0 \\
+    --device /dev/nvidiactl:/dev/nvidiactl \\
+    --device /dev/nvidia-uvm:/dev/nvidia-uvm \\
+    --device /dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools \\
+    -e GOOGLE_CLOUD_PROJECT={project_id} \\
+    -e DATASET_ID={dataset_id} \\
+    -e BUCKET_NAME={bucket_name} \\
+    -e MAX_WORKERS=2 \\
+    -e LD_LIBRARY_PATH=/var/lib/nvidia/lib64 \\
+    -e PATH=/var/lib/nvidia/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \\
+    -e NVIDIA_VISIBLE_DEVICES=all \\
+    -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \\
+    {image}
+
+echo "=== Worker container finished ==="
 """
 
     config = {
@@ -258,20 +251,12 @@ echo "GPU setup complete"
         "metadata": {
             "items": [
                 {
-                    "key": "gce-container-declaration",
-                    "value": container_manifest
-                },
-                {
                     "key": "google-logging-enabled",
                     "value": "true"
                 },
                 {
                     "key": "startup-script",
                     "value": startup_script
-                },
-                {
-                    "key": "install-nvidia-driver",
-                    "value": "true"
                 }
             ]
         },
