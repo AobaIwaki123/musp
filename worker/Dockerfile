@@ -3,11 +3,13 @@ FROM nvidia/cuda:12.9.1-runtime-ubuntu24.04 AS builder
 # Copy uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Copy Python 3.13 from official image
+# Copy Python 3.13 from official image (including shared libraries)
 COPY --from=python:3.13-slim /usr/local/bin/python3.13 /usr/local/bin/
 COPY --from=python:3.13-slim /usr/local/lib/python3.13 /usr/local/lib/python3.13
+COPY --from=python:3.13-slim /usr/local/lib/libpython3.13.so* /usr/local/lib/
 RUN ln -s /usr/local/bin/python3.13 /usr/local/bin/python3 && \
-    ln -s /usr/local/bin/python3.13 /usr/local/bin/python
+    ln -s /usr/local/bin/python3.13 /usr/local/bin/python && \
+    ldconfig
 
 # Copy Node.js (runtime only)
 COPY --from=node:24-slim /usr/local/bin/node /usr/local/bin/
@@ -26,11 +28,13 @@ COPY . .
 # Runtime stage
 FROM nvidia/cuda:12.9.1-runtime-ubuntu24.04
 
-# Copy Python 3.13 runtime
+# Copy Python 3.13 runtime (including shared libraries)
 COPY --from=python:3.13-slim /usr/local/bin/python3.13 /usr/local/bin/
 COPY --from=python:3.13-slim /usr/local/lib/python3.13 /usr/local/lib/python3.13
+COPY --from=python:3.13-slim /usr/local/lib/libpython3.13.so* /usr/local/lib/
 RUN ln -s /usr/local/bin/python3.13 /usr/local/bin/python3 && \
-    ln -s /usr/local/bin/python3.13 /usr/local/bin/python
+    ln -s /usr/local/bin/python3.13 /usr/local/bin/python && \
+    ldconfig
 
 # Copy Node.js runtime
 COPY --from=node:24-slim /usr/local/bin/node /usr/local/bin/
