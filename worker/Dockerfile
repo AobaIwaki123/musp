@@ -3,12 +3,12 @@ FROM nvidia/cuda:12.9.1-runtime-ubuntu24.04 AS builder
 # Copy uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Copy Python 3.13 from official image (including shared libraries)
-COPY --from=python:3.13-slim /usr/local/bin/python3.13 /usr/local/bin/
-COPY --from=python:3.13-slim /usr/local/lib/python3.13 /usr/local/lib/python3.13
-COPY --from=python:3.13-slim /usr/local/lib/libpython3.13.so* /usr/local/lib/
-RUN ln -s /usr/local/bin/python3.13 /usr/local/bin/python3 && \
-    ln -s /usr/local/bin/python3.13 /usr/local/bin/python && \
+# Copy Python 3.12 from official image (PyTorch doesn't support 3.13 yet)
+COPY --from=python:3.12-slim /usr/local/bin/python3.12 /usr/local/bin/
+COPY --from=python:3.12-slim /usr/local/lib/python3.12 /usr/local/lib/python3.12
+COPY --from=python:3.12-slim /usr/local/lib/libpython3.12.so* /usr/local/lib/
+RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3 && \
+    ln -s /usr/local/bin/python3.12 /usr/local/bin/python && \
     ldconfig
 
 # Copy Node.js (runtime only)
@@ -18,7 +18,7 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN uv pip install --system --python python3.13 -r requirements.txt && \
+RUN uv pip install --system --python python3.12 -r requirements.txt && \
     find /usr/local/lib/python3.* -type d -name 'tests' -exec rm -rf {} + 2>/dev/null || true && \
     find /usr/local/lib/python3.* -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
 
@@ -28,12 +28,12 @@ COPY . .
 # Runtime stage
 FROM nvidia/cuda:12.9.1-runtime-ubuntu24.04
 
-# Copy Python 3.13 runtime (including shared libraries)
-COPY --from=python:3.13-slim /usr/local/bin/python3.13 /usr/local/bin/
-COPY --from=python:3.13-slim /usr/local/lib/python3.13 /usr/local/lib/python3.13
-COPY --from=python:3.13-slim /usr/local/lib/libpython3.13.so* /usr/local/lib/
-RUN ln -s /usr/local/bin/python3.13 /usr/local/bin/python3 && \
-    ln -s /usr/local/bin/python3.13 /usr/local/bin/python && \
+# Copy Python 3.12 runtime (including shared libraries)
+COPY --from=python:3.12-slim /usr/local/bin/python3.12 /usr/local/bin/
+COPY --from=python:3.12-slim /usr/local/lib/python3.12 /usr/local/lib/python3.12
+COPY --from=python:3.12-slim /usr/local/lib/libpython3.12.so* /usr/local/lib/
+RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3 && \
+    ln -s /usr/local/bin/python3.12 /usr/local/bin/python && \
     ldconfig
 
 # Copy Node.js runtime
@@ -42,7 +42,7 @@ COPY --from=node:24-slim /usr/local/bin/node /usr/local/bin/
 WORKDIR /app
 
 # Copy installed dependencies and application
-COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /app .
 
 # Set environment variables
