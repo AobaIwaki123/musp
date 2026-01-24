@@ -17,6 +17,80 @@ import sys
 import tempfile
 from typing import Optional
 
+# Configure logging FIRST
+logging.basicConfig(
+    level=logging.DEBUG,  # Changed to DEBUG for troubleshooting
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+    ],
+)
+
+logger = logging.getLogger(__name__)
+
+# === Debug: Environment Variables ===
+logger.info("=== ENVIRONMENT DEBUG ===")
+logger.info(f"GOOGLE_CLOUD_PROJECT: {os.environ.get('GOOGLE_CLOUD_PROJECT', 'NOT SET')}")
+logger.info(f"GCE_METADATA_HOST: {os.environ.get('GCE_METADATA_HOST', 'NOT SET')}")
+logger.info(f"GCE_METADATA_IP: {os.environ.get('GCE_METADATA_IP', 'NOT SET')}")
+logger.info(f"GOOGLE_APPLICATION_CREDENTIALS: {os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', 'NOT SET')}")
+logger.info("========================")
+
+# === Debug: Metadata Server Connectivity ===
+logger.info("=== METADATA SERVER TEST ===")
+try:
+    import requests
+    metadata_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email"
+    headers = {"Metadata-Flavor": "Google"}
+    response = requests.get(metadata_url, headers=headers, timeout=5)
+    logger.info(f"Metadata server response status: {response.status_code}")
+    logger.info(f"Service account email: {response.text}")
+except Exception as e:
+    logger.error(f"Metadata server test FAILED: {type(e).__name__}: {e}")
+
+# Try getting access token
+try:
+    token_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
+    response = requests.get(token_url, headers=headers, timeout=5)
+    if response.status_code == 200:
+        token_data = response.json()
+        logger.info(f"Access token obtained (expires_in: {token_data.get('expires_in', 'unknown')}s)")
+    else:
+        logger.error(f"Failed to get access token: {response.status_code} - {response.text}")
+except Exception as e:
+    logger.error(f"Access token test FAILED: {type(e).__name__}: {e}")
+logger.info("============================")
+
+# === Debug: google.auth imports ===
+logger.info("=== GOOGLE AUTH DEBUG ===")
+try:
+    import google.auth
+    logger.info(f"google.auth version: {google.auth.__version__}")
+except ImportError as e:
+    logger.error(f"Failed to import google.auth: {e}")
+
+try:
+    from google.auth import compute_engine
+    logger.info("google.auth.compute_engine imported successfully")
+except ImportError as e:
+    logger.error(f"Failed to import google.auth.compute_engine: {e}")
+
+try:
+    from google.auth.transport import requests as google_requests
+    logger.info("google.auth.transport.requests imported successfully")
+except ImportError as e:
+    logger.error(f"Failed to import google.auth.transport.requests: {e}")
+
+# Try to get default credentials
+try:
+    credentials, project = google.auth.default()
+    logger.info(f"Default credentials obtained: {type(credentials).__name__}")
+    logger.info(f"Project from credentials: {project}")
+except Exception as e:
+    logger.error(f"Failed to get default credentials: {type(e).__name__}: {e}")
+logger.info("=========================")
+
+# Now import the rest
 from utils.bigquery import BigQueryClient, TaskStatus
 from utils.gcs import GCSClient
 from utils.metadata import get_instance_name
@@ -26,17 +100,6 @@ from tasks.separate_source import separate_source
 from tasks.upload_source import upload_source
 from tasks.update_status import update_status
 from tasks.cleanup import cleanup
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-    ],
-)
-
-logger = logging.getLogger(__name__)
 
 # Log GPU status on startup
 try:

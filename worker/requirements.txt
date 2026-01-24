@@ -2,6 +2,9 @@
 google-cloud-bigquery>=3.0.0
 google-cloud-storage>=2.0.0
 google-cloud-compute>=1.0.0
+google-auth>=2.0.0
+httplib2>=0.20.0
+google-auth-httplib2>=0.1.0
 
 # Audio processing
 demucs>=4.0.0

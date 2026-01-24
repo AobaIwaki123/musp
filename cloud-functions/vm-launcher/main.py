@@ -215,6 +215,7 @@ echo "Starting worker container with GPU access..."
 docker run --rm \\
     --name musp-worker \\
     --privileged \\
+    --network host \\
     --volume /var/lib/nvidia:/var/lib/nvidia:ro \\
     --device /dev/nvidia0:/dev/nvidia0 \\
     --device /dev/nvidiactl:/dev/nvidiactl \\
@@ -228,6 +229,8 @@ docker run --rm \\
     -e PATH=/var/lib/nvidia/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \\
     -e NVIDIA_VISIBLE_DEVICES=all \\
     -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \\
+    -e GCE_METADATA_HOST=metadata.google.internal \\
+    -e GCE_METADATA_IP=169.254.169.254 \\
     {image}
 
 echo "=== Worker container finished ==="
