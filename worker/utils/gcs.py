@@ -53,3 +53,30 @@ class GCSClient:
         logger.info(f"Uploaded {source_path} to {gcs_uri}")
 
         return gcs_uri
+
+    def generate_signed_url(
+        self,
+        blob_name: str,
+        expiration_seconds: int = 604800,  # 7 days
+    ) -> str:
+        """
+        Generate a signed URL for a blob.
+
+        Args:
+            blob_name: The name of the blob.
+            expiration_seconds: Expiration time in seconds.
+
+        Returns:
+            The signed URL.
+        """
+        blob = self.bucket.blob(blob_name)
+
+        # Note: This requires the environment to have signing capabilities
+        # (e.g. Service Account key or correctly configured signer).
+        url = blob.generate_signed_url(
+            version="v4",
+            expiration=datetime.timedelta(seconds=expiration_seconds),
+            method="GET",
+        )
+        logger.info(f"Generated signed URL for {blob_name}")
+        return url

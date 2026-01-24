@@ -111,6 +111,50 @@ class BigQueryClient:
 
         logger.info(f"Updated status for {video_id} to {status.value}")
 
+    def insert_audio_urls(
+        self,
+        video_id: str,
+        vocal_url: str,
+        inst_url: str,
+    ) -> None:
+        """
+        Insert or update signed URLs in BigQuery.
+
+        Args:
+            video_id: The YouTube video ID.
+            vocal_url: The signed URL for vocals.
+            inst_url: The signed URL for instrumental.
+        """
+        now = datetime.now(timezone.utc)
+        
+        # Helper to execute MERGE for a URL table
+        def merge_url_table(table_name: str, url: str):
+            table_ref = self._get_table_ref(table_name)
+            query = f"""
+                MERGE {table_ref} T
+                USING (SELECT @video_id AS videoID, @wav_url AS wavURL, @ts AS ts) S
+                ON T.videoID = S.videoID
+                WHEN MATCHED THEN
+                    UPDATE SET wavURL = S.wavURL, updatedAt = S.ts
+                WHEN NOT MATCHED THEN
+                    INSERT (videoID, wavURL, createdAt, updatedAt)
+                    VALUES (S.videoID, S.wavURL, S.ts, S.ts)
+            """
+            job_config = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ScalarQueryParameter("video_id", "STRING", video_id),
+                    bigquery.ScalarQueryParameter("wav_url", "STRING", url),
+                    bigquery.ScalarQueryParameter("ts", "TIMESTAMP", now),
+                ]
+            )
+            job = self.client.query(query, job_config=job_config)
+            job.result()
+            logger.info(f"Updated {table_name} for {video_id}")
+
+        # Update both tables
+        merge_url_table("videoID-vocalWavURL", vocal_url)
+        merge_url_table("videoID-instWavURL", inst_url)
+
     def fetch_incomplete_videos(self) -> list[str]:
         """
         Fetch all unique video IDs that are not COMPLETED.
