@@ -35,10 +35,14 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Install Node.js and ffmpeg
+# Install Node.js, ffmpeg and FFmpeg development libraries for torchcodec
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ffmpeg \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libswresample-dev \
     && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
