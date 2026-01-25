@@ -3,13 +3,9 @@ FROM python:3.13-slim AS builder
 # Install system dependencies needed for building
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js from NodeSource
-RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
-    apt-get install -y nodejs && \
-    rm -rf /var/lib/apt/lists/*
+
 
 # Copy uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
@@ -35,12 +31,9 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Install Node.js and ffmpeg for yt-dlp
+# Install ffmpeg for yt-dlp
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
     ffmpeg \
-    && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
-    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed dependencies and application
@@ -54,7 +47,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 # Verify installations
-RUN python --version && node --version && ffmpeg -version
+RUN python --version && ffmpeg -version
 
 # Run the application
 CMD ["python", "main.py"]

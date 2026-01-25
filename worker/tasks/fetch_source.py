@@ -31,9 +31,10 @@ def fetch_source(video_id: str, youtube_url: str, work_dir: str) -> str:
 
     out_path = video_dir / "source.webm"
 
-    # Download using yt-dlp
+    # Download using yt-dlp with iOS player client to avoid JS runtime issues
     cmd = [
         "yt-dlp",
+        "--extractor-args", "youtube:player_client=ios",  # iOS client doesn't need JS runtime
         "--extract-audio",
         "--audio-format", "best",
         "--output", str(out_path),
@@ -42,15 +43,10 @@ def fetch_source(video_id: str, youtube_url: str, work_dir: str) -> str:
 
     logger.info(f"Running command: {' '.join(cmd)}")
 
-    # Set environment to use Node.js as JS runtime for yt-dlp
-    env = os.environ.copy()
-    env["YTDLP_JS_RUNTIME"] = "node"
-
     result = subprocess.run(
         cmd,
         capture_output=True,
         text=True,
-        env=env,
     )
 
     if result.returncode != 0:
