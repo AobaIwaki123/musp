@@ -8,11 +8,11 @@ COPY --from=node:24-slim /usr/local/bin/node /usr/local/bin/
 
 WORKDIR /app
 
-# Install Python dependencies (exclude torch/torchaudio as they're in base image)
+# Install Python dependencies
 COPY requirements.txt .
 RUN uv pip install --system -r requirements.txt && \
-    find /opt/conda/lib/python3.* -type d -name 'tests' -exec rm -rf {} + 2>/dev/null || true && \
-    find /opt/conda/lib/python3.* -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
+    find /usr/local/lib/python3.12 -type d -name 'tests' -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.12 -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
 
 # Copy application code
 COPY . .
@@ -31,8 +31,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed dependencies and application
-COPY --from=builder /opt/conda/lib/python3.*/site-packages /opt/conda/lib/python3.12/site-packages
-COPY --from=builder /opt/conda/bin /opt/conda/bin
+COPY --from=builder /usr/local/lib/python3.12/dist-packages /usr/local/lib/python3.12/dist-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /app .
 
 # Set environment variables
