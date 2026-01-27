@@ -10,7 +10,7 @@ FUNCTION_SA="musp-cf-sa@${PROJECT_ID}.iam.gserviceaccount.com"
 # 2. Worker VMそのものに付与する権限 (GCS書き込み権限など)
 WORKER_SA="musp-worker-sa@${PROJECT_ID}.iam.gserviceaccount.com"
 
-ZONE="asia-northeast1-c"
+ZONE="asia-northeast1-a,asia-northeast1-c"
 DATASET_ID="musp_v3"
 BUCKET_NAME="musp-bucket"
 

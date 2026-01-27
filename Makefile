@@ -72,3 +72,6 @@ PROJECT_B_ID := musp-485206
 push-worker:
 	@gcloud builds submit --project ${PROJECT_B_ID}\
 		--tag gcr.io/${PROJECT_B_ID}/musp-worker:latest worker/
+
+test-worker:
+	curl -X POST https://asia-northeast1-musp-485206.cloudfunctions.net/vm-launcher -H "Content-Type: application/json" -d '{"trigger": "api"}'

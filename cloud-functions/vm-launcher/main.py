@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 # 環境変数と定数定義
 PROJECT_ID = os.environ.get("PROJECT_ID") or os.environ.get("GOOGLE_CLOUD_PROJECT")
-ZONE = os.environ.get("ZONE", "asia-northeast1-c")
+# 複数のゾーンをカンマ区切りで指定（フォールバック対応）
+ZONES_STR = os.environ.get("ZONES", "asia-northeast1-a,asia-northeast1-c")
+ZONES = [z.strip() for z in ZONES_STR.split(",") if z.strip()]
 DATASET_ID = os.environ.get("DATASET_ID", "musp_v3")
 BUCKET_NAME = os.environ.get("BUCKET_NAME", "musp-audio-source")  # Default bucket name
 TABLE_NAME = "videoID-status"
@@ -44,15 +46,15 @@ def launch_worker_vm(request) -> Tuple[Dict[str, Any], int]:
     logger.info(f"リクエストを受信しました。トリガー: {trigger}")
 
     # 1. 環境変数の検証
-    if not PROJECT_ID or not ZONE:
-        logger.error(f"必須環境変数が設定されていません: PROJECT_ID={PROJECT_ID}, ZONE={ZONE}")
+    if not PROJECT_ID or not ZONES:
+        logger.error(f"必須環境変数が設定されていません: PROJECT_ID={PROJECT_ID}, ZONES={ZONES}")
         return {"status": "error", "message": "Missing required environment variables"}, 500
 
-    logger.info(f"PROJECT_ID: {PROJECT_ID}, ZONE: {ZONE}, DATASET_ID: {DATASET_ID}, BUCKET_NAME: {BUCKET_NAME}")
+    logger.info(f"PROJECT_ID: {PROJECT_ID}, ZONES: {ZONES}, DATASET_ID: {DATASET_ID}, BUCKET_NAME: {BUCKET_NAME}")
 
     # 2. 実行中のインスタンスを確認（重複起動を防止）
     try:
-        if is_worker_running(PROJECT_ID, ZONE):
+        if is_worker_running(PROJECT_ID, ZONES):
             logger.info("ワーカーVMは既に実行中です。起動をスキップします。")
             return {"status": "skipped", "reason": "Worker already running"}, 200
     except ValueError as e:
@@ -88,16 +90,16 @@ def launch_worker_vm(request) -> Tuple[Dict[str, Any], int]:
     # 3. 条件を満たした場合にVMを起動
     if should_launch:
         try:
-            instance_name = launch_vm(
+            instance_name, zone_used = launch_vm_with_fallback(
                 project_id=PROJECT_ID, 
-                zone=ZONE, 
+                zones=ZONES, 
                 image=WORKER_IMAGE, 
                 sa_email=WORKER_SA_EMAIL,
                 dataset_id=DATASET_ID,
                 bucket_name=BUCKET_NAME
             )
-            logger.info(f"インスタンスを起動しました: {instance_name}")
-            return {"status": "launched", "instance": instance_name}, 200
+            logger.info(f"インスタンスを起動しました: {instance_name} (zone: {zone_used})")
+            return {"status": "launched", "instance": instance_name, "zone": zone_used}, 200
         except Exception as e:
             logger.error(f"VMの起動に失敗しました: {e}")
             return {"status": "error", "message": str(e)}, 500
@@ -105,8 +107,8 @@ def launch_worker_vm(request) -> Tuple[Dict[str, Any], int]:
     return {"status": "skipped", "reason": "Conditions not met"}, 200
 
 
-def is_worker_running(project_id: str, zone: str) -> bool:
-    """'musp-worker-' で始まるインスタンスが現在実行中かどうかを確認します。"""
+def is_worker_running(project_id: str, zones: list[str]) -> bool:
+    """'musp-worker-' で始まるインスタンスが現在実行中かどうかを確認します（複数ゾーンをチェック）。"""
     instance_client = compute_v1.InstancesClient()
     
     # サーバーサイドフィルタリングを使用して、メモリ使用量を削減します。
@@ -116,16 +118,18 @@ def is_worker_running(project_id: str, zone: str) -> bool:
         '(status = "PROVISIONING" OR status = "STAGING" OR status = "RUNNING" OR status = "REPAIRING")'
     )
     
-    request = compute_v1.ListInstancesRequest(
-        project=project_id, 
-        zone=zone,
-        filter=instance_filter
-    )
-    
-    # フィルタリングされた結果が1つでもあればTrueを返す
-    for _ in instance_client.list(request=request):
-        return True
-             
+    # 各ゾーンをチェック
+    for zone in zones:
+        request = compute_v1.ListInstancesRequest(
+            project=project_id, 
+            zone=zone,
+            filter=instance_filter
+        )
+        
+        # フィルタリングされた結果が1つでもあればTrueを返す
+        for _ in instance_client.list(request=request):
+            return True
+              
     return False
 
 def get_incomplete_tasks_count(client: bigquery.Client, project_id: str, dataset_id: str, table_name: str) -> int:
@@ -141,8 +145,51 @@ def get_incomplete_tasks_count(client: bigquery.Client, project_id: str, dataset
         return row.count
     return 0
 
+def launch_vm_with_fallback(project_id: str, zones: list[str], image: str, sa_email: Optional[str], dataset_id: str, bucket_name: str) -> Tuple[str, str]:
+    """複数のゾーンを試行してSpot VMを起動します。
+    
+    Returns:
+        Tuple[str, str]: (instance_name, zone_used)
+    
+    Raises:
+        Exception: すべてのゾーンで起動に失敗した場合
+    """
+    last_error = None
+    
+    for idx, zone in enumerate(zones, 1):
+        try:
+            logger.info(f"ゾーン {zone} でVMの起動を試行中... ({idx}/{len(zones)})")
+            instance_name = launch_vm(
+                project_id=project_id,
+                zone=zone,
+                image=image,
+                sa_email=sa_email,
+                dataset_id=dataset_id,
+                bucket_name=bucket_name
+            )
+            logger.info(f"ゾーン {zone} でVMの起動に成功しました: {instance_name}")
+            return instance_name, zone
+        except Exception as e:
+            error_str = str(e)
+            logger.warning(f"ゾーン {zone} でVMの起動に失敗しました: {error_str}")
+            
+            # リソース枯渇エラーの場合は次のゾーンを試行
+            if "ZONE_RESOURCE_POOL_EXHAUSTED" in error_str or "STOCKOUT" in error_str:
+                logger.info(f"ゾーン {zone} でリソースが不足しています。次のゾーンを試行します...")
+                last_error = e
+                continue
+            else:
+                # その他のエラーの場合は即座に失敗
+                logger.error(f"予期しないエラーが発生しました: {error_str}")
+                raise
+    
+    # すべてのゾーンで失敗した場合
+    error_msg = f"すべてのゾーン {zones} でVMの起動に失敗しました。最後のエラー: {last_error}"
+    logger.error(error_msg)
+    raise Exception(error_msg)
+
 def launch_vm(project_id: str, zone: str, image: str, sa_email: Optional[str], dataset_id: str, bucket_name: str) -> str:
-    """Spot VMを起動します。"""
+    """指定されたゾーンでSpot VMを起動します。"""
     instance_client = compute_v1.InstancesClient()
     
     timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -199,8 +246,8 @@ export HOME=/var/lib/docker
 mkdir -p $HOME/.docker 2>/dev/null || true
 
 # メタデータサーバーからアクセストークンを取得してdocker loginを実行
-ACCESS_TOKEN=$(curl -s -H "Metadata-Flavor: Google" \
-    "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | \
+ACCESS_TOKEN=$(curl -s -H "Metadata-Flavor: Google" \\
+    "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | \\
     python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
 
 echo "$ACCESS_TOKEN" | docker login -u oauth2accesstoken --password-stdin https://gcr.io
