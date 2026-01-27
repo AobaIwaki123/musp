@@ -1,42 +1,24 @@
-FROM nvidia/cuda:13.1.1-cudnn-runtime-ubuntu24.04 AS builder
+FROM pytorch/pytorch:2.10.0-cuda13.0-cudnn9-runtime AS builder
 
 # Copy uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
-COPY --from=python:3.13-slim /usr/local/bin/python3.13 /usr/local/bin/
-COPY --from=python:3.13-slim /usr/local/lib/python3.13 /usr/local/lib/python3.13
-COPY --from=python:3.13-slim /usr/local/lib/libpython3.13.so* /usr/local/lib/
-RUN ln -s /usr/local/bin/python3.13 /usr/local/bin/python3 && \
-    ln -s /usr/local/bin/python3.13 /usr/local/bin/python && \
-    ldconfig
 
 # Copy Node.js (runtime only)
 COPY --from=node:24-slim /usr/local/bin/node /usr/local/bin/
 
 WORKDIR /app
 
-# Install Python dependencies
+# Install Python dependencies (exclude torch/torchaudio as they're in base image)
 COPY requirements.txt .
-RUN uv pip install --system --python python3.13 -r requirements.txt && \
-    find /usr/local/lib/python3.* -type d -name 'tests' -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.* -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
+RUN uv pip install --system -r requirements.txt && \
+    find /opt/conda/lib/python3.* -type d -name 'tests' -exec rm -rf {} + 2>/dev/null || true && \
+    find /opt/conda/lib/python3.* -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
 
 # Copy application code
 COPY . .
 
 # Runtime stage
-FROM nvidia/cuda:13.1.1-cudnn-runtime-ubuntu24.04
-
-# Copy Python 3.13 runtime (including shared libraries and SSL)
-COPY --from=python:3.13-slim /usr/local/bin/python3.13 /usr/local/bin/
-COPY --from=python:3.13-slim /usr/local/lib/python3.13 /usr/local/lib/python3.13
-COPY --from=python:3.13-slim /usr/local/lib/libpython3.13.so* /usr/local/lib/
-# Copy SSL libraries from Python image to fix OpenSSL version mismatch
-COPY --from=python:3.13-slim /usr/lib/x86_64-linux-gnu/libssl.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=python:3.13-slim /usr/lib/x86_64-linux-gnu/libcrypto.so* /usr/lib/x86_64-linux-gnu/
-RUN ln -s /usr/local/bin/python3.13 /usr/local/bin/python3 && \
-    ln -s /usr/local/bin/python3.13 /usr/local/bin/python && \
-    ldconfig
+FROM pytorch/pytorch:2.10.0-cuda13.0-cudnn9-runtime
 
 # Copy Node.js runtime
 COPY --from=node:24-slim /usr/local/bin/node /usr/local/bin/
@@ -49,8 +31,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed dependencies and application
-COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /opt/conda/lib/python3.*/site-packages /opt/conda/lib/python3.12/site-packages
+COPY --from=builder /opt/conda/bin /opt/conda/bin
 COPY --from=builder /app .
 
 # Set environment variables
