@@ -267,6 +267,8 @@ torchaudio==2.10.0
     #   -r requirements.in
     #   demucs
     #   openunmix
+torchcodec==0.10.0
+    # via -r requirements.in
 tqdm==4.67.1
     # via
     #   -r requirements.in
