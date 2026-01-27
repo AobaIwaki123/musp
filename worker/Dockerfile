@@ -1,16 +1,15 @@
 FROM pytorch/pytorch:2.10.0-cuda13.0-cudnn9-runtime AS builder
 
-# Copy uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
 # Copy Node.js (runtime only)
 COPY --from=node:24-slim /usr/local/bin/node /usr/local/bin/
 
 WORKDIR /app
 
+
 # Install Python dependencies
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 COPY requirements.txt .
-RUN uv pip install --system -r requirements.txt && \
+RUN pip install -r requirements.txt && \
     find /usr/local/lib/python3.12 -type d -name 'tests' -exec rm -rf {} + 2>/dev/null || true && \
     find /usr/local/lib/python3.12 -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
 
