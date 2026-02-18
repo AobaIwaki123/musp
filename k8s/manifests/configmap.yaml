@@ -6,3 +6,6 @@ metadata:
 data:
   # Add shared environment variables here if necessary
   GOOGLE_CLOUD_PROJECT: "musp-8f9bd"
+  # Firebaseの環境変数をConfigMapに移動（セキュリティ上問題ないもののみ）
+  NEXT_PUBLIC_AUTHDOMAIN: "musp-8f9bd.firebaseapp.com" # Firebase Auth domain for frontend
+  NEXT_PUBLIC_STORAGEBUCKET: "musp-8f9bd.firebasestorage.app" # Firebase Storage bucket for frontend

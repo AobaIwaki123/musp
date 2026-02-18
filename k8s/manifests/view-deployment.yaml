@@ -30,8 +30,8 @@ spec:
             # Firebaseの環境変数
             - name: NEXT_PUBLIC_AUTHDOMAIN
               valueFrom:
-                secretKeyRef:
-                  name: musp-secret
+                configMapKeyRef:
+                  name: musp-config
                   key: NEXT_PUBLIC_AUTHDOMAIN
             - name: NEXT_PUBLIC_PROJECTID
               valueFrom:
@@ -40,8 +40,8 @@ spec:
                   key: GOOGLE_CLOUD_PROJECT
             - name: NEXT_PUBLIC_STORAGEBUCKET
               valueFrom:
-                secretKeyRef:
-                  name: musp-secret
+                configMapKeyRef:
+                  name: musp-config
                   key: NEXT_PUBLIC_STORAGEBUCKET
             - name: NEXT_PUBLIC_MESSAGINGSENDERID
               valueFrom:

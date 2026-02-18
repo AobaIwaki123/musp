@@ -7,7 +7,7 @@ import { GoogleAuthProvider } from "@firebase/auth";
 import { GoogleButton } from "../GoogleButton/GoogleButton";
 
 const firebaseConfig = {
-	apiKey: process.env.NEXT_PUBLIC_APIKEY,
+	apiKey: process.env.NEXT_PUBLIC_FIREBASE_APIKEY,
 	authDomain: process.env.NEXT_PUBLIC_AUTHDOMAIN,
 	projectId: process.env.NEXT_PUBLIC_PROJECTID,
 	storageBucket: process.env.NEXT_PUBLIC_STORAGEBUCKET,
