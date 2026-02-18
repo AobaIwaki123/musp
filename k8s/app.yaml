@@ -6,7 +6,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/AobaIwaki123/musp'
-    targetRevision: HEAD
+    targetRevision: deploy-on-gcp
     path: k8s/manifests
   destination:
     server: 'https://kubernetes.default.svc'

@@ -27,7 +27,7 @@ spec:
                 secretKeyRef:
                   name: musp-secret
                   key: MUSP_API_KEY
-            # Firebaseの環境変数
+            #  === Firebaseの環境変数 (ここから) ===
             - name: NEXT_PUBLIC_AUTHDOMAIN
               valueFrom:
                 configMapKeyRef:
@@ -58,6 +58,3 @@ spec:
                 secretKeyRef:
                   name: musp-secret
                   key: NEXT_PUBLIC_MEASUREMENTID
-            # API サーバーへのURL。k8s 内部通信のため、サービス名で指定
-            - name: NEXT_PUBLIC_API_URL
-              value: "http://musp-api:8000" 

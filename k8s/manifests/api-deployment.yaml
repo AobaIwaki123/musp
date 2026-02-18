@@ -44,7 +44,7 @@ spec:
               value: "musp_v3"
             # フロントエンドのURLを環境変数で指定
             - name: FRONTEND_URL
-              value: "http://musp.aooba.net"
+              value: "https://musp.aooba.net"
             # 処理後のデータを保存するCloud Storageのバケット名
             - name: BUCKET_NAME
               value: "musp-bucket"

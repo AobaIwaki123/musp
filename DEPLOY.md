@@ -24,7 +24,7 @@ gcloud auth configure-docker
 docker build \
   --platform linux/amd64 \
   -t gcr.io/my-docker-471807/musp-api:latest \
-  api/
+  api-v2/
 ```
 
 > **注**: GKEクラスタ（標準的なAMD64ノードを想定）との互換性を確保するため、`--platform linux/amd64` を指定しています。
@@ -55,7 +55,7 @@ Viewコンポーネント（Next.js）には、ビルド引数 `NEXT_PUBLIC_API_
 # 'YOUR_API_PUBLIC_URL' を実際のURL（例: http://34.x.x.x:8000）に置き換えてください
 docker build \
   --platform linux/amd64 \
-  --build-arg NEXT_PUBLIC_API_URL=http://musp-api.musp.svc.cluster.local \
+  --build-arg NEXT_PUBLIC_API_URL=http://musp-api:8000 \
   -t gcr.io/my-docker-471807/musp-view:latest \
   view/
 ```
