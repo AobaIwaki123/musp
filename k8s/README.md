@@ -21,12 +21,9 @@ kubectl apply -f k8s/secret.yaml
 ```
 
 ```sh
-$ kubectl create secret docker-registry gcr-pull-secret \
-  --docker-server=gcr.io \
-  --docker-username=_json_key \
-  --docker-password="$(cat ./secret/key.json)" \
-  --docker-email=unused@example.com \
-  --namespace=musp
+  kubectl create secret generic musp-secret -n musp \
+    --from-file=key.json=secret/musp-api-sa.json \
+    --dry-run=client -o yaml | kubectl apply -f -
 ```
 
 This secret is mounted to the API container at `/root/secret/key.json`.

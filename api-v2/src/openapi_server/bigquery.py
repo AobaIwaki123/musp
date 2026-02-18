@@ -5,7 +5,7 @@ from .config import settings
 from .models.post_video_response import PostVideoResponse
 
 def insert_user_video_table(user_id: str, video_id: str) -> PostVideoResponse:
-    client = bigquery.Client()
+    client = bigquery.Client(location=settings.BQ_LOCATION)
     table_ref = f"`{settings.PROJECT_ID}.{settings.DATASET_ID}.userID-videoID`"
 
     # Check existence
@@ -59,7 +59,7 @@ def insert_user_video_table(user_id: str, video_id: str) -> PostVideoResponse:
     )
 
 def insert_video_status(video_id: str, status: str = "PENDING"):
-    client = bigquery.Client()
+    client = bigquery.Client(location=settings.BQ_LOCATION)
     table_ref = f"`{settings.PROJECT_ID}.{settings.DATASET_ID}.videoID-status`"
     timestamp = datetime.datetime.utcnow()
 
@@ -91,7 +91,7 @@ def update_signed_url(video_id: str, url_type: str, url: str):
     Updates the signed URL in BQ.
     url_type: 'vocal' or 'inst'
     """
-    client = bigquery.Client()
+    client = bigquery.Client(location=settings.BQ_LOCATION)
     
     if url_type == "vocal":
         table_name = "videoID-vocalWavURL"
@@ -131,7 +131,7 @@ def is_video_status_exists(video_id: str) -> bool:
     """
     Checks if a video ID exists in the videoID-status table.
     """
-    client = bigquery.Client()
+    client = bigquery.Client(location=settings.BQ_LOCATION)
     table_ref = f"`{settings.PROJECT_ID}.{settings.DATASET_ID}.videoID-status`"
 
     query = f"SELECT COUNT(*) as count FROM {table_ref} WHERE videoID = @video_id"
@@ -146,7 +146,7 @@ def is_video_status_exists(video_id: str) -> bool:
     return exists
 
 def get_videos_by_user_id(user_id: str) -> list[dict]:
-    client = bigquery.Client()
+    client = bigquery.Client(location=settings.BQ_LOCATION)
     
     query = f"""
     SELECT

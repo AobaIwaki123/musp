@@ -66,7 +66,7 @@ class POSTApiImpl(BasePOSTApi):
     ) -> Union[PostUserResponse, ErrorResponse400]:
         try:
             # Implement user registration logic (simplified port from original)
-            client = bigquery.Client()
+            client = bigquery.Client(location=settings.BQ_LOCATION)
             table_ref = f"`{settings.PROJECT_ID}.{settings.DATASET_ID}.googleID-userID`"
             google_id = post_user_request.google_id
             
@@ -119,7 +119,7 @@ class POSTApiImpl(BasePOSTApi):
     ) -> Union[RefreshUrlsResponse, ErrorResponse400]:
         try:
             # Bulk refresh logic
-            client = bigquery.Client()
+            client = bigquery.Client(location=settings.BQ_LOCATION)
             # Fetch all videos that are COMPLETED (assuming only completed ones need URLs?)
             # Or just all videos in videoID-vocalWavURL / videoID-instWavURL?
             # Or assume we try to generate for all known videos.

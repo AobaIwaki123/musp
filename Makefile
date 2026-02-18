@@ -55,3 +55,22 @@ view-reload:
 	@echo "Restarting the view deployment in Kubernetes..."
 	@kubectl rollout restart deployment musp-view -n musp
 	@echo "View deployment restarted."
+
+api-deploy: api-build api-push api-reload
+
+api-build:
+	@echo "Building the API image..."
+	@docker build \
+  --platform linux/amd64 \
+  -t gcr.io/my-docker-471807/musp-api:latest \
+  api-v2/
+	@echo "API image built and tagged as gcr.io/my-docker-471807/musp-api:latest"
+
+api-push:
+	@echo "Pushing the API image to gcr.io/my-docker-471807"
+	@docker push gcr.io/my-docker-471807/musp-api:latest
+	@echo "API image pushed to gcr.io/my-docker-471807/musp-api:latest"
+
+api-reload:
+	@echo "Restarting the API deployment in Kubernetes..."
+	@kubectl rollout restart deployment musp-api -n musp
