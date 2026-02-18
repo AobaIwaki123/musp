@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: musp-api
+  namespace: musp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: musp-api
+  template:
+    metadata:
+      labels:
+        app: musp-api
+    spec:
+      imagePullSecrets:
+        - name: gcr-pull-secret
+      containers:
+        - name: musp-api
+          image: gcr.io/my-docker-471807/musp-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            # APIサーバーで使用するAPIキー
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: musp-secret
+                  key: MUSP_API_KEY
+            # 動画を処理するCloud RunサービスのURL
+            - name: WORKER_LAUNCHER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: musp-secret
+                  key: WORKER_LAUNCHER_URL
+            # Google CloudのプロジェクトIDを環境変数で指定
+            - name: GOOGLE_CLOUD_PROJECT
+              valueFrom:
+                configMapKeyRef:
+                  name: musp-config
+                  key: GOOGLE_CLOUD_PROJECT
+            # BigQueryのデータセットIDを環境変数で指定
+            - name: DATASET_ID
+              value: "musp_v3"
+            # フロントエンドのURLを環境変数で指定
+            - name: FRONTEND_URL
+              value: "https://musp.aooba.net"
+            # 処理後のデータを保存するCloud Storageのバケット名
+            - name: BUCKET_NAME
+              value: "musp-bucket"
+            # Google Cloudの認証情報を環境変数で指定
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/root/secret/key.json"
+          # Google Cloudの認証情報をSecretからボリュームマウント
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /root/secret
+              readOnly: true
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: musp-secret

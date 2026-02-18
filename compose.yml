@@ -14,60 +14,58 @@ services:
       - 3000:3000
     command: yarn dev
     env_file:
-      ./view/dev.env
+      ./view/.env
     
   api:
     build:
-      context: api
-      target: service
+      context: api-v2
     container_name: api
     volumes:
-      - ./api/src:/root/app
+      - ./api-v2/src:/root/app
       - ./secret:/root/secret
     ports:
-      - 8000:8000
-    command: uvicorn openapi_server.main:app --reload --host 0.0.0.0 --port 8000
+      - 8080:8080
     env_file:
-      ./api/dev.env
+      ./api-v2/.env
 
-  celery:
-    build:
-      context: api
-      target: service
-    container_name: celery
-    volumes:
-      - ./api/src:/root/app
-      - ./secret:/root/secret
-    command: watchmedo auto-restart --pattern="*.py" --recursive -- celery -A celery_server.celery_app worker --loglevel=info
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
-              count: all
-              driver: nvidia
-    env_file:
-      ./api/dev.env
-    depends_on:
-      - redis
+  # celery:
+  #   build:
+  #     context: api
+  #     target: service
+  #   container_name: celery
+  #   volumes:
+  #     - ./api/src:/root/app
+  #     - ./secret:/root/secret
+  #   command: watchmedo auto-restart --pattern="*.py" --recursive -- celery -A celery_server.celery_app worker --loglevel=info
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - capabilities: [gpu]
+  #             count: all
+  #             driver: nvidia
+  #   env_file:
+  #     ./api/dev.env
+  #   depends_on:
+  #     - redis
 
-  cron:
-    build:
-      context: api
-      target: service
-    container_name: cron
-    volumes:
-      - ./api/src:/root/app
-      - ./secret:/root/secret
-    environment:
-      - CRON_INTERVAL_MINUTE=60
-    command: python cron_job/refresh_wav_url.py
-    env_file:
-      ./api/dev.env
+  # cron:
+  #   build:
+  #     context: api
+  #     target: service
+  #   container_name: cron
+  #   volumes:
+  #     - ./api/src:/root/app
+  #     - ./secret:/root/secret
+  #   environment:
+  #     - CRON_INTERVAL_MINUTE=60
+  #   command: python cron_job/refresh_wav_url.py
+  #   env_file:
+  #     ./api/dev.env
 
-  redis:
-    image: redis:7.4
-    container_name: redis
-    ports:
-      - 6379:6379
+  # redis:
+  #   image: redis:7.4
+  #   container_name: redis
+  #   ports:
+  #     - 6379:6379
 

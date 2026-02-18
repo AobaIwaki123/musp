@@ -8,7 +8,7 @@ import { storage } from '@/helper/localStorageHelper';
 
 export function useVideoData() {
   const [videoDict, setVideoDict] = useState<Record<string, any>>({});
-  const apiKey = process.env.NEXT_PUBLIC_API_KEY ?? '';
+  const apiKey = process.env.NEXT_PUBLIC_MUSP_API_KEY ?? '';
 
   const reload = useCallback(() => {
     const userID = storage.get('userID', '');

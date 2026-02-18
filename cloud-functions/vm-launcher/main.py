@@ -1,0 +1,336 @@
+import datetime
+import logging
+import os
+from typing import Any, Dict, Optional, Tuple
+
+import functions_framework
+from google.cloud import bigquery
+from google.cloud import compute_v1
+
+# ロギング設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# 環境変数と定数定義
+PROJECT_ID = os.environ.get("PROJECT_ID") or os.environ.get("GOOGLE_CLOUD_PROJECT")
+# 複数のゾーンをカンマ区切りで指定（フォールバック対応）
+ZONES_STR = os.environ.get("ZONES", "asia-northeast1-a,asia-northeast1-c")
+ZONES = [z.strip() for z in ZONES_STR.split(",") if z.strip()]
+DATASET_ID = os.environ.get("DATASET_ID", "musp_v3")
+BUCKET_NAME = os.environ.get("BUCKET_NAME", "musp-audio-source")  # Default bucket name
+TABLE_NAME = "videoID-status"
+WORKER_IMAGE = os.environ.get("WORKER_IMAGE", f"gcr.io/{PROJECT_ID}/musp-worker:latest")
+WORKER_SA_EMAIL = os.environ.get("WORKER_SA_EMAIL")  # 指定がない場合はCompute EngineのデフォルトSAが使用されます
+
+@functions_framework.http
+def launch_worker_vm(request) -> Tuple[Dict[str, Any], int]:
+    """
+    Spot VMワーカーを起動するHTTP Cloud Function。
+
+    ペイロード:
+        {"trigger": "api" | "cron"}
+
+    ロジック:
+        1. 既にワーカーVMが実行中か確認する。実行中の場合は終了。
+        2. trigger == 'api' の場合: 即座にVMを起動。
+        3. trigger == 'cron' の場合:
+            - BigQueryで未完了のタスクがあるか確認。
+            - タスクがある場合のみVMを起動。
+    """
+    # 0. リクエストの解析
+    request_json = request.get_json(silent=True)
+    if not request_json:
+        return {"status": "error", "message": "Invalid JSON payload"}, 400
+    
+    trigger = request_json.get("trigger", "api") 
+    logger.info(f"リクエストを受信しました。トリガー: {trigger}")
+
+    # 1. 環境変数の検証
+    if not PROJECT_ID or not ZONES:
+        logger.error(f"必須環境変数が設定されていません: PROJECT_ID={PROJECT_ID}, ZONES={ZONES}")
+        return {"status": "error", "message": "Missing required environment variables"}, 500
+
+    logger.info(f"PROJECT_ID: {PROJECT_ID}, ZONES: {ZONES}, DATASET_ID: {DATASET_ID}, BUCKET_NAME: {BUCKET_NAME}")
+
+    # 2. 実行中のインスタンスを確認（重複起動を防止）
+    try:
+        if is_worker_running(PROJECT_ID, ZONES):
+            logger.info("ワーカーVMは既に実行中です。起動をスキップします。")
+            return {"status": "skipped", "reason": "Worker already running"}, 200
+    except ValueError as e:
+        logger.error(f"In is_worker_running: {e}")
+        return {"status": "error", "message": f"Invalid request parameters: {e}"}, 500
+    except Exception as e:
+        logger.error(f"Unexpected error in is_worker_running: {e}", exc_info=True)
+        return {"status": "error", "message": f"Internal server error: {e}"}, 500
+
+    # 2. 起動条件の評価
+    should_launch = False
+    
+    if trigger == "api":
+        logger.info("トリガーは 'api' です。即座に起動します。")
+        should_launch = True
+    elif trigger == "cron":
+        logger.info("トリガーは 'cron' です。条件を確認します...")
+        bq_client = bigquery.Client(project=PROJECT_ID)
+        
+        # 未完了タスク数の確認
+        incomplete_count = get_incomplete_tasks_count(bq_client, PROJECT_ID, DATASET_ID, TABLE_NAME)
+        logger.info(f"未完了タスク数: {incomplete_count}")
+        
+        if incomplete_count > 0:
+            logger.info("未完了タスクが見つかりました。起動します。")
+            should_launch = True
+        else:
+            logger.info("未完了タスクはありません。スキップします。")
+            
+    else:
+         return {"status": "error", "message": f"Unknown trigger: {trigger}"}, 400
+
+    # 3. 条件を満たした場合にVMを起動
+    if should_launch:
+        try:
+            instance_name, zone_used = launch_vm_with_fallback(
+                project_id=PROJECT_ID, 
+                zones=ZONES, 
+                image=WORKER_IMAGE, 
+                sa_email=WORKER_SA_EMAIL,
+                dataset_id=DATASET_ID,
+                bucket_name=BUCKET_NAME
+            )
+            logger.info(f"インスタンスを起動しました: {instance_name} (zone: {zone_used})")
+            return {"status": "launched", "instance": instance_name, "zone": zone_used}, 200
+        except Exception as e:
+            logger.error(f"VMの起動に失敗しました: {e}")
+            return {"status": "error", "message": str(e)}, 500
+    
+    return {"status": "skipped", "reason": "Conditions not met"}, 200
+
+
+def is_worker_running(project_id: str, zones: list[str]) -> bool:
+    """'musp-worker-' で始まるインスタンスが現在実行中かどうかを確認します（複数ゾーンをチェック）。"""
+    instance_client = compute_v1.InstancesClient()
+    
+    # サーバーサイドフィルタリングを使用して、メモリ使用量を削減します。
+    # name = "musp-worker-*" (プレフィックス一致) AND status がアクティブな状態
+    instance_filter = (
+        '(name = "musp-worker-*") AND '
+        '(status = "PROVISIONING" OR status = "STAGING" OR status = "RUNNING" OR status = "REPAIRING")'
+    )
+    
+    # 各ゾーンをチェック
+    for zone in zones:
+        request = compute_v1.ListInstancesRequest(
+            project=project_id, 
+            zone=zone,
+            filter=instance_filter
+        )
+        
+        # フィルタリングされた結果が1つでもあればTrueを返す
+        for _ in instance_client.list(request=request):
+            return True
+              
+    return False
+
+def get_incomplete_tasks_count(client: bigquery.Client, project_id: str, dataset_id: str, table_name: str) -> int:
+    """BigQueryから未完了タスク（status != 'COMPLETED'）の数を取得します。"""
+    query = f"""
+        SELECT COUNT(*) as count
+        FROM `{project_id}.{dataset_id}.{table_name}`
+        WHERE status != 'COMPLETED'
+    """
+    job = client.query(query)
+    result = job.result()
+    for row in result:
+        return row.count
+    return 0
+
+def launch_vm_with_fallback(project_id: str, zones: list[str], image: str, sa_email: Optional[str], dataset_id: str, bucket_name: str) -> Tuple[str, str]:
+    """複数のゾーンを試行してSpot VMを起動します。
+    
+    Returns:
+        Tuple[str, str]: (instance_name, zone_used)
+    
+    Raises:
+        Exception: すべてのゾーンで起動に失敗した場合
+    """
+    last_error = None
+    
+    for idx, zone in enumerate(zones, 1):
+        try:
+            logger.info(f"ゾーン {zone} でVMの起動を試行中... ({idx}/{len(zones)})")
+            instance_name = launch_vm(
+                project_id=project_id,
+                zone=zone,
+                image=image,
+                sa_email=sa_email,
+                dataset_id=dataset_id,
+                bucket_name=bucket_name
+            )
+            logger.info(f"ゾーン {zone} でVMの起動に成功しました: {instance_name}")
+            return instance_name, zone
+        except Exception as e:
+            error_str = str(e)
+            logger.warning(f"ゾーン {zone} でVMの起動に失敗しました: {error_str}")
+            
+            # リソース枯渇エラーの場合は次のゾーンを試行
+            if "ZONE_RESOURCE_POOL_EXHAUSTED" in error_str or "STOCKOUT" in error_str:
+                logger.info(f"ゾーン {zone} でリソースが不足しています。次のゾーンを試行します...")
+                last_error = e
+                continue
+            else:
+                # その他のエラーの場合は即座に失敗
+                logger.error(f"予期しないエラーが発生しました: {error_str}")
+                raise
+    
+    # すべてのゾーンで失敗した場合
+    error_msg = f"すべてのゾーン {zones} でVMの起動に失敗しました。最後のエラー: {last_error}"
+    logger.error(error_msg)
+    raise Exception(error_msg)
+
+def launch_vm(project_id: str, zone: str, image: str, sa_email: Optional[str], dataset_id: str, bucket_name: str) -> str:
+    """指定されたゾーンでSpot VMを起動します。"""
+    instance_client = compute_v1.InstancesClient()
+    
+    timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    instance_name = f"musp-worker-{timestamp}"
+    
+    machine_type = f"zones/{zone}/machineTypes/n1-standard-4"
+    accelerator_type = f"zones/{zone}/acceleratorTypes/nvidia-tesla-t4"
+    
+    # startup-script: GPUドライバをインストールしてからコンテナを起動
+    # gce-container-declarationは使わず、startup-scriptで直接docker runを実行
+    startup_script = f"""#!/bin/bash
+set -ex
+
+echo "=== Starting GPU Worker Setup ==="
+
+# 1. GPUドライバのインストール
+echo "Installing GPU drivers..."
+cos-extensions install gpu
+
+# 2. ドライバのインストール完了を待機
+echo "Waiting for nvidia-smi..."
+for i in $(seq 1 60); do
+    if /var/lib/nvidia/bin/nvidia-smi > /dev/null 2>&1; then
+        echo "GPU driver ready!"
+        /var/lib/nvidia/bin/nvidia-smi
+        break
+    fi
+    echo "Waiting... ($i/60)"
+    sleep 5
+done
+
+# 3. デバイスファイルの存在確認
+if [ ! -e /dev/nvidia0 ]; then
+    echo "ERROR: /dev/nvidia0 not found after driver installation"
+    exit 1
+fi
+
+echo "GPU devices found:"
+ls -la /dev/nvidia*
+
+# 4. NVIDIA Container Toolkit の設定 (COS用)
+echo "Configuring NVIDIA container runtime..."
+mkdir -p /etc/nvidia-container-runtime
+cat > /etc/nvidia-container-runtime/config.toml << 'NVIDIA_CONFIG'
+[nvidia-container-cli]
+root = "/var/lib/nvidia"
+path = "/var/lib/nvidia/bin/nvidia-container-cli"
+ldconfig = "@/var/lib/nvidia/bin/ldconfig.real"
+NVIDIA_CONFIG
+
+# 5. Docker認証 (メタデータサーバーからトークンを取得)
+echo "Authenticating with GCR..."
+export HOME=/var/lib/docker
+mkdir -p $HOME/.docker 2>/dev/null || true
+
+# メタデータサーバーからアクセストークンを取得してdocker loginを実行
+ACCESS_TOKEN=$(curl -s -H "Metadata-Flavor: Google" \\
+    "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | \\
+    python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+
+echo "$ACCESS_TOKEN" | docker login -u oauth2accesstoken --password-stdin https://gcr.io
+echo "$ACCESS_TOKEN" | docker login -u oauth2accesstoken --password-stdin https://asia.gcr.io
+
+# 6. コンテナイメージをPull
+echo "Pulling container image: {image}"
+docker pull {image}
+
+# 7. コンテナを起動 (GPUアクセス付き)
+echo "Starting worker container with GPU access..."
+docker run --rm \\
+    --name musp-worker \\
+    --privileged \\
+    --network host \\
+    --volume /var/lib/nvidia:/var/lib/nvidia:ro \\
+    --device /dev/nvidia0:/dev/nvidia0 \\
+    --device /dev/nvidiactl:/dev/nvidiactl \\
+    --device /dev/nvidia-uvm:/dev/nvidia-uvm \\
+    --device /dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools \\
+    -e GOOGLE_CLOUD_PROJECT={project_id} \\
+    -e DATASET_ID={dataset_id} \\
+    -e BUCKET_NAME={bucket_name} \\
+    -e MAX_WORKERS=2 \\
+    -e LD_LIBRARY_PATH=/var/lib/nvidia/lib64 \\
+    -e PATH=/var/lib/nvidia/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \\
+    -e NVIDIA_VISIBLE_DEVICES=all \\
+    -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \\
+    -e GCE_METADATA_HOST=metadata.google.internal \\
+    -e GCE_METADATA_IP=169.254.169.254 \\
+    {image}
+
+echo "=== Worker container finished ==="
+"""
+
+    config = {
+        "name": instance_name,
+        "machine_type": machine_type,
+        "scheduling": {
+            "provisioning_model": "SPOT", 
+            "on_host_maintenance": "TERMINATE",
+            "automatic_restart": False
+        },
+        "guest_accelerators": [{
+            "accelerator_type": accelerator_type,
+            "accelerator_count": 1
+        }],
+        "disks": [{
+            "boot": True,
+            "auto_delete": True,
+            "initialize_params": {
+                "source_image": "projects/cos-cloud/global/images/family/cos-stable",
+                "disk_size_gb": 50
+            }
+        }],
+        "network_interfaces": [{
+            "network": "global/networks/default",
+            "access_configs": [{"type": "ONE_TO_ONE_NAT", "name": "External NAT"}]
+        }],
+        "metadata": {
+            "items": [
+                {
+                    "key": "google-logging-enabled",
+                    "value": "true"
+                },
+                {
+                    "key": "startup-script",
+                    "value": startup_script
+                }
+            ]
+        },
+        "service_accounts": [{
+            "email": sa_email if sa_email else "default",
+            "scopes": ["https://www.googleapis.com/auth/cloud-platform"]
+        }]
+    }
+
+    operation = instance_client.insert(
+        project=project_id,
+        zone=zone,
+        instance_resource=config
+    )
+    
+    operation.result()
+    return instance_name
+

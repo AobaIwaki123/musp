@@ -1,0 +1,26 @@
+[
+  {
+    "name": "videoID",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "YouTube 動画 ID"
+  },
+  {
+    "name": "wavURL",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "GCS 署名付き URL (ボーカル音声)"
+  },
+  {
+    "name": "createdAt",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "作成日時"
+  },
+  {
+    "name": "updatedAt",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "URL更新日時"
+  }
+]

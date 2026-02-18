@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: musp-api
+  namespace: musp
+spec:
+  type: ClusterIP  # 明示的に指定（デフォルトなので省略可）
+  selector:
+    app: musp-api
+  ports:
+  - port: 80
+    targetPort: 8080

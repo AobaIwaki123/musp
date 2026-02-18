@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: musp-config
+  namespace: musp
+data:
+  # Add shared environment variables here if necessary
+  GOOGLE_CLOUD_PROJECT: "musp-485206"

@@ -38,3 +38,4 @@ FROM base AS service
 WORKDIR /root/app
 COPY --from=builder /venv /venv
 ENV PATH=/venv/bin:$PATH
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
