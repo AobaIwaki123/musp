@@ -35,11 +35,20 @@ k8s-secret:
 	@cp k8s/secret.template.yaml k8s/secret.yaml
 	@echo "k8s/secret.yaml created. Please edit it with your secrets."
 
-build-view:
-	@docker build --build-arg NEXT_PUBLIC_API_URL=https://musp-api.aooba.net \
-	-t gcr.io/my-docker-471807/musp-view:latest view/
+view-deploy: view-build view-push view-reload
+
+view-build:
+	@docker build \
+  --platform linux/amd64 \
+  --build-arg NEXT_PUBLIC_API_URL=https://musp-api.aooba.net \
+  -t gcr.io/my-docker-471807/musp-view:latest \
+  view/
 	@echo "View image built and tagged as gcr.io/my-docker-471807/musp-view:latest"
 
-push-view:
+view-push:
 	@docker push gcr.io/my-docker-471807/musp-view:latest
 	@echo "View image pushed to gcr.io/my-docker-471807/musp-view:latest"
+
+view-reload:
+	@kubectl rollout restart deployment musp-view -n musp
+	@echo "View deployment restarted."
