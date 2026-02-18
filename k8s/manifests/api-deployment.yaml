@@ -19,7 +19,7 @@ spec:
         - name: musp-api
           image: gcr.io/my-docker-471807/musp-api:latest
           ports:
-            - containerPort: 8000
+            - containerPort: 8080
           env:
             # APIサーバーで使用するAPIキー
             - name: MUSP_API_KEY

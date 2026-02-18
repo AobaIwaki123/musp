@@ -38,6 +38,7 @@ k8s-secret:
 view-deploy: view-build view-push view-reload
 
 view-build:
+	@echo "Building the view image..."
 	@docker build \
   --platform linux/amd64 \
   $(shell grep -v '^\#' view/.env.production | sed 's/^/--build-arg /' | tr '\n' ' ') \
@@ -46,9 +47,11 @@ view-build:
 	@echo "View image built and tagged as gcr.io/my-docker-471807/musp-view:latest"
 
 view-push:
+	@echo "Pushing the view image to gcr.io/my-docker-471807/musp-view:latest..."
 	@docker push gcr.io/my-docker-471807/musp-view:latest
 	@echo "View image pushed to gcr.io/my-docker-471807/musp-view:latest"
 
 view-reload:
+	@echo "Restarting the view deployment in Kubernetes..."
 	@kubectl rollout restart deployment musp-view -n musp
 	@echo "View deployment restarted."
