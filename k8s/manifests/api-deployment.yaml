@@ -22,7 +22,7 @@ spec:
             - containerPort: 8080
           env:
             # APIサーバーで使用するAPIキー
-            - name: MUSP_API_KEY
+            - name: API_KEY
               valueFrom:
                 secretKeyRef:
                   name: musp-secret
