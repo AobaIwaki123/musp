@@ -40,7 +40,7 @@ view-deploy: view-build view-push view-reload
 view-build:
 	@docker build \
   --platform linux/amd64 \
-  --build-arg NEXT_PUBLIC_API_URL=https://musp-api.aooba.net \
+  $(shell grep -v '^\#' view/.env.production | sed 's/^/--build-arg /' | tr '\n' ' ') \
   -t gcr.io/my-docker-471807/musp-view:latest \
   view/
 	@echo "View image built and tagged as gcr.io/my-docker-471807/musp-view:latest"
