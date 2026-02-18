@@ -34,6 +34,7 @@ def fetch_source(video_id: str, youtube_url: str, work_dir: str) -> str:
     # Download using yt-dlp
     cmd = [
         "yt-dlp",
+        "--js-runtimes", "node",
         "--extract-audio",
         "--audio-format", "best",
         "--output", str(out_path),
