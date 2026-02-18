@@ -21,15 +21,24 @@ spec:
           ports:
             - containerPort: 8000
           env:
+            - name: MUSP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: musp-secret
+                  key: MUSP_API_KEY
             - name: GOOGLE_CLOUD_PROJECT
               valueFrom:
                 configMapKeyRef:
                   name: musp-config
-                  key: PROJECT_ID
+                  key: GOOGLE_CLOUD_PROJECT
             - name: DATASET_ID
               value: "musp_v3"
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: "/root/secret/key.json"
+            - name: FRONTEND_URL
+              value: "http://musp.aooba.net"
+            - name: BUCKET_NAME
+              value: "musp-bucket"
           volumeMounts:
             - name: google-cloud-key
               mountPath: /root/secret

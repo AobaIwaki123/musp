@@ -8,10 +8,10 @@ if (!apiURL) {
 
 export const api = createApiClient(apiURL);
 
-// const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+// const apiKey = process.env.NEXT_PUBLIC_MUSP_API_KEY;
 // 
 // if (!apiKey) {
-//   throw new Error('NEXT_PUBLIC_API_KEY is required');
+//   throw new Error('NEXT_PUBLIC_MUSP_API_KEY is required');
 // }
 
 // TODO: リクエストヘッダーに自動的にAPIキーを付与する

@@ -3,7 +3,7 @@ import { api } from '@/client/api';
 import type { PostUserRequestType } from '@/client/client';
 import { storage } from '@/helper/localStorageHelper';
 
-const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+const apiKey = process.env.NEXT_PUBLIC_MUSP_API_KEY;
 
 export const signInOrUp = async (firebaseUser: FirebaseUser) => {
   try {

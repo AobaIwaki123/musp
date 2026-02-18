@@ -20,3 +20,44 @@ spec:
           image: gcr.io/my-docker-471807/musp-view:latest
           ports:
             - containerPort: 3000
+          env:
+            # フロントエンドで使用するAPIキー
+            - name: NEXT_PUBLIC_MUSP_API_KEY 
+              valueFrom:
+                secretKeyRef:
+                  name: musp-secret
+                  key: MUSP_API_KEY
+            # Firebaseの環境変数
+            - name: NEXT_PUBLIC_AUTHDOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: musp-secret
+                  key: NEXT_PUBLIC_AUTHDOMAIN
+            - name: NEXT_PUBLIC_PROJECTID
+              valueFrom:
+                configMapKeyRef:
+                  name: musp-config
+                  key: GOOGLE_CLOUD_PROJECT
+            - name: NEXT_PUBLIC_STORAGEBUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: musp-secret
+                  key: NEXT_PUBLIC_STORAGEBUCKET
+            - name: NEXT_PUBLIC_MESSAGINGSENDERID
+              valueFrom:
+                secretKeyRef:
+                  name: musp-secret
+                  key: NEXT_PUBLIC_MESSAGINGSENDERID
+            - name: NEXT_PUBLIC_APPID
+              valueFrom:
+                secretKeyRef:
+                  name: musp-secret
+                  key: NEXT_PUBLIC_APPID
+            - name: NEXT_PUBLIC_MEASUREMENTID
+              valueFrom:
+                secretKeyRef:
+                  name: musp-secret
+                  key: NEXT_PUBLIC_MEASUREMENTID
+            # API サーバーへのURL。k8s 内部通信のため、サービス名で指定
+            - name: NEXT_PUBLIC_API_URL
+              value: "http://musp-api:8000" 

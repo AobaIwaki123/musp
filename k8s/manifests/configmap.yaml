@@ -5,4 +5,4 @@ metadata:
   namespace: musp
 data:
   # Add shared environment variables here if necessary
-  PROJECT_ID: "my-docker-471807" # Placeholder, update actual Project ID
+  GOOGLE_CLOUD_PROJECT: "musp-8f9bd"

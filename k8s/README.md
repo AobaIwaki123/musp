@@ -15,9 +15,9 @@ kubectl apply -f k8s/manifests/namespace.yaml
 Create a Kubernetes secret for the GCP Service Account key.
 
 ```bash
-kubectl create secret generic musp-secret \
-  --from-file=key.json=secret/musp-api-sa.json \
-  --namespace=musp
+make secret # secret.template.yamlからsecret.yamlを生成
+# Secretを埋める
+kubectl apply -f k8s/manifests/secret.yaml
 ```
 
 This secret is mounted to the API container at `/root/secret/key.json`.

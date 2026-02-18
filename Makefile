@@ -75,3 +75,7 @@ push-worker:
 
 test-worker:
 	curl -X POST https://asia-northeast1-musp-485206.cloudfunctions.net/vm-launcher -H "Content-Type: application/json" -d '{"trigger": "api"}'
+
+k8s-secret:
+	@cp k8s/secret.template.yaml k8s/secret.yaml
+	@echo "k8s/secret.yaml created. Please edit it with your secrets."
