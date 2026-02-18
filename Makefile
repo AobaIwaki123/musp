@@ -1,48 +1,3 @@
-build:
-	@echo "Building..."
-	@docker compose build
-	@echo "Built"
-
-prod-build:
-	@echo "Building..."
-	@docker compose -f compose.prod.yml build
-	@echo "Built"
-
-up:
-	@echo "Starting..."
-	@docker compose up -d
-	@echo "Started"
-
-prod-up:
-	@echo "Starting..."
-	@docker compose -f compose.prod.yml up -d
-	@echo "Started"
-
-down:
-	@echo "Stopping..."
-	@docker compose down
-	@echo "Stopped"
-
-prod-down:
-	@echo "Stopping..."
-	@docker compose -f compose.prod.yml down
-	@echo "Stopped"
-
-restart:
-	@echo "Restarting..."
-	@docker compose down
-	@docker compose up -d
-	@echo "Restarted"
-
-prod-restart:
-	@echo "Restarting..."
-	@docker compose -f compose.prod.yml down
-	@docker compose -f compose.prod.yml up -d
-	@echo "Restarted"
-	
-logs:
-	@docker compose logs -f
-
 lint-ts:
 	@docker -v ./view/:/code ghcr.io/biomejs/biome:1.9.4 lint
 
@@ -79,3 +34,12 @@ test-worker:
 k8s-secret:
 	@cp k8s/secret.template.yaml k8s/secret.yaml
 	@echo "k8s/secret.yaml created. Please edit it with your secrets."
+
+build-view:
+	@docker build --build-arg NEXT_PUBLIC_API_URL=https://musp-api.aooba.net \
+	-t gcr.io/my-docker-471807/musp-view:latest view/
+	@echo "View image built and tagged as gcr.io/my-docker-471807/musp-view:latest"
+
+push-view:
+	@docker push gcr.io/my-docker-471807/musp-view:latest
+	@echo "View image pushed to gcr.io/my-docker-471807/musp-view:latest"

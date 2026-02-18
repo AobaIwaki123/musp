@@ -21,6 +21,19 @@ const nextConfig = {
 		optimizePackageImports: ["@mantine/core", "@mantine/hooks"],
 	},
 	output: "standalone",
+	async headers() {
+		return [
+			{
+				source: "/(.*)",
+				headers: [
+					{
+						key: "Cross-Origin-Opener-Policy",
+						value: "same-origin-allow-popups",
+					},
+				],
+			},
+		];
+	},
 };
 
 // `withPWA` と `withBundleAnalyzer` を組み合わせる
